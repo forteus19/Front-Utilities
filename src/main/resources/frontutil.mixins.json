@@ -1,0 +1,9 @@
+{
+  "required": true,
+  "package": "red.vuis.frontutil.mixin",
+  "mixins": [
+    "FallingArtilleryMapEffectAccessor",
+    "MapAssetMixin",
+    "ParticleEmitterMapEffectAccessor"
+  ]
+}
