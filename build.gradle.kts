@@ -13,6 +13,7 @@ repositories {
 }
 
 dependencies {
+    compileOnly(files("bflib-0.7.0.10b.jar"))
 }
 
 neoForge {

@@ -1,0 +1,101 @@
+package red.vuis.frontutil.command;
+
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import com.boehmod.blockfront.assets.AssetCommandBuilder;
+import com.boehmod.blockfront.assets.AssetCommandValidators;
+import com.boehmod.blockfront.util.BFAdminUtils;
+import com.boehmod.blockfront.util.BFStyles;
+import net.minecraft.commands.CommandSource;
+import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.Nullable;
+
+import red.vuis.frontutil.util.AddonUtils;
+
+public final class AddonCommands {
+	private AddonCommands() {
+	}
+
+	public static <T> AssetCommandBuilder genericList(Supplier<Component> noneMessage, Supplier<Component> headerMessage, List<T> items, Function<? super T, String> infoFunc) {
+		return new AssetCommandBuilder((context, args) -> {
+			CommandSource source = context.getSource().source;
+
+			if (items.isEmpty()) {
+				BFAdminUtils.sendBfa(source, noneMessage.get());
+				return;
+			}
+
+			BFAdminUtils.sendBfa(source, headerMessage.get());
+
+			for (int i = 0; i < items.size(); i++) {
+				T item = items.get(i);
+				BFAdminUtils.sendBfa(source, Component.literal(String.format("%d: %s", i, infoFunc.apply(item))));
+			}
+		});
+	}
+
+	public static <T> AssetCommandBuilder genericList(@Nullable Supplier<String> name, String noneMessage, String headerMessage, List<T> items, Function<? super T, String> infoFunc) {
+		if (name != null) {
+			Supplier<Component> nameComponent = () -> Component.literal(name.get()).withStyle(BFStyles.LIME);
+			return genericList(
+				() -> Component.translatable(noneMessage, nameComponent.get()),
+				() -> Component.translatable(headerMessage, nameComponent.get()),
+				items, infoFunc
+			);
+		} else {
+			return genericList(
+				() -> Component.translatable(noneMessage),
+				() -> Component.translatable(headerMessage),
+				items, infoFunc
+			);
+		}
+	}
+
+	public static <T> AssetCommandBuilder genericList(String noneMessage, String headerMessage, List<T> items, Function<? super T, String> infoFunc) {
+		return genericList(null, noneMessage, headerMessage, items, infoFunc);
+	}
+
+	public static AssetCommandBuilder genericRemove(Function<Component, Component> successMessage, List<?> items) {
+		return new AssetCommandBuilder((context, args) -> {
+			CommandSource source = context.getSource().source;
+
+			var index = AddonUtils.parse(Integer::valueOf, args[0]);
+			if (index.isEmpty()) {
+				BFAdminUtils.sendBfa(source, Component.translatable("frontutil.message.command.error.index.number"));
+				return;
+			}
+
+			Component indexComponent = Component.literal(Integer.toString(index.get())).withStyle(BFStyles.LIME);
+			if (index.get() < 0 || index.get() >= items.size()) {
+				BFAdminUtils.sendBfa(source, Component.translatable("frontutil.message.command.error.index.bounds", indexComponent));
+				return;
+			}
+
+			items.remove((int) index.get());
+			BFAdminUtils.sendBfa(source, successMessage.apply(indexComponent));
+		}).validator(
+			AssetCommandValidators.count(new String[]{"index"})
+		);
+	}
+
+	public static AssetCommandBuilder genericRemove(@Nullable Supplier<String> name, String successMessage, List<?> items) {
+		if (name != null) {
+			Supplier<Component> nameComponent = () -> Component.literal(name.get()).withStyle(BFStyles.LIME);
+			return genericRemove(
+				indexComponent -> Component.translatable(successMessage, indexComponent, nameComponent.get()),
+				items
+			);
+		} else {
+			return genericRemove(
+				indexComponent -> Component.translatable(successMessage, indexComponent),
+				items
+			);
+		}
+	}
+
+	public static AssetCommandBuilder genericRemove(String successMessage, List<?> items) {
+		return genericRemove(null, successMessage, items);
+	}
+}

@@ -2,6 +2,8 @@
   "required": true,
   "package": "red.vuis.frontutil.mixin",
   "mixins": [
+    "ConquestGameMixin",
+    "DominationGameMixin",
     "FallingArtilleryMapEffectAccessor",
     "MapAssetMixin",
     "ParticleEmitterMapEffectAccessor"

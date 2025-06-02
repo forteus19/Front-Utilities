@@ -1,12 +1,16 @@
 {
-  "frontutil.message.command.error.args.count": "Missing arguments! Arguments must be one of the following:",
-  "frontutil.message.command.error.index.bounds": "Index %d is out of bounds!",
-  "frontutil.message.command.error.index.number": "Index must be a number!",
-  "frontutil.message.command.mapEffect.add.loopingSoundPoint.error": "Failed to add looping sound point map effect for map '%s'.",
-  "frontutil.message.command.mapEffect.add.loopingSoundPoint.success": "Successfully added looping sound point map effect for map '%s'.",
-  "frontutil.message.command.mapEffect.add.particleEmitter.error": "Failed to add particle emitter map effect for map '%s'.",
-  "frontutil.message.command.mapEffect.add.particleEmitter.success": "Successfully added particle emitter map effect for map '%s'.",
-  "frontutil.message.command.mapEffect.list.header": "Map effects for map '%s':",
-  "frontutil.message.command.mapEffect.list.none": "Map '%s' has no map effects.",
-  "frontutil.message.command.mapEffect.remove.success": "Removed map effect at index %d for map '%s'."
+	"frontutil.message.command.error.args.count": "Missing arguments! Arguments must be one of the following:",
+	"frontutil.message.command.error.index.bounds": "Index %s is out of bounds!",
+	"frontutil.message.command.error.index.number": "Index must be a number!",
+	"frontutil.message.command.game.apoint.list.header": "Ammo points:",
+	"frontutil.message.command.game.apoint.list.none": "This game has no ammo points.",
+	"frontutil.message.command.game.cpoint.list.header": "Capture points:",
+	"frontutil.message.command.game.cpoint.list.none": "This game has no capture points.",
+	"frontutil.message.command.mapEffect.add.loopingSoundPoint.error": "Failed to add looping sound point map effect for map '%s'.",
+	"frontutil.message.command.mapEffect.add.loopingSoundPoint.success": "Successfully added looping sound point map effect for map '%s'.",
+	"frontutil.message.command.mapEffect.add.particleEmitter.error": "Failed to add particle emitter map effect for map '%s'.",
+	"frontutil.message.command.mapEffect.add.particleEmitter.success": "Successfully added particle emitter map effect for map '%s'.",
+	"frontutil.message.command.mapEffect.list.header": "Map effects for map '%s':",
+	"frontutil.message.command.mapEffect.list.none": "Map '%s' has no map effects.",
+	"frontutil.message.command.mapEffect.remove.success": "Removed map effect at index %s for map '%s'."
 }
