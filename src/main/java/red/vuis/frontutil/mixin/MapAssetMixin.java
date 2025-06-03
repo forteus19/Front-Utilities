@@ -19,9 +19,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import red.vuis.frontutil.command.AddonCommands;
-import red.vuis.frontutil.command.InfoFunctions;
-import red.vuis.frontutil.command.MapEffectCommands;
+import red.vuis.frontutil.command.bf.AddonAssetCommands;
+import red.vuis.frontutil.command.bf.InfoFunctions;
+import red.vuis.frontutil.command.bf.MapEffectCommands;
 
 @Mixin(MapAsset.class)
 public abstract class MapAssetMixin {
@@ -45,7 +45,7 @@ public abstract class MapAssetMixin {
 	private void addMapEffectCommands(String par1, String par2, DivisionData par3, DivisionData par4, CallbackInfo ci) {
 		AssetCommandBuilder baseCommand = command.subCommands.get("mapEffect");
 		
-		baseCommand.subCommand("list", AddonCommands.genericList(
+		baseCommand.subCommand("list", AddonAssetCommands.genericList(
 			this::getName,
 			"frontutil.message.command.mapEffect.list.none",
 			"frontutil.message.command.mapEffect.list.header",
@@ -53,7 +53,7 @@ public abstract class MapAssetMixin {
 			InfoFunctions::mapEffect
 		));
 		
-		baseCommand.subCommand("remove", AddonCommands.genericRemove(
+		baseCommand.subCommand("remove", AddonAssetCommands.genericRemove(
 			this::getName,
 			"frontutil.message.command.mapEffect.remove.success",
 			mapEffects

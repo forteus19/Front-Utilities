@@ -1,4 +1,4 @@
-package red.vuis.frontutil.command;
+package red.vuis.frontutil.command.bf;
 
 import com.boehmod.blockfront.client.mapeffect.AbstractMapEffect;
 import com.boehmod.blockfront.client.mapeffect.FallingArtilleryMapEffect;

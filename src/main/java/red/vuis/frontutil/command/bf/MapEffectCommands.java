@@ -1,4 +1,4 @@
-package red.vuis.frontutil.command;
+package red.vuis.frontutil.command.bf;
 
 import com.boehmod.blockfront.client.mapeffect.LoopingSoundPointMapEffect;
 import com.boehmod.blockfront.client.mapeffect.ParticleEmitterMapEffect;

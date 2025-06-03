@@ -1,4 +1,4 @@
-package red.vuis.frontutil.command;
+package red.vuis.frontutil.command.bf;
 
 import java.util.List;
 import java.util.function.BiFunction;
@@ -12,19 +12,21 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
+import red.vuis.frontutil.util.CommandUtils;
+
 public final class GameCommands {
 	private GameCommands() {
 	}
 	
 	public static <T extends AbstractCapturePoint<?>> void capturePointCommands(AssetCommandBuilder base, List<T> capturePoints, BiFunction<Player, String, T> constructor) {
-		base.subCommand("list", AddonCommands.genericList(
+		base.subCommand("list", AddonAssetCommands.genericList(
 			"frontutil.message.command.game.cpoint.list.none",
 			"frontutil.message.command.game.cpoint.list.header",
 			capturePoints,
 			InfoFunctions::capturePoint
 		));
 		
-		base.subCommand("remove", AddonCommands.genericRemove(
+		base.subCommand("remove", AddonAssetCommands.genericRemove(
 			"frontutil.message.command.game.cpoint.remove.success",
 			capturePoints
 		));
@@ -41,12 +43,12 @@ public final class GameCommands {
 	
 	public static <T extends AbstractCapturePoint<?>> AssetCommandBuilder insertCapturePoint(List<T> capturePoints, BiFunction<Player, String, T> constructor) {
 		return new AssetCommandBuilder((context, args) -> {
-			ServerPlayer player = AddonCommands.getContextPlayer(context);
+			ServerPlayer player = CommandUtils.getContextPlayer(context);
 			if (player == null) {
 				return;
 			}
 			
-			var indexParse = AddonCommands.parseIndex(player, args[0], capturePoints, true);
+			var indexParse = AddonAssetCommands.parseIndex(player, args[0], capturePoints, true);
 			if (indexParse == null) {
 				return;
 			}
@@ -65,7 +67,7 @@ public final class GameCommands {
 		return new AssetCommandBuilder((context, args) -> {
 			CommandSource source = context.getSource().source;
 			
-			var indexParse = AddonCommands.parseIndex(source, args[0], capturePoints, true);
+			var indexParse = AddonAssetCommands.parseIndex(source, args[0], capturePoints, true);
 			if (indexParse == null) {
 				return;
 			}

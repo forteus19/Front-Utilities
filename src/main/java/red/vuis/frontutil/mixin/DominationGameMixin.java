@@ -15,9 +15,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import red.vuis.frontutil.command.AddonCommands;
-import red.vuis.frontutil.command.GameCommands;
-import red.vuis.frontutil.command.InfoFunctions;
+import red.vuis.frontutil.command.bf.AddonAssetCommands;
+import red.vuis.frontutil.command.bf.GameCommands;
+import red.vuis.frontutil.command.bf.InfoFunctions;
 
 @Mixin(DominationGame.class)
 public abstract class DominationGameMixin {
@@ -44,14 +44,14 @@ public abstract class DominationGameMixin {
 		
 		AssetCommandBuilder apointCommand = command.subCommands.get("apoint");
 		
-		apointCommand.subCommand("list", AddonCommands.genericList(
+		apointCommand.subCommand("list", AddonAssetCommands.genericList(
 			"frontutil.message.command.game.apoint.list.none",
 			"frontutil.message.command.game.apoint.list.header",
 			field_3389,
 			InfoFunctions::pose
 		));
 		
-		apointCommand.subCommand("remove", AddonCommands.genericRemove(
+		apointCommand.subCommand("remove", AddonAssetCommands.genericRemove(
 			"frontutil.message.command.game.apoint.remove.success",
 			field_3389
 		));

@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import red.vuis.frontutil.command.GameCommands;
+import red.vuis.frontutil.command.bf.GameCommands;
 
 @Mixin(ConquestGame.class)
 public abstract class ConquestGameMixin {

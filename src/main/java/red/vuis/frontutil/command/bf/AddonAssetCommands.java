@@ -1,4 +1,4 @@
-package red.vuis.frontutil.command;
+package red.vuis.frontutil.command.bf;
 
 import java.util.Collection;
 import java.util.List;
@@ -9,29 +9,16 @@ import com.boehmod.blockfront.assets.AssetCommandBuilder;
 import com.boehmod.blockfront.assets.AssetCommandValidators;
 import com.boehmod.blockfront.util.BFAdminUtils;
 import com.boehmod.blockfront.util.BFStyles;
-import com.mojang.brigadier.context.CommandContext;
 import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
 import it.unimi.dsi.fastutil.ints.IntObjectPair;
 import net.minecraft.commands.CommandSource;
-import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.Nullable;
 
 import red.vuis.frontutil.util.AddonUtils;
 
-public final class AddonCommands {
-	private AddonCommands() {
-	}
-	
-	public static @Nullable ServerPlayer getContextPlayer(CommandContext<CommandSourceStack> context) {
-		CommandSourceStack stack = context.getSource();
-		ServerPlayer player = stack.getPlayer();
-		if (player == null) {
-			stack.source.sendSystemMessage(Component.translatable("frontutil.message.command.error.player"));
-			return null;
-		}
-		return player;
+public final class AddonAssetCommands {
+	private AddonAssetCommands() {
 	}
 	
 	public static @Nullable IntObjectPair<Component> parseIndex(CommandSource source, String arg, Collection<?> items, boolean includeEnd) {
