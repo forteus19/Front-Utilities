@@ -27,12 +27,5 @@
         <option name="USE_TAB_CHARACTER" value="true" />
       </indentOptions>
     </codeStyleSettings>
-    <codeStyleSettings language="JSON">
-      <indentOptions>
-        <option name="CONTINUATION_INDENT_SIZE" value="2" />
-        <option name="TAB_SIZE" value="2" />
-        <option name="USE_TAB_CHARACTER" value="true" />
-      </indentOptions>
-    </codeStyleSettings>
   </code_scheme>
 </component>

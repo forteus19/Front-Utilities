@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface FallingArtilleryMapEffectAccessor {
 	@Accessor("field_3050")
 	Vec2 getMin();
-
+	
 	@Accessor("field_3051")
 	Vec2 getMax();
 }

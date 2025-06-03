@@ -12,12 +12,12 @@ import red.vuis.frontutil.registry.AddonSounds;
 public final class FrontUtil {
 	public static final String MOD_ID = "frontutil";
 	private static final Logger LOGGER = LogUtils.getLogger();
-
+	
 	public FrontUtil(IEventBus eventBus) {
 		AddonSounds.init(eventBus);
 		LOGGER.info("Front-Utilities is active!");
 	}
-
+	
 	public static ResourceLocation res(String path) {
 		return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
 	}

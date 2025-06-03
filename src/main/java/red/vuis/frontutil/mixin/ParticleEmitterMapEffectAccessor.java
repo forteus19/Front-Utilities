@@ -12,13 +12,13 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface ParticleEmitterMapEffectAccessor {
 	@Accessor("field_3165")
 	SimpleParticleType getParticle();
-
+	
 	@Accessor("field_3168")
 	int getMaxTick();
-
+	
 	@Accessor("field_3167")
 	Supplier<SoundEvent> getSound();
-
+	
 	@Accessor("field_3166")
 	float getSoundVolume();
 }

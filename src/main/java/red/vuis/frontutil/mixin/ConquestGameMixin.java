@@ -13,8 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import red.vuis.frontutil.command.AddonCommands;
-import red.vuis.frontutil.command.InfoFunctions;
+import red.vuis.frontutil.command.GameCommands;
 
 @Mixin(ConquestGame.class)
 public abstract class ConquestGameMixin {
@@ -25,19 +24,16 @@ public abstract class ConquestGameMixin {
 	@Shadow
 	@Final
 	private AssetCommandBuilder command;
-
+	
 	@Inject(
 		method = "<init>",
 		at = @At("TAIL")
 	)
 	private void addCommands(BFAbstractManager<?, ?, ?> par1, CallbackInfo ci) {
-		AssetCommandBuilder cpointCommand = command.subCommands.get("cpoint");
-
-		cpointCommand.subCommand("list", AddonCommands.genericList(
-			"frontutil.message.command.game.cpoint.list.none",
-			"frontutil.message.command.game.cpoint.list.header",
+		GameCommands.capturePointCommands(
+			command.subCommands.get("cpoint"),
 			capturePoints,
-			InfoFunctions::capturePoint
-		));
+			(player, name) -> new ConquestCapturePoint(((ConquestGame) (Object) this).getGameManager(), player, name)
+		);
 	}
 }

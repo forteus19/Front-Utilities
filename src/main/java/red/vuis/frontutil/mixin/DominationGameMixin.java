@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import red.vuis.frontutil.command.AddonCommands;
+import red.vuis.frontutil.command.GameCommands;
 import red.vuis.frontutil.command.InfoFunctions;
 
 @Mixin(DominationGame.class)
@@ -29,28 +30,30 @@ public abstract class DominationGameMixin {
 	@Shadow
 	@Final
 	private AssetCommandBuilder command;
-
+	
 	@Inject(
 		method = "<init>",
 		at = @At("TAIL")
 	)
 	private void addCommands(BFAbstractManager<?, ?, ?> par1, CallbackInfo ci) {
-		AssetCommandBuilder cpointCommand = command.subCommands.get("cpoint");
-
-		cpointCommand.subCommand("list", AddonCommands.genericList(
-			"frontutil.message.command.game.cpoint.list.none",
-			"frontutil.message.command.game.cpoint.list.header",
+		GameCommands.capturePointCommands(
+			command.subCommands.get("cpoint"),
 			capturePoints,
-			InfoFunctions::capturePoint
-		));
-
+			(player, name) -> new DominationCapturePoint(((DominationGame) (Object) this).getGameManager(), player, name)
+		);
+		
 		AssetCommandBuilder apointCommand = command.subCommands.get("apoint");
-
+		
 		apointCommand.subCommand("list", AddonCommands.genericList(
 			"frontutil.message.command.game.apoint.list.none",
 			"frontutil.message.command.game.apoint.list.header",
 			field_3389,
 			InfoFunctions::pose
+		));
+		
+		apointCommand.subCommand("remove", AddonCommands.genericRemove(
+			"frontutil.message.command.game.apoint.remove.success",
+			field_3389
 		));
 	}
 }

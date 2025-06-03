@@ -14,7 +14,7 @@ import red.vuis.frontutil.mixin.ParticleEmitterMapEffectAccessor;
 public final class InfoFunctions {
 	private InfoFunctions() {
 	}
-
+	
 	public static String pose(FDSPose pose) {
 		return String.format(
 			"(x: %.2f, y: %.2f, z: %.2f)",
@@ -23,15 +23,15 @@ public final class InfoFunctions {
 			pose.position.z
 		);
 	}
-
+	
 	public static String capturePoint(AbstractCapturePoint<?> capturePoint) {
 		return String.format("%s %s", capturePoint.name, pose(capturePoint));
 	}
-
+	
 	public static String mapEffect(AbstractMapEffect absEffect) {
 		return switch (absEffect) {
 			case FallingArtilleryMapEffect effect -> {
-				FallingArtilleryMapEffectAccessor accessor = (FallingArtilleryMapEffectAccessor) effect;
+				var accessor = (FallingArtilleryMapEffectAccessor) effect;
 				yield String.format(
 					"fallingArtillery (minX: %.2f, minZ: %.2f, maxX: %.2f, maxZ: %.2f)",
 					accessor.getMin().x,
@@ -52,7 +52,7 @@ public final class InfoFunctions {
 				effect.activationDistance
 			);
 			case ParticleEmitterMapEffect effect -> {
-				ParticleEmitterMapEffectAccessor accessor = (ParticleEmitterMapEffectAccessor) effect;
+				var accessor = (ParticleEmitterMapEffectAccessor) effect;
 				yield String.format(
 					"particleEmitter (particle: %s, maxTick: %d, x: %.2f, y: %.2f, z: %.2f, sound: %s, soundVolume: %.2f)",
 					accessor.getParticle() != null ? RegistryUtils.getParticleTypeId(accessor.getParticle()) : "null",
