@@ -1,4 +1,5 @@
 import net.neoforged.moddevgradle.internal.RunGameTask
+import net.neoforged.nfrtgradle.CreateMinecraftArtifacts
 
 plugins {
     id("net.neoforged.moddev") version "2.0.89"
@@ -19,6 +20,11 @@ dependencies {
 neoForge {
     version = "21.1.172"
 
+    parchment {
+        minecraftVersion = "1.21.1"
+        mappingsVersion = "2024.11.17"
+    }
+
     runs {
         create("client") {
             client()
@@ -33,3 +39,7 @@ vbmPlugin {
     mappings = file("0.7.0.10b-merged.tiny")
     runTask(tasks.named<RunGameTask>("runClient"))
 }
+
+//tasks.remapMod {
+//    classpath = classpath.from(layout.buildDirectory.files("moddev/artifacts/neoforge-21.1.172-merged.jar"))
+//}

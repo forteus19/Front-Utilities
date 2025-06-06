@@ -1,4 +1,5 @@
 {
+  "frontutil.menu.button.mods.tip": "Access the mods menu",
   "frontutil.message.command.error.args.count": "Missing arguments! Arguments must be one of the following:",
   "frontutil.message.command.error.index.bounds": "Index %s is out of bounds!",
   "frontutil.message.command.error.index.number": "Index must be a number!",
