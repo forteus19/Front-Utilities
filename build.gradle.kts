@@ -1,5 +1,4 @@
 import net.neoforged.moddevgradle.internal.RunGameTask
-import net.neoforged.nfrtgradle.CreateMinecraftArtifacts
 
 plugins {
     id("net.neoforged.moddev") version "2.0.89"

@@ -1,8 +1,8 @@
 package red.vuis.frontutil.mixin.client;
 
 import com.boehmod.blockfront.client.gui.widget.BFButton;
-import com.boehmod.blockfront.unnamed.BF_183;
-import com.boehmod.blockfront.unnamed.BF_189;
+import com.boehmod.blockfront.client.screen.SidebarScreen;
+import com.boehmod.blockfront.client.screen.title.sidebar.TitleSidebarScreen;
 import com.boehmod.blockfront.util.BFStyles;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.gui.screens.Screen;
@@ -15,8 +15,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(BF_189.class)
-public abstract class TitleSidebarScreenMixin extends BF_183 {
+@Mixin(TitleSidebarScreen.class)
+public abstract class TitleSidebarScreenMixin extends SidebarScreen {
 	public TitleSidebarScreenMixin(@Nullable Screen screen, @NotNull Component component) {
 		super(screen, component);
 	}
@@ -30,7 +30,7 @@ public abstract class TitleSidebarScreenMixin extends BF_183 {
 			new BFButton(
 				offsetX + 4, offsetY + 40, width, 18,
 				Component.translatable("fml.menu.mods").withStyle(BFStyles.BOLD),
-				button -> minecraft.setScreen(new ModListScreen((BF_189) (Object) this))
+				button -> minecraft.setScreen(new ModListScreen((TitleSidebarScreen) (Object) this))
 			)
 				.method_383(Component.translatable("frontutil.menu.button.mods.tip"))
 				.method_373(BFButton.Alignment.LEFT)

@@ -2,7 +2,7 @@ package red.vuis.frontutil.mixin;
 
 import java.util.function.Supplier;
 
-import com.boehmod.blockfront.client.mapeffect.ParticleEmitterMapEffect;
+import com.boehmod.blockfront.game.map.effect.ParticleEmitterMapEffect;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.sounds.SoundEvent;
 import org.spongepowered.asm.mixin.Mixin;

@@ -1,6 +1,6 @@
 package red.vuis.frontutil.mixin;
 
-import com.boehmod.blockfront.client.mapeffect.FallingArtilleryMapEffect;
+import com.boehmod.blockfront.game.map.effect.FallingArtilleryMapEffect;
 import net.minecraft.world.phys.Vec2;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;

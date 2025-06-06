@@ -1,7 +1,7 @@
 package red.vuis.frontutil.command.bf;
 
-import com.boehmod.blockfront.client.mapeffect.LoopingSoundPointMapEffect;
-import com.boehmod.blockfront.client.mapeffect.ParticleEmitterMapEffect;
+import com.boehmod.blockfront.game.map.effect.LoopingSoundPointMapEffect;
+import com.boehmod.blockfront.game.map.effect.ParticleEmitterMapEffect;
 import com.boehmod.blockfront.util.RegistryUtils;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.world.phys.Vec3;
