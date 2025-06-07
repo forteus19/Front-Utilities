@@ -2,8 +2,11 @@ package red.vuis.frontutil.mixin;
 
 import com.boehmod.blockfront.assets.AssetCommandBuilder;
 import com.boehmod.blockfront.common.BFAbstractManager;
+import com.boehmod.blockfront.game.AbstractGame;
+import com.boehmod.blockfront.game.BaseStageManager;
 import com.boehmod.blockfront.game.conq.ConquestCapturePoint;
 import com.boehmod.blockfront.game.conq.ConquestGame;
+import com.boehmod.blockfront.game.conq.ConquestGameManager;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
@@ -16,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import red.vuis.frontutil.command.bf.GameCommands;
 
 @Mixin(ConquestGame.class)
-public abstract class ConquestGameMixin {
+public abstract class ConquestGameMixin extends AbstractGame<ConquestGame, ConquestGameManager, BaseStageManager<ConquestGame, ConquestGameManager>> {
 	@Shadow
 	@Final
 	@NotNull
@@ -24,6 +27,10 @@ public abstract class ConquestGameMixin {
 	@Shadow
 	@Final
 	private AssetCommandBuilder command;
+	
+	public ConquestGameMixin(@NotNull BFAbstractManager<?, ?, ?> manager) {
+		super(manager);
+	}
 	
 	@Inject(
 		method = "<init>",
@@ -33,7 +40,7 @@ public abstract class ConquestGameMixin {
 		GameCommands.capturePointCommands(
 			command.subCommands.get("cpoint"),
 			capturePoints,
-			(player, name) -> new ConquestCapturePoint(((ConquestGame) (Object) this).getGameManager(), player, name)
+			(player, name) -> new ConquestCapturePoint(gameManager, player, name)
 		);
 	}
 }

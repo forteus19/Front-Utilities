@@ -3,6 +3,11 @@ package red.vuis.frontutil.util;
 import java.util.Optional;
 import java.util.function.Function;
 
+import com.boehmod.blockfront.util.math.FDSPose;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
+
 public final class AddonUtils {
 	private AddonUtils() {
 	}
@@ -22,5 +27,18 @@ public final class AddonUtils {
 			}
 		}
 		return false;
+	}
+	
+	public static Vec3 copyVec3(Vec3 other) {
+		return new Vec3(other.x, other.y, other.z);
+	}
+	
+	public static String formatVec3(Vec3 vec) {
+		return String.format("%.2f, %.2f, %.2f", vec.x, vec.y, vec.z);
+	}
+	
+	public static void setPoseFromEntity(FDSPose pose, Entity entity) {
+		pose.position = copyVec3(entity.position());
+		pose.rotation = new Vec2(entity.getYHeadRot(), entity.getXRot());
 	}
 }

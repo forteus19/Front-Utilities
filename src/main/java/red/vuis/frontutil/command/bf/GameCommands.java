@@ -7,11 +7,13 @@ import com.boehmod.blockfront.assets.AssetCommandBuilder;
 import com.boehmod.blockfront.assets.AssetCommandValidators;
 import com.boehmod.blockfront.game.AbstractCapturePoint;
 import com.boehmod.blockfront.util.BFAdminUtils;
+import com.boehmod.blockfront.util.BFStyles;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
+import red.vuis.frontutil.util.AddonUtils;
 import red.vuis.frontutil.util.CommandUtils;
 
 public final class GameCommands {
@@ -37,6 +39,14 @@ public final class GameCommands {
 		));
 		
 		base.subCommand("rename", renameCapturePoint(
+			capturePoints
+		));
+		
+		base.subCommand("move", moveCapturePoint(
+			capturePoints
+		));
+		
+		base.subCommand("autoname", autonameCapturePoints(
 			capturePoints
 		));
 	}
@@ -80,5 +90,46 @@ public final class GameCommands {
 		}).validator(
 			AssetCommandValidators.count(new String[]{"index", "name"})
 		);
+	}
+	
+	public static <T extends AbstractCapturePoint<?>> AssetCommandBuilder moveCapturePoint(List<T> capturePoints) {
+		return new AssetCommandBuilder((context, args) -> {
+			ServerPlayer player = CommandUtils.getContextPlayer(context);
+			if (player == null) {
+				return;
+			}
+			
+			var indexParse = AddonAssetCommands.parseIndex(player, args[0], capturePoints, true);
+			if (indexParse == null) {
+				return;
+			}
+			int index = indexParse.leftInt();
+			Component indexComponent = indexParse.right();
+			
+			T capturePoint = capturePoints.get(index);
+			Component cpNameComponent = Component.literal(capturePoint.name).withStyle(BFStyles.LIME);
+			Component positionComponent = Component.literal(AddonUtils.formatVec3(player.position())).withStyle(BFStyles.LIME);
+			
+			AddonUtils.setPoseFromEntity(capturePoint, player);
+			BFAdminUtils.sendBfa(player, Component.translatable("frontutil.message.command.game.cpoint.move.success", cpNameComponent, indexComponent, positionComponent));
+		}).validator(
+			AssetCommandValidators.count(new String[]{"index"})
+		);
+	}
+	
+	public static <T extends AbstractCapturePoint<?>> AssetCommandBuilder autonameCapturePoints(List<T> capturePoints) {
+		return new AssetCommandBuilder((context, args) -> {
+			CommandSource source = context.getSource().source;
+			
+			if (capturePoints.size() > 26) {
+				BFAdminUtils.sendBfa(source, Component.translatable("frontutil.message.command.game.cpoint.autoname.error.count"));
+				return;
+			}
+			
+			for (int i = 0; i < capturePoints.size(); i++) {
+				capturePoints.get(i).name = String.valueOf((char) ('A' + i));
+			}
+			BFAdminUtils.sendBfa(source, Component.translatable("frontutil.message.command.game.cpoint.autoname.success"));
+		});
 	}
 }
