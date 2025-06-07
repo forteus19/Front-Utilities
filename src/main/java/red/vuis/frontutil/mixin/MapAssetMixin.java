@@ -62,6 +62,29 @@ public abstract class MapAssetMixin {
 		AssetCommandBuilder addCommand = baseCommand.subCommands.get("add");
 		
 		addCommand.subCommand(
+			"bulletTracerSpawner",
+			new AssetCommandBuilder((context, args) -> {
+				Component nameComponent = Component.literal(name).withStyle(BFStyles.LIME);
+				CommandSource source = context.getSource().source;
+				
+				if (!(args.length == 6 || args.length == 11)) {
+					BFAdminUtils.sendBfaWarn(source, Component.translatable("frontutil.message.command.error.args.count"));
+					BFAdminUtils.sendBfaWarn(source, Component.literal("x, y, z, endPosX, endPosY, endPosZ"));
+					BFAdminUtils.sendBfaWarn(source, Component.literal("x, y, z, endPosX, endPosY, endPosZ, chance, playSound, spreadX, spreadY, spreadZ"));
+					return;
+				}
+				
+				var mapEffect = MapEffectCommands.parseBulletTracerSpawner(args);
+				if (mapEffect == null) {
+					BFAdminUtils.sendBfa(source, Component.translatable("frontutil.message.command.mapEffect.add.bulletTracerSpawner.error", nameComponent));
+					return;
+				}
+				mapEffects.add(mapEffect);
+				
+				BFAdminUtils.sendBfa(source, Component.translatable("frontutil.message.command.mapEffect.add.bulletTracerSpawner.success", nameComponent));
+			}));
+		
+		addCommand.subCommand(
 			"loopingSoundPoint",
 			new AssetCommandBuilder((context, args) -> {
 				Component nameComponent = Component.literal(name).withStyle(BFStyles.LIME);

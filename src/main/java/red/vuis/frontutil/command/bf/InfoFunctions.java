@@ -2,12 +2,14 @@ package red.vuis.frontutil.command.bf;
 
 import com.boehmod.blockfront.game.AbstractCapturePoint;
 import com.boehmod.blockfront.game.map.effect.AbstractMapEffect;
+import com.boehmod.blockfront.game.map.effect.BulletTracerSpawnerMapEffect;
 import com.boehmod.blockfront.game.map.effect.FallingArtilleryMapEffect;
 import com.boehmod.blockfront.game.map.effect.LoopingSoundPointMapEffect;
 import com.boehmod.blockfront.game.map.effect.ParticleEmitterMapEffect;
 import com.boehmod.blockfront.util.RegistryUtils;
 import com.boehmod.blockfront.util.math.FDSPose;
 
+import red.vuis.frontutil.mixin.BulletTracerSpawnerMapEffectAccessor;
 import red.vuis.frontutil.mixin.FallingArtilleryMapEffectAccessor;
 import red.vuis.frontutil.mixin.ParticleEmitterMapEffectAccessor;
 
@@ -30,6 +32,23 @@ public final class InfoFunctions {
 	
 	public static String mapEffect(AbstractMapEffect absEffect) {
 		return switch (absEffect) {
+			case BulletTracerSpawnerMapEffect effect -> {
+				var accessor = (BulletTracerSpawnerMapEffectAccessor) effect;
+				yield String.format(
+					"bulletTracerSpawner (x: %.2f, y: %.2f, z: %.2f, endPosX: %.2f, endPosY: %.2f, endPosZ: %.2f, chance: %.2f, playSound: %b, spreadX: %.2f, spreadY: %.2f, spreadZ: %.2f",
+					effect.position.x,
+					effect.position.y,
+					effect.position.z,
+					accessor.getEndPos().x,
+					accessor.getEndPos().y,
+					accessor.getEndPos().z,
+					accessor.getChance(),
+					accessor.getPlaySound(),
+					accessor.getSpread().x,
+					accessor.getSpread().y,
+					accessor.getSpread().z
+				);
+			}
 			case FallingArtilleryMapEffect effect -> {
 				var accessor = (FallingArtilleryMapEffectAccessor) effect;
 				yield String.format(

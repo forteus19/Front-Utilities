@@ -12,6 +12,8 @@
   "frontutil.message.command.game.cpoint.list.none": "This game has no capture points.",
   "frontutil.message.command.game.cpoint.remove.success": "Removed capture point at index %s.",
   "frontutil.message.command.game.cpoint.rename.success": "Renamed capture point at index %s to %s.",
+  "frontutil.message.command.mapEffect.add.bulletTracerSpawner.error": "Failed to add bullet tracer spawner map effect for map '%s'.",
+  "frontutil.message.command.mapEffect.add.bulletTracerSpawner.success": "Successfully added bullet tracer spawner map effect for map '%s'.",
   "frontutil.message.command.mapEffect.add.loopingSoundPoint.error": "Failed to add looping sound point map effect for map '%s'.",
   "frontutil.message.command.mapEffect.add.loopingSoundPoint.success": "Successfully added looping sound point map effect for map '%s'.",
   "frontutil.message.command.mapEffect.add.particleEmitter.error": "Failed to add particle emitter map effect for map '%s'.",
