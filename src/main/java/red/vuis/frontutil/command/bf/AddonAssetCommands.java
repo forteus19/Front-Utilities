@@ -2,6 +2,7 @@ package red.vuis.frontutil.command.bf;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -9,20 +10,23 @@ import com.boehmod.blockfront.assets.AssetCommandBuilder;
 import com.boehmod.blockfront.assets.AssetCommandValidators;
 import com.boehmod.blockfront.util.BFAdminUtils;
 import com.boehmod.blockfront.util.BFStyles;
+import com.boehmod.blockfront.util.math.FDSPose;
 import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
 import it.unimi.dsi.fastutil.ints.IntObjectPair;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.Nullable;
 
 import red.vuis.frontutil.util.AddonUtils;
+import red.vuis.frontutil.util.CommandUtils;
 
 public final class AddonAssetCommands {
 	private AddonAssetCommands() {
 	}
 	
 	public static @Nullable IntObjectPair<Component> parseIndex(CommandSource source, String arg, Collection<?> items, boolean includeEnd) {
-		var index = AddonUtils.parse(Integer::valueOf, arg);
+		var index = AddonUtils.parse(Integer::parseInt, arg);
 		if (index.isEmpty()) {
 			BFAdminUtils.sendBfa(source, Component.translatable("frontutil.message.command.error.index.number"));
 			return null;
@@ -111,5 +115,27 @@ public final class AddonAssetCommands {
 	
 	public static AssetCommandBuilder genericRemove(String successMessage, List<?> items) {
 		return genericRemove(null, successMessage, items);
+	}
+	
+	public static <T extends FDSPose> AssetCommandBuilder genericTeleport(BiFunction<T, Component, Component> successMessage, List<T> items) {
+		return new AssetCommandBuilder((context, args) -> {
+			ServerPlayer player = CommandUtils.getContextPlayer(context);
+			if (player == null) {
+				return;
+			}
+			
+			var indexParse = AddonAssetCommands.parseIndex(player, args[0], items, false);
+			if (indexParse == null) {
+				return;
+			}
+			int index = indexParse.leftInt();
+			Component indexComponent = indexParse.right();
+			T item = items.get(index);
+			
+			AddonUtils.teleportBf(player, items.get(index));
+			BFAdminUtils.sendBfa(player, successMessage.apply(item, indexComponent));
+		}).validator(
+			AssetCommandValidators.count(new String[]{"index"})
+		);
 	}
 }

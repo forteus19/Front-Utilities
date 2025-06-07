@@ -33,6 +33,11 @@ public final class GameCommands {
 			capturePoints
 		));
 		
+		base.subCommand("tp", AddonAssetCommands.genericTeleport(
+			(capturePoint, indexComponent) -> Component.translatable("frontutil.message.command.game.cpoint.tp.success", capturePoint.name, indexComponent),
+			capturePoints
+		));
+		
 		base.subCommand("insert", insertCapturePoint(
 			capturePoints,
 			constructor
@@ -77,7 +82,7 @@ public final class GameCommands {
 		return new AssetCommandBuilder((context, args) -> {
 			CommandSource source = context.getSource().source;
 			
-			var indexParse = AddonAssetCommands.parseIndex(source, args[0], capturePoints, true);
+			var indexParse = AddonAssetCommands.parseIndex(source, args[0], capturePoints, false);
 			if (indexParse == null) {
 				return;
 			}
@@ -99,7 +104,7 @@ public final class GameCommands {
 				return;
 			}
 			
-			var indexParse = AddonAssetCommands.parseIndex(player, args[0], capturePoints, true);
+			var indexParse = AddonAssetCommands.parseIndex(player, args[0], capturePoints, false);
 			if (indexParse == null) {
 				return;
 			}

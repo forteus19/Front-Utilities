@@ -10,6 +10,7 @@ import com.boehmod.blockfront.game.dom.DominationCapturePoint;
 import com.boehmod.blockfront.game.dom.DominationGame;
 import com.boehmod.blockfront.game.dom.DominationGameManager;
 import com.boehmod.blockfront.unnamed.BF_691;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -60,6 +61,11 @@ public abstract class DominationGameMixin extends AbstractGame<DominationGame, D
 		
 		apointCommand.subCommand("remove", AddonAssetCommands.genericRemove(
 			"frontutil.message.command.game.apoint.remove.success",
+			field_3389
+		));
+		
+		apointCommand.subCommand("tp", AddonAssetCommands.genericTeleport(
+			(ammoPoint, indexComponent) -> Component.translatable("frontutil.message.command.game.apoint.tp.success", indexComponent),
 			field_3389
 		));
 	}
