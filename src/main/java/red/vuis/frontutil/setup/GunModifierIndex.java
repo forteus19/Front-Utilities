@@ -32,4 +32,12 @@ public final class GunModifierIndex {
 			);
 		}
 	}
+	
+	public static void applyDefaults() {
+		for (Map.Entry<Holder<Item>, GunModifier> entry : DEFAULT.entrySet()) {
+			if (entry.getKey().value() instanceof GunItem gunItem) {
+				entry.getValue().apply(gunItem);
+			}
+		}
+	}
 }

@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import red.vuis.frontutil.FrontUtil;
 import red.vuis.frontutil.data.GunModifier;
+import red.vuis.frontutil.setup.GunModifierIndex;
 
 public record GunModifiersPacket(Map<Holder<Item>, GunModifier> modifiers) implements CustomPacketPayload {
 	public static final Type<GunModifiersPacket> TYPE = new Type<>(FrontUtil.res("gun_modifiers"));
@@ -30,6 +31,8 @@ public record GunModifiersPacket(Map<Holder<Item>, GunModifier> modifiers) imple
 	}
 	
 	public static void handle(GunModifiersPacket packet, IPayloadContext context) {
+		GunModifierIndex.applyDefaults();
+		
 		for (Map.Entry<Holder<Item>, GunModifier> entry : packet.modifiers().entrySet()) {
 			Item item = entry.getKey().value();
 			if (item instanceof GunItem gunItem) {

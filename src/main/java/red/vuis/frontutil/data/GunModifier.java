@@ -12,14 +12,12 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.core.Holder;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.Item;
 import org.jetbrains.annotations.NotNull;
 
 import red.vuis.frontutil.mixin.GunItemAccessor;
-import red.vuis.frontutil.setup.GunModifierIndex;
 
 public record GunModifier(Optional<Ammo> ammo, Optional<List<Damage>> damage) {
 	public static final Map<Holder<Item>, GunModifier> ACTIVE = new Object2ObjectOpenHashMap<>();
@@ -40,10 +38,8 @@ public record GunModifier(Optional<Ammo> ammo, Optional<List<Damage>> damage) {
 	}
 	
 	public void apply(@NotNull GunItem item) {
-		Optional<GunModifier> fallback = Optional.ofNullable(GunModifierIndex.DEFAULT.get(BuiltInRegistries.ITEM.wrapAsHolder(item)));
-		
-		Ammo.apply(ammo.or(() -> fallback.flatMap(mod -> mod.ammo)).orElseThrow(), item);
-		Damage.apply(damage.or(() -> fallback.flatMap(mod -> mod.damage)).orElseThrow(), item);
+		ammo.ifPresent(ammo -> Ammo.apply(ammo, item));
+		damage.ifPresent(damage -> Damage.apply(damage, item));
 	}
 	
 	public record Ammo(int magazine, int reserve) {

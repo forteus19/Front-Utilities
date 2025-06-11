@@ -30,6 +30,7 @@ import red.vuis.frontutil.command.FrontUtilCommand;
 import red.vuis.frontutil.data.GunModifier;
 import red.vuis.frontutil.data.GunModifierTarget;
 import red.vuis.frontutil.net.packet.GunModifiersPacket;
+import red.vuis.frontutil.setup.GunModifierIndex;
 
 @EventBusSubscriber(
 	modid = FrontUtil.MOD_ID,
@@ -51,7 +52,11 @@ public final class AddonGameEvents {
 
 	@SubscribeEvent
 	public static void onServerAboutToStart(ServerAboutToStartEvent event) {
-		FrontUtil.info("Parsing gun modifier targets...");
+		FrontUtil.info("Preparing gun modifiers...");
+		
+		GunModifierIndex.applyDefaults();
+		
+		FrontUtil.info("Parsing and applying gun modifier targets...");
 		
 		ResourceManager resourceManager = event.getServer().getResourceManager();
 		List<Resource> targetResources = resourceManager.getResourceStack(FrontUtil.res(GUN_MODIFIER_TARGETS_FILENAME));
@@ -132,6 +137,8 @@ public final class AddonGameEvents {
 		
 		@SubscribeEvent
 		public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+			FrontUtil.info("Syncing gun modifiers with player '{}'.", event.getEntity().getName().getString());
+			
 			if (event.getEntity() instanceof ServerPlayer serverPlayer) {
 				PacketDistributor.sendToPlayer(serverPlayer, new GunModifiersPacket(GunModifier.ACTIVE));
 			}
