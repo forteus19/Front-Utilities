@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly(files("bflib-0.7.0.10b.jar"))
+    compileOnly(files("bflib-0.7.0.10b.jar", "geckolib-neoforge-1.21.1-4.7.3.jar"))
 }
 
 neoForge {

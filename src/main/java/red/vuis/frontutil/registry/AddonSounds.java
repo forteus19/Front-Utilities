@@ -5,6 +5,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import org.jetbrains.annotations.ApiStatus;
 
 import red.vuis.frontutil.FrontUtil;
 
@@ -14,6 +15,10 @@ public final class AddonSounds {
 	
 	private static final DeferredRegister<SoundEvent> DR = DeferredRegister.create(BuiltInRegistries.SOUND_EVENT, FrontUtil.MOD_ID);
 	
+	/**
+	 * For testing purposes
+	 */
+	@ApiStatus.Internal
 	public static final DeferredHolder<SoundEvent, SoundEvent> AMBIENT_LSP_RADIO_BIENVENIDA = register("ambient.lsp.radio.bienvenida");
 	
 	private static DeferredHolder<SoundEvent, SoundEvent> register(String id) {

@@ -6,6 +6,7 @@
     "ConquestGameMixin",
     "DominationGameMixin",
     "FallingArtilleryMapEffectAccessor",
+    "GunItemAccessor",
     "MapAssetMixin",
     "ParticleEmitterMapEffectAccessor"
   ],
