@@ -26,7 +26,7 @@ public final class GunModifierIndex {
 			DEFAULT.put(
 				BuiltInRegistries.ITEM.wrapAsHolder(item),
 				new GunModifier(
-					GunModifier.Ammo.of(accessor.getIdToMagTypeMap().get("default")),
+					GunModifier.Ammo.of(accessor.getMagIdMap().get("default")),
 					GunModifier.Damage.of(gunItem.getDamageConfig())
 				)
 			);

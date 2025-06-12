@@ -1,6 +1,6 @@
 package red.vuis.frontutil.mixin;
 
-import com.boehmod.blockfront.game.map.effect.BulletTracerSpawnerMapEffect;
+import com.boehmod.blockfront.map.effect.BulletTracerSpawnerMapEffect;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;

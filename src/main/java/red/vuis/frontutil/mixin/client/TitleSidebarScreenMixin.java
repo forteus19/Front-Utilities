@@ -33,7 +33,7 @@ public abstract class TitleSidebarScreenMixin extends SidebarScreen {
 				button -> minecraft.setScreen(new ModListScreen((TitleSidebarScreen) (Object) this))
 			)
 				.method_383(Component.translatable("frontutil.menu.button.mods.tip"))
-				.method_373(BFButton.Alignment.LEFT)
+				.alignment(BFButton.Alignment.LEFT)
 		);
 	}
 }

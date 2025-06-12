@@ -22,7 +22,7 @@ import net.minecraft.world.item.Items;
 
 import red.vuis.frontutil.data.GunModifierTarget;
 import red.vuis.frontutil.setup.GunSkinIndex;
-import red.vuis.frontutil.util.CommandUtils;
+import red.vuis.frontutil.util.AddonCommandUtils;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
@@ -64,7 +64,7 @@ public final class FrontUtilCommand {
 	}
 	
 	private static int gunGiveWithSkin(CommandContext<CommandSourceStack> context) {
-		ServerPlayer player = CommandUtils.getContextPlayer(context);
+		ServerPlayer player = AddonCommandUtils.getContextPlayer(context);
 		if (player == null) {
 			return -1;
 		}

@@ -49,7 +49,7 @@ public final class AddonGameEvents {
 		var dispatcher = event.getDispatcher();
 		FrontUtilCommand.register(dispatcher);
 	}
-
+	
 	@SubscribeEvent
 	public static void onServerAboutToStart(ServerAboutToStartEvent event) {
 		FrontUtil.info("Preparing gun modifiers...");

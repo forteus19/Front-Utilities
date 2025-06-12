@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(ClientCorpseManager.class)
 public abstract class ClientCorpseManagerMixin {
 	@WrapOperation(
-		method = "method_20",
+		method = "update",
 		at = @At(
 			value = "INVOKE",
 			target = "Ljava/util/List;removeIf(Ljava/util/function/Predicate;)Z"

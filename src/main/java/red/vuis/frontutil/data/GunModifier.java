@@ -62,8 +62,8 @@ public record GunModifier(Optional<Ammo> ammo, Optional<List<Damage>> damage) {
 		private static void apply(Ammo ammo, @NotNull GunItem item) {
 			GunItemAccessor accessor = (GunItemAccessor) (Object) item;
 			
-			GunMagType prevMagType = accessor.getIdToMagTypeMap().get("default");
-			accessor.getIdToMagTypeMap().replace("default", new GunMagType(prevMagType.method_4235(), prevMagType.name(), ammo.magazine, ammo.reserve));
+			GunMagType prevMagType = accessor.getMagIdMap().get("default");
+			accessor.getMagIdMap().replace("default", new GunMagType(prevMagType.method_4235(), prevMagType.name(), ammo.magazine, ammo.reserve));
 		}
 	}
 	

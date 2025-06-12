@@ -10,6 +10,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(GunItem.class)
 public interface GunItemAccessor {
-	@Accessor("ID_TO_MAG_TYPE")
-	@NotNull Map<String, GunMagType> getIdToMagTypeMap();
+	@Accessor("magIdMap")
+	@NotNull Map<String, GunMagType> getMagIdMap();
 }

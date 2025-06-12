@@ -6,8 +6,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.Nullable;
 
-public final class CommandUtils {
-	private CommandUtils() {
+public final class AddonCommandUtils {
+	private AddonCommandUtils() {
 	}
 	
 	public static @Nullable ServerPlayer getContextPlayer(CommandContext<CommandSourceStack> context) {

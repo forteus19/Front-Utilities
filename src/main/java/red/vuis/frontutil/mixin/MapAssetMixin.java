@@ -6,9 +6,9 @@ import com.boehmod.blockfront.assets.AssetCommandBuilder;
 import com.boehmod.blockfront.assets.AssetCommandValidators;
 import com.boehmod.blockfront.assets.impl.MapAsset;
 import com.boehmod.blockfront.common.match.DivisionData;
-import com.boehmod.blockfront.game.map.effect.AbstractMapEffect;
-import com.boehmod.blockfront.util.BFAdminUtils;
+import com.boehmod.blockfront.map.effect.AbstractMapEffect;
 import com.boehmod.blockfront.util.BFStyles;
+import com.boehmod.blockfront.util.CommandUtils;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
@@ -68,20 +68,20 @@ public abstract class MapAssetMixin {
 				CommandSource source = context.getSource().source;
 				
 				if (!(args.length == 6 || args.length == 11)) {
-					BFAdminUtils.sendBfaWarn(source, Component.translatable("frontutil.message.command.error.args.count"));
-					BFAdminUtils.sendBfaWarn(source, Component.literal("x, y, z, endPosX, endPosY, endPosZ"));
-					BFAdminUtils.sendBfaWarn(source, Component.literal("x, y, z, endPosX, endPosY, endPosZ, chance, playSound, spreadX, spreadY, spreadZ"));
+					CommandUtils.sendBfaWarn(source, Component.translatable("frontutil.message.command.error.args.count"));
+					CommandUtils.sendBfaWarn(source, Component.literal("x, y, z, endPosX, endPosY, endPosZ"));
+					CommandUtils.sendBfaWarn(source, Component.literal("x, y, z, endPosX, endPosY, endPosZ, chance, playSound, spreadX, spreadY, spreadZ"));
 					return;
 				}
 				
 				var mapEffect = MapEffectCommands.parseBulletTracerSpawner(args);
 				if (mapEffect == null) {
-					BFAdminUtils.sendBfa(source, Component.translatable("frontutil.message.command.mapEffect.add.bulletTracerSpawner.error", nameComponent));
+					CommandUtils.sendBfa(source, Component.translatable("frontutil.message.command.mapEffect.add.bulletTracerSpawner.error", nameComponent));
 					return;
 				}
 				mapEffects.add(mapEffect);
 				
-				BFAdminUtils.sendBfa(source, Component.translatable("frontutil.message.command.mapEffect.add.bulletTracerSpawner.success", nameComponent));
+				CommandUtils.sendBfa(source, Component.translatable("frontutil.message.command.mapEffect.add.bulletTracerSpawner.success", nameComponent));
 			}));
 		
 		addCommand.subCommand(
@@ -92,12 +92,12 @@ public abstract class MapAssetMixin {
 				
 				var mapEffect = MapEffectCommands.parseLoopingSoundPoint(args);
 				if (mapEffect == null) {
-					BFAdminUtils.sendBfa(source, Component.translatable("frontutil.message.command.mapEffect.add.loopingSoundPoint.error", nameComponent));
+					CommandUtils.sendBfa(source, Component.translatable("frontutil.message.command.mapEffect.add.loopingSoundPoint.error", nameComponent));
 					return;
 				}
 				mapEffects.add(mapEffect);
 				
-				BFAdminUtils.sendBfa(source, Component.translatable("frontutil.message.command.mapEffect.add.loopingSoundPoint.success", nameComponent));
+				CommandUtils.sendBfa(source, Component.translatable("frontutil.message.command.mapEffect.add.loopingSoundPoint.success", nameComponent));
 			}).validator(
 				AssetCommandValidators.count(new String[]{"count", "maxTick", "x", "y", "z"})
 			));
@@ -109,20 +109,20 @@ public abstract class MapAssetMixin {
 				CommandSource source = context.getSource().source;
 				
 				if (!(args.length == 5 || args.length == 7)) {
-					BFAdminUtils.sendBfaWarn(source, Component.translatable("frontutil.message.command.error.args.count"));
-					BFAdminUtils.sendBfaWarn(source, Component.literal("particle, maxTick, x, y, z"));
-					BFAdminUtils.sendBfaWarn(source, Component.literal("particle, maxTick, x, y, z, sound, soundVolume"));
+					CommandUtils.sendBfaWarn(source, Component.translatable("frontutil.message.command.error.args.count"));
+					CommandUtils.sendBfaWarn(source, Component.literal("particle, maxTick, x, y, z"));
+					CommandUtils.sendBfaWarn(source, Component.literal("particle, maxTick, x, y, z, sound, soundVolume"));
 					return;
 				}
 				
 				var mapEffect = MapEffectCommands.parseParticleEmitter(args);
 				if (mapEffect == null) {
-					BFAdminUtils.sendBfa(source, Component.translatable("frontutil.message.command.mapEffect.add.particleEmitter.error", nameComponent));
+					CommandUtils.sendBfa(source, Component.translatable("frontutil.message.command.mapEffect.add.particleEmitter.error", nameComponent));
 					return;
 				}
 				mapEffects.add(mapEffect);
 				
-				BFAdminUtils.sendBfa(source, Component.translatable("frontutil.message.command.mapEffect.add.particleEmitter.success", nameComponent));
+				CommandUtils.sendBfa(source, Component.translatable("frontutil.message.command.mapEffect.add.particleEmitter.success", nameComponent));
 			}));
 	}
 }
