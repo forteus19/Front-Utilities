@@ -4,6 +4,7 @@
   "mixins": [
     "BulletTracerSpawnerMapEffectAccessor",
     "ConquestGameMixin",
+    "DivisionDataAccessor",
     "DominationGameMixin",
     "FallingArtilleryMapEffectAccessor",
     "GunItemAccessor",
