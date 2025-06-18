@@ -15,7 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
-import red.vuis.frontutil.client.widget.ItemEditContainer;
+import red.vuis.frontutil.client.widget.WeaponEditContainer;
 import red.vuis.frontutil.client.widget.Widgets;
 import red.vuis.frontutil.setup.LoadoutIndex;
 
@@ -35,12 +35,14 @@ public class LoadoutEditorScreen extends AddonScreen {
 		Loadout::getHead, Loadout::getChest, Loadout::getLegs, Loadout::getFeet
 	);
 	
+	private boolean initialized = false;
+	
 	private Button countryButton;
 	private Button skinButton;
 	private Button matchClassButton;
 	private Button levelButton;
 	
-	private final ItemEditContainer[] slotContainers = new ItemEditContainer[8];
+	private final WeaponEditContainer[] slotContainers = new WeaponEditContainer[8];
 	
 	private BFCountry selectedCountry = BFCountry.UNITED_STATES;
 	private int selectedSkinIndex = 0;
@@ -53,10 +55,11 @@ public class LoadoutEditorScreen extends AddonScreen {
 	
 	@Override
 	protected void init() {
+		
 		super.init();
 		
 		addSelectionButtons();
-		addSlotContainers();
+		addSlotContainers(!initialized);
 		
 		addRenderableWidget(Widgets.button(
 			C_BUTTON_CLOSE.get(),
@@ -65,7 +68,11 @@ public class LoadoutEditorScreen extends AddonScreen {
 		));
 		
 		updateSelectionState();
-		loadLoadoutInfo();
+		if (!initialized) {
+			loadLoadoutInfo();
+		}
+		
+		initialized = true;
 	}
 	
 	@Override
@@ -134,7 +141,7 @@ public class LoadoutEditorScreen extends AddonScreen {
 				if (divisionData != null) {
 					List<Loadout> loadouts = divisionData.getLoadouts().get(selectedMatchClass);
 					if (loadouts != null && !loadouts.isEmpty()) {
-						selectedLevel = (selectedLevel + 1) % divisionData.getLoadouts().get(selectedMatchClass).size();
+						selectedLevel = (selectedLevel + 1) % loadouts.size();
 					}
 				}
 				
@@ -144,12 +151,16 @@ public class LoadoutEditorScreen extends AddonScreen {
 		));
 	}
 	
-	private void addSlotContainers() {
+	private void addSlotContainers(boolean create) {
 		for (int i = 0; i < slotContainers.length; i++) {
-			int y = 70 + i * 20;
-			slotContainers[i] = addItemEdit(
-				font, dim(width / 2 - 170, y, 160, 20)
-			);
+			if (create) {
+				int y = 70 + i * 20;
+				slotContainers[i] = addCompoundWidget(new WeaponEditContainer(
+					this, font, dim(width / 2 - 170, y, 160, 20)
+				));
+			} else {
+				addCompoundWidget(slotContainers[i]);
+			}
 		}
 	}
 	
@@ -162,18 +173,21 @@ public class LoadoutEditorScreen extends AddonScreen {
 		if (divisionData != null) {
 			List<Loadout> loadouts = divisionData.getLoadouts().get(selectedMatchClass);
 			if (loadouts != null && !loadouts.isEmpty()) {
+				if (selectedLevel < 0) {
+					selectedLevel = 0;
+				}
 				levelButton.setMessage(C_BUTTON_LEVEL.apply(selectedLevel + 1));
 				levelButton.active = true;
-				for (ItemEditContainer container : slotContainers) {
+				for (WeaponEditContainer container : slotContainers) {
 					container.setActive(true);
 				}
 			} else {
+				selectedLevel = -1;
 				levelButton.setMessage(C_BUTTON_LEVEL.apply("N/A"));
 				levelButton.active = false;
-				for (ItemEditContainer container : slotContainers) {
+				for (WeaponEditContainer container : slotContainers) {
 					container.setActive(false);
 				}
-				selectedLevel = -1;
 			}
 		}
 	}
@@ -187,7 +201,7 @@ public class LoadoutEditorScreen extends AddonScreen {
 	
 	private void loadLoadoutInfo() {
 		if (selectedLevel < 0) {
-			for (ItemEditContainer container : slotContainers) {
+			for (WeaponEditContainer container : slotContainers) {
 				container.clear();
 			}
 		}

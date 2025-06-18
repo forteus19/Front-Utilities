@@ -18,6 +18,14 @@ public final class WidgetDim {
 		return new WidgetDim(x - width / 2, y - height / 2, width, height);
 	}
 	
+	public static WidgetDim sqrDim(int x, int y, int size) {
+		return dim(x, y, size, size);
+	}
+	
+	public static WidgetDim sqrCenteredDim(int x, int y, int size) {
+		return centeredDim(x, y, size, size);
+	}
+	
 	public int x() {
 		return x;
 	}

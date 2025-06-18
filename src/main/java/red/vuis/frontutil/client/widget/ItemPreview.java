@@ -6,10 +6,11 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class ItemPreview implements Renderable {
 	private final int x, y, size;
-	private ItemStack itemStack;
+	private @Nullable ItemStack itemStack;
 	
 	public ItemPreview(int x, int y, int size) {
 		this.x = x;
@@ -17,7 +18,7 @@ public class ItemPreview implements Renderable {
 		this.size = size;
 	}
 	
-	public ItemPreview setItemStack(ItemStack itemStack) {
+	public ItemPreview setItemStack(@Nullable ItemStack itemStack) {
 		this.itemStack = itemStack;
 		return this;
 	}

@@ -1,7 +1,11 @@
 package red.vuis.frontutil.util;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import com.boehmod.blockfront.BlockFront;
 import com.boehmod.blockfront.util.BFUtils;
@@ -30,6 +34,11 @@ public final class AddonUtils {
 			}
 		}
 		return false;
+	}
+	
+	@SafeVarargs
+	public static <T> List<T> concat(Iterable<T> parent, T... other) {
+		return Stream.concat(StreamSupport.stream(parent.spliterator(), false), Arrays.stream(other)).toList();
 	}
 	
 	public static Vec3 copyVec3(Vec3 other) {

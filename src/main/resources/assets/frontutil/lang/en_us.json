@@ -28,6 +28,7 @@
   "frontutil.message.command.mapEffect.list.none": "Map '%s' has no map effects.",
   "frontutil.message.command.mapEffect.remove.success": "Removed map effect at index %s for map '%s'.",
   "frontutil.screen.generic.button.apply": "Apply",
+  "frontutil.screen.generic.button.back": "Back",
   "frontutil.screen.generic.button.close": "Close",
   "frontutil.screen.loadout.editor.button.level": "Level: %s",
   "frontutil.screen.loadout.editor.header": "Loadout Editor",
@@ -39,5 +40,8 @@
   "frontutil.screen.loadout.editor.label.chest": "Chest",
   "frontutil.screen.loadout.editor.label.legs": "Legs",
   "frontutil.screen.loadout.editor.label.feet": "Feet",
+  "frontutil.screen.weapon.extra.header": "Weapon Extra Settings",
+  "frontutil.screen.weapon.label.magType": "Magazine Type",
+  "frontutil.screen.weapon.label.scope": "Scope",
   "frontutil.widget.itemStack.itemId.hint": "Item ID"
 }
