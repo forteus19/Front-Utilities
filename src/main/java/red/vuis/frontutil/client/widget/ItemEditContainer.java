@@ -12,17 +12,18 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import org.apache.commons.lang3.StringUtils;
 
 public class ItemEditContainer {
 	private static final Supplier<Component> C_ITEM_ID_HINT = () -> Component.translatable("frontutil.widget.itemStack.itemId.hint");
 	
 	public final EditBox itemIdBox;
-	public final NumberEditBox countBox;
+	public final EditBox countBox;
 	public final ItemPreview preview;
 	
 	public ItemEditContainer(Font font, int x, int y, int width, int height) {
 		itemIdBox = new EditBox(font, x, y, width - 40, height, Component.empty());
-		countBox = new NumberEditBox(font, x + width - 40, y, 20, height, Component.empty());
+		countBox = new EditBox(font, x + width - 40, y, 20, height, Component.empty());
 		preview = new ItemPreview(x + width - 20, y, 20);
 		
 		itemIdBox.setResponder(strId -> {
@@ -41,6 +42,7 @@ public class ItemEditContainer {
 		
 		itemIdBox.setHint(C_ITEM_ID_HINT.get());
 		countBox.setHint(Component.literal("#"));
+		countBox.setFilter(str -> (str != null && str.isEmpty()) || StringUtils.isNumeric(str));
 	}
 	
 	public void setValue(ItemStack itemStack) {
