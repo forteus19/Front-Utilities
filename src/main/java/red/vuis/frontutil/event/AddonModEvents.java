@@ -11,6 +11,7 @@ import red.vuis.frontutil.FrontUtil;
 import red.vuis.frontutil.net.packet.GunModifiersPacket;
 import red.vuis.frontutil.setup.GunModifierIndex;
 import red.vuis.frontutil.setup.GunSkinIndex;
+import red.vuis.frontutil.setup.LoadoutIndex;
 
 @EventBusSubscriber(
 	modid = FrontUtil.MOD_ID,
@@ -30,6 +31,9 @@ public final class AddonModEvents {
 	public static void onLoadComplete(FMLLoadCompleteEvent event) {
 		FrontUtil.info("Indexing default gun properties...");
 		GunModifierIndex.init();
+		
+		FrontUtil.info("Indexing default loadouts...");
+		LoadoutIndex.init();
 		
 		var manager = BlockFront.getInstance().getManager();
 		if (manager == null) {

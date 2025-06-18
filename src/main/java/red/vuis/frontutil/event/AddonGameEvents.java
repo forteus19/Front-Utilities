@@ -18,6 +18,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
@@ -26,6 +27,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import red.vuis.frontutil.FrontUtil;
+import red.vuis.frontutil.client.command.FrontUtilClientCommand;
 import red.vuis.frontutil.command.FrontUtilCommand;
 import red.vuis.frontutil.data.GunModifier;
 import red.vuis.frontutil.data.GunModifierTarget;
@@ -124,6 +126,24 @@ public final class AddonGameEvents {
 			FrontUtil.error("Failed to parse gun modifier '{}'!", name);
 		}
 		return result.getOrThrow();
+	}
+	
+	@EventBusSubscriber(
+		modid = FrontUtil.MOD_ID,
+		bus = EventBusSubscriber.Bus.GAME,
+		value = Dist.CLIENT
+	)
+	public static final class Client {
+		private Client() {
+		}
+		
+		@SubscribeEvent
+		public static void onRegisterClientCommands(RegisterClientCommandsEvent event) {
+			FrontUtil.info("Registering commands...");
+			
+			var dispatcher = event.getDispatcher();
+			FrontUtilClientCommand.register(dispatcher);
+		}
 	}
 	
 	@EventBusSubscriber(

@@ -1,5 +1,7 @@
 package red.vuis.frontutil.setup;
 
+import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,37 +12,29 @@ import com.boehmod.blockfront.common.match.MatchClass;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import net.minecraft.world.item.ItemStack;
 
-import red.vuis.frontutil.mixin.DivisionDataAccessor;
-
 public final class LoadoutIndex {
-	private static final Map<BFCountry, String> PRIMARY_SKINS = Map.of(
-		BFCountry.UNITED_STATES, "airborne",
-		BFCountry.GERMANY, "wehrmacht",
-		BFCountry.GREAT_BRITAIN, "infantry",
-		BFCountry.SOVIET_UNION, "infantry",
-		BFCountry.POLAND, "infantry",
-		BFCountry.JAPAN, "infantry",
-		BFCountry.ITALY, "infantry",
-		BFCountry.FRANCE, "infantry"
-	);
+	public static final Map<BFCountry, List<String>> SKINS = new EnumMap<>(BFCountry.class);
 	public static final Map<Identifier, Loadout> DEFAULT = new Object2ObjectArrayMap<>();
 	
 	private LoadoutIndex() {}
 	
 	public static void init() {
+		for (BFCountry country : BFCountry.values()) {
+			SKINS.put(country, new ArrayList<>());
+		}
+		
 		for (DivisionData division : DivisionData.INSTANCES) {
 			BFCountry country = division.getCountry();
+			String skin = division.getSkin();
 			
-			if (!division.getSkin().equals(PRIMARY_SKINS.get(country))) {
-				continue;
-			}
+			SKINS.get(country).add(skin);
 			
 			for (Map.Entry<MatchClass, List<Loadout>> entry : division.getLoadouts().entrySet()) {
 				MatchClass matchClass = entry.getKey();
 				List<Loadout> loadouts = entry.getValue();
 				
 				for (int i = 0; i < loadouts.size(); i++) {
-					DEFAULT.put(new Identifier(country, matchClass, i), cloneLoadout(loadouts.get(i)));
+					DEFAULT.put(new Identifier(country, skin, matchClass, i), cloneLoadout(loadouts.get(i)));
 				}
 			}
 		}
@@ -62,24 +56,6 @@ public final class LoadoutIndex {
 			.setMinimumXp(original.getMinimumXp());
 	}
 	
-	private static void redoDivisionCopies() {
-		for (DivisionData division : DivisionData.INSTANCES) {
-			BFCountry country = division.getCountry();
-			String primarySkin = PRIMARY_SKINS.get(country);
-			
-			if (division.getSkin().equals(primarySkin)) {
-				continue;
-			}
-			
-			DivisionData primaryDivision = DivisionData.getByCountryAndSkin(country, primarySkin);
-			if (primaryDivision == null) {
-				continue;
-			}
-			
-			((DivisionDataAccessor) (Object) division).copyLoadouts(primaryDivision);
-		}
-	}
-	
-	public record Identifier(BFCountry country, MatchClass matchClass, int level) {
+	public record Identifier(BFCountry country, String skin, MatchClass matchClass, int level) {
 	}
 }

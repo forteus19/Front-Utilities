@@ -7,7 +7,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import red.vuis.frontutil.registry.AddonSounds;
-import red.vuis.frontutil.setup.LoadoutIndex;
 
 @Mod(FrontUtil.MOD_ID)
 public final class FrontUtil {
@@ -15,7 +14,6 @@ public final class FrontUtil {
 	private static final Logger LOGGER = LogManager.getLogger("Front-Utilities");
 	
 	public FrontUtil(IEventBus eventBus) {
-		LoadoutIndex.init();
 		AddonSounds.init(eventBus);
 		
 		info("Front-Utilities is active!");

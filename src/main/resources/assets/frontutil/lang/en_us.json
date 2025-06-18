@@ -17,6 +17,7 @@
   "frontutil.message.command.game.cpoint.remove.success": "Removed capture point at index %s.",
   "frontutil.message.command.game.cpoint.rename.success": "Renamed capture point at index %s to %s.",
   "frontutil.message.command.game.cpoint.tp.success": "Teleported you to capture point %s at index %s!",
+  "frontutil.message.command.loadout.openEditor.error.client": "Loadouts cannot be edited while you are in a match!",
   "frontutil.message.command.mapEffect.add.bulletTracerSpawner.error": "Failed to add bullet tracer spawner map effect for map '%s'.",
   "frontutil.message.command.mapEffect.add.bulletTracerSpawner.success": "Successfully added bullet tracer spawner map effect for map '%s'.",
   "frontutil.message.command.mapEffect.add.loopingSoundPoint.error": "Failed to add looping sound point map effect for map '%s'.",
@@ -25,5 +26,18 @@
   "frontutil.message.command.mapEffect.add.particleEmitter.success": "Successfully added particle emitter map effect for map '%s'.",
   "frontutil.message.command.mapEffect.list.header": "Map effects for map '%s':",
   "frontutil.message.command.mapEffect.list.none": "Map '%s' has no map effects.",
-  "frontutil.message.command.mapEffect.remove.success": "Removed map effect at index %s for map '%s'."
+  "frontutil.message.command.mapEffect.remove.success": "Removed map effect at index %s for map '%s'.",
+  "frontutil.screen.generic.button.apply": "Apply",
+  "frontutil.screen.generic.button.close": "Close",
+  "frontutil.screen.loadout.editor.button.level": "Level: %s",
+  "frontutil.screen.loadout.editor.header": "Loadout Editor",
+  "frontutil.screen.loadout.editor.label.primary": "Primary",
+  "frontutil.screen.loadout.editor.label.secondary": "Secondary",
+  "frontutil.screen.loadout.editor.label.melee": "Melee",
+  "frontutil.screen.loadout.editor.label.offHand": "Off-Hand",
+  "frontutil.screen.loadout.editor.label.head": "Head",
+  "frontutil.screen.loadout.editor.label.chest": "Chest",
+  "frontutil.screen.loadout.editor.label.legs": "Legs",
+  "frontutil.screen.loadout.editor.label.feet": "Feet",
+  "frontutil.widget.itemStack.itemId.hint": "Item ID"
 }
