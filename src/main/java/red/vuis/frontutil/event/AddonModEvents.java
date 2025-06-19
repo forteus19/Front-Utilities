@@ -29,17 +29,17 @@ public final class AddonModEvents {
 	
 	@SubscribeEvent
 	public static void onLoadComplete(FMLLoadCompleteEvent event) {
-		FrontUtil.info("Indexing default gun properties...");
+		FrontUtil.LOGGER.info("Indexing default gun properties...");
 		GunModifierIndex.init();
 		
-		FrontUtil.info("Indexing default loadouts...");
+		FrontUtil.LOGGER.info("Indexing default loadouts...");
 		LoadoutIndex.init();
 		
 		var manager = BlockFront.getInstance().getManager();
 		if (manager == null) {
-			FrontUtil.error("Failed to get BlockFront manager! Some things will be broken.");
+			FrontUtil.LOGGER.error("Failed to get BlockFront manager! Some things will be broken.");
 		} else {
-			FrontUtil.info("Indexing skins...");
+			FrontUtil.LOGGER.info("Indexing skins...");
 			GunSkinIndex.init(manager.getCloudRegistry());
 		}
 	}

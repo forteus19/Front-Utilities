@@ -76,6 +76,12 @@ public class WeaponEditContainer extends ItemEditContainer {
 	}
 	
 	@Override
+	public void setVisible(boolean visible) {
+		super.setVisible(visible);
+		extraButton.visible = visible;
+	}
+	
+	@Override
 	public void clear() {
 		super.clear();
 		scope = false;

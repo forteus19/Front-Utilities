@@ -46,7 +46,7 @@ public final class AddonGameEvents {
 	
 	@SubscribeEvent
 	public static void onRegisterCommands(RegisterCommandsEvent event) {
-		FrontUtil.info("Registering commands...");
+		FrontUtil.LOGGER.info("Registering commands...");
 		
 		var dispatcher = event.getDispatcher();
 		FrontUtilCommand.register(dispatcher);
@@ -54,11 +54,11 @@ public final class AddonGameEvents {
 	
 	@SubscribeEvent
 	public static void onServerAboutToStart(ServerAboutToStartEvent event) {
-		FrontUtil.info("Preparing gun modifiers...");
+		FrontUtil.LOGGER.info("Preparing gun modifiers...");
 		
 		GunModifierIndex.applyDefaults();
 		
-		FrontUtil.info("Parsing and applying gun modifier targets...");
+		FrontUtil.LOGGER.info("Parsing and applying gun modifier targets...");
 		
 		ResourceManager resourceManager = event.getServer().getResourceManager();
 		List<Resource> targetResources = resourceManager.getResourceStack(FrontUtil.res(GUN_MODIFIER_TARGETS_FILENAME));
@@ -74,7 +74,7 @@ public final class AddonGameEvents {
 				for (GunModifierTarget target : targets) {
 					Optional<Resource> modifierResource = resourceManager.getResource(target.modifier());
 					if (modifierResource.isEmpty()) {
-						FrontUtil.error("Modifier '{}' does not exist!", target.modifier());
+						FrontUtil.LOGGER.error("Modifier '{}' does not exist!", target.modifier());
 						continue;
 					}
 					try (BufferedReader modifierReader = modifierResource.get().openAsReader()) {
@@ -104,7 +104,7 @@ public final class AddonGameEvents {
 	private static @Nullable List<GunModifierTarget> parseGunModifierTargets(Resource targetResource, Reader targetReader) {
 		DataResult<List<GunModifierTarget>> targetResult = GunModifierTarget.CODEC.listOf().parse(JsonOps.INSTANCE, JsonParser.parseReader(targetReader));
 		if (targetResult.isError()) {
-			FrontUtil.error("Failed to parse gun modifier targets for pack id '{}'!", targetResource.sourcePackId());
+			FrontUtil.LOGGER.error("Failed to parse gun modifier targets for pack id '{}'!", targetResource.sourcePackId());
 			return null;
 		}
 		return targetResult.getOrThrow();
@@ -113,7 +113,7 @@ public final class AddonGameEvents {
 	private static boolean checkGunModifierTarget(GunModifierTarget target) {
 		for (ResourceLocation itemRes : target.targets()) {
 			if (!BuiltInRegistries.ITEM.containsKey(itemRes) || !(BuiltInRegistries.ITEM.get(itemRes) instanceof GunItem)) {
-				FrontUtil.error("Modifier target '{}' is not a modifiable item!", itemRes);
+				FrontUtil.LOGGER.error("Modifier target '{}' is not a modifiable item!", itemRes);
 				return false;
 			}
 		}
@@ -123,7 +123,7 @@ public final class AddonGameEvents {
 	private static @Nullable GunModifier parseGunModifier(ResourceLocation name, Reader reader) {
 		DataResult<GunModifier> result = GunModifier.CODEC.parse(JsonOps.INSTANCE, JsonParser.parseReader(reader));
 		if (result.isError()) {
-			FrontUtil.error("Failed to parse gun modifier '{}'!", name);
+			FrontUtil.LOGGER.error("Failed to parse gun modifier '{}'!", name);
 		}
 		return result.getOrThrow();
 	}
@@ -139,7 +139,7 @@ public final class AddonGameEvents {
 		
 		@SubscribeEvent
 		public static void onRegisterClientCommands(RegisterClientCommandsEvent event) {
-			FrontUtil.info("Registering commands...");
+			FrontUtil.LOGGER.info("Registering client-only commands...");
 			
 			var dispatcher = event.getDispatcher();
 			FrontUtilClientCommand.register(dispatcher);
@@ -157,7 +157,7 @@ public final class AddonGameEvents {
 		
 		@SubscribeEvent
 		public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-			FrontUtil.info("Syncing gun modifiers with player '{}'.", event.getEntity().getName().getString());
+			FrontUtil.LOGGER.info("Syncing gun modifiers with player '{}'.", event.getEntity().getName().getString());
 			
 			if (event.getEntity() instanceof ServerPlayer serverPlayer) {
 				PacketDistributor.sendToPlayer(serverPlayer, new GunModifiersPacket(GunModifier.ACTIVE));

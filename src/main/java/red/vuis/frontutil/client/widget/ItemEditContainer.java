@@ -93,6 +93,12 @@ public class ItemEditContainer implements CompoundWidget {
 		countBox.active = active;
 	}
 	
+	public void setVisible(boolean visible) {
+		itemIdBox.visible = visible;
+		countBox.visible = visible;
+		preview.visible = visible;
+	}
+	
 	public void clear() {
 		itemIdBox.setValue("");
 		countBox.setValue("");

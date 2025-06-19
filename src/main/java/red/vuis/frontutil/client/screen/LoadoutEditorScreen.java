@@ -15,6 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
+import red.vuis.frontutil.FrontUtil;
 import red.vuis.frontutil.client.widget.WeaponEditContainer;
 import red.vuis.frontutil.client.widget.Widgets;
 import red.vuis.frontutil.setup.LoadoutIndex;
@@ -42,7 +43,13 @@ public class LoadoutEditorScreen extends AddonScreen {
 	private Button matchClassButton;
 	private Button levelButton;
 	
-	private final WeaponEditContainer[] slotContainers = new WeaponEditContainer[8];
+	// 0 - 7 = slots, 8 - 11 = extra
+	private final WeaponEditContainer[] weaponContainers = new WeaponEditContainer[12];
+	private Button addExtraButton;
+	
+	private static final int EXTRA_OFFSET = 8;
+	private static final int EXTRA_MAX = 4;
+	private int numExtra = 0;
 	
 	private BFCountry selectedCountry = BFCountry.UNITED_STATES;
 	private int selectedSkinIndex = 0;
@@ -55,7 +62,6 @@ public class LoadoutEditorScreen extends AddonScreen {
 	
 	@Override
 	protected void init() {
-		
 		super.init();
 		
 		addSelectionButtons();
@@ -67,10 +73,10 @@ public class LoadoutEditorScreen extends AddonScreen {
 			button -> Minecraft.getInstance().setScreen(null)
 		));
 		
-		updateSelectionState();
 		if (!initialized) {
 			loadLoadoutInfo();
 		}
+		updateSelectionState();
 		
 		initialized = true;
 	}
@@ -83,6 +89,8 @@ public class LoadoutEditorScreen extends AddonScreen {
 			int y = 80 + i * 20;
 			drawText(getLabel(SLOT_LABELS[i]), width / 2 - 230, y, false, true);
 		}
+		
+		drawText(getLabel("extra", numExtra, EXTRA_MAX), width / 2 + 10, 80, false, true);
 	}
 	
 	private void addSelectionButtons() {
@@ -152,15 +160,37 @@ public class LoadoutEditorScreen extends AddonScreen {
 	}
 	
 	private void addSlotContainers(boolean create) {
-		for (int i = 0; i < slotContainers.length; i++) {
+		for (int i = 0; i < 8; i++) {
 			if (create) {
 				int y = 70 + i * 20;
-				slotContainers[i] = addCompoundWidget(new WeaponEditContainer(
+				weaponContainers[i] = addCompoundWidget(new WeaponEditContainer(
 					this, font, dim(width / 2 - 170, y, 160, 20)
 				));
 			} else {
-				addCompoundWidget(slotContainers[i]);
+				addCompoundWidget(weaponContainers[i]);
 			}
+		}
+		for (int i = 0; i < EXTRA_MAX; i++) {
+			if (create) {
+				int y = 70 + i * 20;
+				WeaponEditContainer container = addCompoundWidget(new WeaponEditContainer(
+					this, font, dim(width / 2 + 70, y, 160, 20)
+				));
+				container.setVisible(false);
+				weaponContainers[i + EXTRA_OFFSET] = container;
+			} else {
+				addCompoundWidget(weaponContainers[i + EXTRA_OFFSET]);
+			}
+		}
+		
+		if (create) {
+			addExtraButton = addRenderableWidget(Widgets.button(
+				Component.literal("+"),
+				dim(width / 2 + 70, 90, 160, 12), // temporary
+				button -> {}
+			));
+		} else {
+			addRenderableWidget(addExtraButton);
 		}
 	}
 	
@@ -178,22 +208,22 @@ public class LoadoutEditorScreen extends AddonScreen {
 				}
 				levelButton.setMessage(C_BUTTON_LEVEL.apply(selectedLevel + 1));
 				levelButton.active = true;
-				for (WeaponEditContainer container : slotContainers) {
+				for (WeaponEditContainer container : weaponContainers) {
 					container.setActive(true);
 				}
 			} else {
 				selectedLevel = -1;
 				levelButton.setMessage(C_BUTTON_LEVEL.apply("N/A"));
 				levelButton.active = false;
-				for (WeaponEditContainer container : slotContainers) {
+				for (WeaponEditContainer container : weaponContainers) {
 					container.setActive(false);
 				}
 			}
 		}
 	}
 	
-	private Component getLabel(String suffix) {
-		return Component.translatable("frontutil.screen.loadout.editor.label." + suffix);
+	private Component getLabel(String suffix, Object... args) {
+		return Component.translatable("frontutil.screen.loadout.editor.label." + suffix, args);
 	}
 	
 	private void saveLoadoutInfo() {
@@ -201,22 +231,48 @@ public class LoadoutEditorScreen extends AddonScreen {
 	
 	private void loadLoadoutInfo() {
 		if (selectedLevel < 0) {
-			for (WeaponEditContainer container : slotContainers) {
+			for (WeaponEditContainer container : weaponContainers) {
 				container.clear();
 			}
+			for (int i = 0; i < EXTRA_MAX; i++) {
+				weaponContainers[i + EXTRA_OFFSET].setVisible(false);
+			}
+			addExtraButton.active = false;
+			return;
 		}
 		
 		DivisionData divisionData = getSelectedDivisionData();
 		if (divisionData == null) {
 			return;
 		}
-		
 		List<Loadout> loadouts = divisionData.getLoadouts().get(selectedMatchClass);
-		if (loadouts != null) {
-			for (int i = 0; i < slotContainers.length; i++) {
-				slotContainers[i].setValue(SLOT_FUNCS.get(i).apply(loadouts.get(selectedLevel)));
+		if (loadouts == null) {
+			return;
+		}
+		Loadout loadout = loadouts.get(selectedLevel);
+		
+		for (int i = 0; i < 8; i++) {
+			weaponContainers[i].setValue(SLOT_FUNCS.get(i).apply(loadout));
+		}
+		
+		List<ItemStack> extra = loadout.getExtra();
+		if (extra.size() > EXTRA_MAX) {
+			FrontUtil.LOGGER.warn("Loadout has more than {} extra items!", EXTRA_MAX);
+		}
+		
+		numExtra = extra.size();
+		for (int i = 0; i < EXTRA_MAX; i++) {
+			WeaponEditContainer container = weaponContainers[i + EXTRA_OFFSET];
+			if (i < numExtra) {
+				container.setValue(extra.get(i));
+				container.setVisible(true);
+			} else {
+				container.setVisible(false);
 			}
 		}
+		
+		addExtraButton.setPosition(width / 2 + 70, 70 + numExtra * 20);
+		addExtraButton.active = numExtra < EXTRA_MAX;
 	}
 	
 	private @Nullable DivisionData getSelectedDivisionData() {

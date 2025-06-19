@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 public class ItemPreview implements Renderable {
 	private final int x, y, size;
 	private @Nullable ItemStack itemStack;
+	public boolean visible = true;
 	
 	public ItemPreview(int x, int y, int size) {
 		this.x = x;
@@ -25,7 +26,7 @@ public class ItemPreview implements Renderable {
 	
 	@Override
 	public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-		if (itemStack == null) {
+		if (!visible || itemStack == null) {
 			return;
 		}
 		
