@@ -7,6 +7,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import red.vuis.frontutil.client.screen.WeaponExtraScreen;
@@ -102,7 +103,8 @@ public class WeaponEditContainer extends ItemEditContainer {
 		}
 	}
 	
-	protected ItemStack setItemStackComponents(@Nullable ItemStack itemStack) {
+	@Contract("null -> null")
+	protected @Nullable ItemStack setItemStackComponents(@Nullable ItemStack itemStack) {
 		if (itemStack != null && itemStack.getItem() instanceof GunItem) {
 			GunItem.setScope(itemStack, scope);
 			GunItem.setMagType(itemStack, magType);

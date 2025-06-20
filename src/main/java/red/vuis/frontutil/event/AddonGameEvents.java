@@ -32,7 +32,9 @@ import red.vuis.frontutil.command.FrontUtilCommand;
 import red.vuis.frontutil.data.GunModifier;
 import red.vuis.frontutil.data.GunModifierTarget;
 import red.vuis.frontutil.net.packet.GunModifiersPacket;
+import red.vuis.frontutil.net.packet.LoadoutsPacket;
 import red.vuis.frontutil.setup.GunModifierIndex;
+import red.vuis.frontutil.setup.LoadoutIndex;
 
 @EventBusSubscriber(
 	modid = FrontUtil.MOD_ID,
@@ -157,10 +159,10 @@ public final class AddonGameEvents {
 		
 		@SubscribeEvent
 		public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-			FrontUtil.LOGGER.info("Syncing gun modifiers with player '{}'.", event.getEntity().getName().getString());
-			
 			if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+				FrontUtil.LOGGER.info("Syncing custom data with player '{}'.", event.getEntity().getName().getString());
 				PacketDistributor.sendToPlayer(serverPlayer, new GunModifiersPacket(GunModifier.ACTIVE));
+				PacketDistributor.sendToPlayer(serverPlayer, new LoadoutsPacket(LoadoutIndex.getAsMap()));
 			}
 		}
 	}

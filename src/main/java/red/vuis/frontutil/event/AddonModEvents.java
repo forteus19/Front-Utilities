@@ -5,10 +5,12 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 import red.vuis.frontutil.FrontUtil;
 import red.vuis.frontutil.net.packet.GunModifiersPacket;
+import red.vuis.frontutil.net.packet.LoadoutsPacket;
 import red.vuis.frontutil.setup.GunModifierIndex;
 import red.vuis.frontutil.setup.GunSkinIndex;
 import red.vuis.frontutil.setup.LoadoutIndex;
@@ -25,6 +27,9 @@ public final class AddonModEvents {
 	public static void onRegisterPayloadHandlers(RegisterPayloadHandlersEvent event) {
 		PayloadRegistrar registrar = event.registrar("1");
 		registrar.playToClient(GunModifiersPacket.TYPE, GunModifiersPacket.STREAM_CODEC, GunModifiersPacket::handle);
+		registrar.playBidirectional(LoadoutsPacket.TYPE, LoadoutsPacket.STREAM_CODEC, new DirectionalPayloadHandler<>(
+			LoadoutsPacket::handleClient, LoadoutsPacket::handleServer
+		));
 	}
 	
 	@SubscribeEvent

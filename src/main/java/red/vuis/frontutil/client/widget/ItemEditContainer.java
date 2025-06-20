@@ -13,18 +13,17 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import org.apache.commons.lang3.StringUtils;
 
 public class ItemEditContainer implements CompoundWidget {
 	private static final Supplier<Component> C_ITEM_ID_HINT = () -> Component.translatable("frontutil.widget.itemStack.itemId.hint");
 	
 	protected final EditBox itemIdBox;
-	protected final EditBox countBox;
+	protected final IntegerEditBox countBox;
 	protected final ItemPreview preview;
 	
 	public ItemEditContainer(Font font, int x, int y, int width, int height) {
 		itemIdBox = new EditBox(font, x, y, width - 40, height, Component.empty());
-		countBox = new EditBox(font, x + width - 40, y, 20, height, Component.empty());
+		countBox = new IntegerEditBox(font, x + width - 40, y, 20, height, Component.empty());
 		preview = new ItemPreview(x + width - 20, y, 20);
 		
 		itemIdBox.setResponder(this::onItemIdChanged);
@@ -33,7 +32,6 @@ public class ItemEditContainer implements CompoundWidget {
 		
 		countBox.setMaxLength(2);
 		countBox.setHint(Component.literal("#"));
-		countBox.setFilter(str -> (str != null && str.isEmpty()) || StringUtils.isNumeric(str));
 	}
 	
 	public ItemEditContainer(Font font, WidgetDim dim) {
@@ -65,11 +63,9 @@ public class ItemEditContainer implements CompoundWidget {
 	
 	public ItemStack getValue() {
 		Item item = BuiltInRegistries.ITEM.get(ResourceLocation.tryParse(itemIdBox.getValue()));
-		try {
-			return new ItemStack(item, Integer.parseInt(countBox.getValue()));
-		} catch (NumberFormatException e) {
-			return ItemStack.EMPTY;
-		}
+		return countBox.getIntValue()
+			.map(integer -> new ItemStack(item, integer))
+			.orElse(ItemStack.EMPTY);
 	}
 	
 	public void setValue(ItemStack itemStack) {
@@ -84,7 +80,7 @@ public class ItemEditContainer implements CompoundWidget {
 		}
 		itemIdBox.setValue(BuiltInRegistries.ITEM.getKey(item).toString());
 		itemIdBox.moveCursorToStart(false);
-		countBox.setValue(Integer.toString(itemStack.getCount()));
+		countBox.setIntValue(itemStack.getCount());
 		countBox.moveCursorToStart(false);
 	}
 	

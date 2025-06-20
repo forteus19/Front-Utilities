@@ -1,9 +1,9 @@
 package red.vuis.frontutil.net.packet;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import com.boehmod.blockfront.common.item.GunItem;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -21,7 +21,10 @@ import red.vuis.frontutil.setup.GunModifierIndex;
 public record GunModifiersPacket(Map<Holder<Item>, GunModifier> modifiers) implements CustomPacketPayload {
 	public static final Type<GunModifiersPacket> TYPE = new Type<>(FrontUtil.res("gun_modifiers"));
 	public static final StreamCodec<RegistryFriendlyByteBuf, GunModifiersPacket> STREAM_CODEC = StreamCodec.composite(
-		ByteBufCodecs.map(HashMap::new, ByteBufCodecs.holderRegistry(Registries.ITEM), GunModifier.STREAM_CODEC), GunModifiersPacket::modifiers,
+		ByteBufCodecs.map(
+			Object2ObjectOpenHashMap::new,
+			ByteBufCodecs.holderRegistry(Registries.ITEM), GunModifier.STREAM_CODEC
+		), GunModifiersPacket::modifiers,
 		GunModifiersPacket::new
 	);
 	
