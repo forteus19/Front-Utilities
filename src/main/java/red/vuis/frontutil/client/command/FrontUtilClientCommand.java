@@ -38,7 +38,7 @@ public final class FrontUtilClientCommand {
 			return 0;
 		}
 		if (manager.getGame() != null) {
-			context.getSource().sendFailure(Component.translatable("frontutil.message.command.client.loadout.openEditor.error.match"));
+			context.getSource().sendFailure(Component.translatable("frontutil.message.command.loadout.openEditor.error.client.match"));
 			return -1;
 		}
 		
@@ -52,7 +52,7 @@ public final class FrontUtilClientCommand {
 			return 0;
 		}
 		if (manager.getGame() != null) {
-			context.getSource().sendFailure(Component.translatable("frontutil.message.command.client.loadout.sync.error.match"));
+			context.getSource().sendFailure(Component.translatable("frontutil.message.command.loadout.sync.error.client.match"));
 			return -1;
 		}
 		

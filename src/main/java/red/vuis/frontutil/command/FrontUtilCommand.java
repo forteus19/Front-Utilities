@@ -1,5 +1,6 @@
 package red.vuis.frontutil.command;
 
+import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 
 import com.boehmod.blockfront.registry.BFDataComponents;
@@ -8,6 +9,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -22,7 +24,9 @@ import net.minecraft.world.item.Items;
 
 import red.vuis.frontutil.data.GunModifierTarget;
 import red.vuis.frontutil.setup.GunSkinIndex;
+import red.vuis.frontutil.setup.LoadoutIndex;
 import red.vuis.frontutil.util.AddonCommandUtils;
+import red.vuis.frontutil.util.AddonUtils;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
@@ -45,6 +49,10 @@ public final class FrontUtilCommand {
 				literal("modifier").then(
 					literal("listAll").executes(FrontUtilCommand::gunModifierListAll)
 				)
+			)
+		).then(
+			literal("loadout").then(
+				literal("write").executes(FrontUtilCommand::loadoutWrite)
 			)
 		);
 		
@@ -92,6 +100,18 @@ public final class FrontUtilCommand {
 		
 		for (GunModifierTarget target : GunModifierTarget.ACTIVE) {
 			source.sendSystemMessage(Component.literal(target.toString()));
+		}
+		
+		return 1;
+	}
+	
+	private static int loadoutWrite(CommandContext<CommandSourceStack> context) {
+		CommandSourceStack sourceStack = context.getSource();
+		
+		Path indexPath = AddonUtils.getServerDataPath(sourceStack.getServer()).resolve(LoadoutIndex.DEFAULT_LOADOUTS_PATH_NAME);
+		if (!LoadoutIndex.saveCurrent(indexPath)) {
+			sourceStack.sendFailure(Component.translatable("frontutil.message.command.loadout.write.error").withStyle(ChatFormatting.RED));
+			return -1;
 		}
 		
 		return 1;

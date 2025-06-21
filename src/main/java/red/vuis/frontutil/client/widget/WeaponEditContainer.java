@@ -68,25 +68,28 @@ public class WeaponEditContainer extends ItemEditContainer {
 	}
 	
 	@Override
-	public void setActive(boolean active) {
+	public WeaponEditContainer setActive(boolean active) {
 		super.setActive(active);
 		if (!active && extraButton.active) {
 			extraButton.active = false;
 		}
 		this.active = active;
+		return this;
 	}
 	
 	@Override
-	public void setVisible(boolean visible) {
+	public WeaponEditContainer setVisible(boolean visible) {
 		super.setVisible(visible);
 		extraButton.visible = visible;
+		return this;
 	}
 	
 	@Override
-	public void clear() {
+	public WeaponEditContainer clear() {
 		super.clear();
 		scope = false;
 		magType = "default";
+		return this;
 	}
 	
 	public void refresh() {

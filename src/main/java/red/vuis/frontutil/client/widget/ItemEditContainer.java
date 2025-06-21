@@ -9,13 +9,14 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 public class ItemEditContainer implements CompoundWidget {
-	private static final Supplier<Component> C_ITEM_ID_HINT = () -> Component.translatable("frontutil.widget.itemStack.itemId.hint");
+	private static final Supplier<MutableComponent> C_ITEM_ID_HINT = () -> Component.translatable("frontutil.widget.itemStack.itemId.hint");
 	
 	protected final EditBox itemIdBox;
 	protected final IntegerEditBox countBox;
@@ -84,19 +85,22 @@ public class ItemEditContainer implements CompoundWidget {
 		countBox.moveCursorToStart(false);
 	}
 	
-	public void setActive(boolean active) {
+	public ItemEditContainer setActive(boolean active) {
 		itemIdBox.active = active;
 		countBox.active = active;
+		return this;
 	}
 	
-	public void setVisible(boolean visible) {
+	public ItemEditContainer setVisible(boolean visible) {
 		itemIdBox.visible = visible;
 		countBox.visible = visible;
 		preview.visible = visible;
+		return this;
 	}
 	
-	public void clear() {
+	public ItemEditContainer clear() {
 		itemIdBox.setValue("");
 		countBox.setValue("");
+		return this;
 	}
 }

@@ -1,5 +1,8 @@
 package red.vuis.frontutil.util;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -10,6 +13,7 @@ import java.util.stream.StreamSupport;
 import com.boehmod.blockfront.BlockFront;
 import com.boehmod.blockfront.util.BFUtils;
 import com.boehmod.blockfront.util.math.FDSPose;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec2;
@@ -59,5 +63,17 @@ public final class AddonUtils {
 		if (manager != null) {
 			BFUtils.teleportPlayer(manager.getPlayerDataHandler(), player, pose);
 		}
+	}
+	
+	public static Path getServerDataPath(MinecraftServer server) {
+		Path basePath = server.getFile("frontutil");
+		if (!Files.isDirectory(basePath)) {
+			try {
+				Files.createDirectory(basePath);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		return basePath;
 	}
 }

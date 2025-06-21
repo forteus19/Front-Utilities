@@ -1,10 +1,7 @@
 package red.vuis.frontutil.event;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -25,6 +22,7 @@ import red.vuis.frontutil.net.packet.GunModifiersPacket;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
 import red.vuis.frontutil.setup.GunModifierIndex;
 import red.vuis.frontutil.setup.LoadoutIndex;
+import red.vuis.frontutil.util.AddonUtils;
 
 @EventBusSubscriber(
 	modid = FrontUtil.MOD_ID,
@@ -96,28 +94,9 @@ public final class AddonGameEvents {
 		
 		@SubscribeEvent
 		public static void onServerAboutToStart(ServerAboutToStartEvent event) {
-			Path basePath = getBasePath(event.getServer());
+			Path basePath = AddonUtils.getServerDataPath(event.getServer());
 			
-			LoadoutIndex.parseAndApply(basePath.resolve("loadouts.dat"));
-		}
-		
-		@SubscribeEvent
-		public static void onServerStopping(ServerStoppingEvent event) {
-			Path basePath = getBasePath(event.getServer());
-			
-			LoadoutIndex.saveCurrent(basePath.resolve("loadouts.dat"));
-		}
-		
-		private static Path getBasePath(MinecraftServer server) {
-			Path basePath = server.getFile("frontutil");
-			if (!Files.isDirectory(basePath)) {
-				try {
-					Files.createDirectory(basePath);
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				}
-			}
-			return basePath;
+			LoadoutIndex.parseAndApply(basePath.resolve(LoadoutIndex.DEFAULT_LOADOUTS_PATH_NAME));
 		}
 	}
 }

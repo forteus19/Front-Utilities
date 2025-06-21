@@ -7,6 +7,7 @@ import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 import red.vuis.frontutil.client.widget.WeaponEditContainer;
 import red.vuis.frontutil.client.widget.Widgets;
@@ -15,10 +16,10 @@ import static red.vuis.frontutil.client.widget.WidgetDim.centeredDim;
 import static red.vuis.frontutil.client.widget.WidgetDim.sqrCenteredDim;
 
 public class WeaponExtraScreen extends AddonScreen {
-	private static final Supplier<Component> C_BUTTON_BACK = () -> Component.translatable("frontutil.screen.generic.button.back");
-	private static final Supplier<Component> C_HEADER = () -> Component.translatable("frontutil.screen.weapon.extra.header");
-	private static final Supplier<Component> C_LABEL_MAGTYPE = () -> Component.translatable("frontutil.screen.weapon.label.magType");
-	private static final Supplier<Component> C_LABEL_SCOPE = () -> Component.translatable("frontutil.screen.weapon.label.scope");
+	private static final Supplier<MutableComponent> C_BUTTON_BACK = () -> Component.translatable("frontutil.screen.generic.button.back");
+	private static final Supplier<MutableComponent> C_HEADER = () -> Component.translatable("frontutil.screen.weapon.extra.header");
+	private static final Supplier<MutableComponent> C_LABEL_MAGTYPE = () -> Component.translatable("frontutil.screen.weapon.label.magType");
+	private static final Supplier<MutableComponent> C_LABEL_SCOPE = () -> Component.translatable("frontutil.screen.weapon.label.scope");
 	
 	private final Screen parent;
 	private final WeaponEditContainer container;

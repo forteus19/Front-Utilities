@@ -7,10 +7,13 @@ import java.util.function.Supplier;
 import com.boehmod.blockfront.common.match.BFCountry;
 import com.boehmod.blockfront.common.match.Loadout;
 import com.boehmod.blockfront.common.match.MatchClass;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.ItemStack;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
@@ -24,9 +27,12 @@ import red.vuis.frontutil.setup.LoadoutIndex;
 
 import static red.vuis.frontutil.client.widget.WidgetDim.centeredDim;
 import static red.vuis.frontutil.client.widget.WidgetDim.dim;
+import static red.vuis.frontutil.client.widget.WidgetDim.sqrCenteredDim;
 
 public class LoadoutEditorScreen extends AddonScreen {
-	private static final Supplier<MutableComponent> C_BUTTON_CLOSE = () -> Component.translatable("frontutil.screen.generic.button.close");
+	private static final Supplier<MutableComponent> C_BUTTON_COPY = () -> Component.translatable("frontutil.screen.generic.button.copy");
+	private static final Supplier<MutableComponent> C_BUTTON_RESET = () -> Component.translatable("frontutil.screen.generic.button.reset");
+	private static final Supplier<MutableComponent> C_BUTTON_CLOSE_AND_SYNC = () -> Component.translatable("frontutil.screen.loadout.editor.button.closeAndSync");
 	private static final Function<Object, MutableComponent> C_BUTTON_LEVEL = i -> Component.translatable("frontutil.screen.loadout.editor.button.level", i);
 	private static final Supplier<MutableComponent> C_FOOTER_MULTIPLAYER = () -> Component.translatable("frontutil.screen.loadout.editor.footer.multiplayer");
 	private static final Supplier<MutableComponent> C_HEADER = () -> Component.translatable("frontutil.screen.loadout.editor.header");
@@ -45,6 +51,7 @@ public class LoadoutEditorScreen extends AddonScreen {
 	// 0 - 7 = slots, 8 - 11 = extra
 	private final WeaponEditContainer[] weaponContainers = new WeaponEditContainer[12];
 	private Button addExtraButton;
+	private Button removeExtraButton;
 	
 	private static final int EXTRA_OFFSET = 8;
 	private static final int EXTRA_MAX = 4;
@@ -53,13 +60,15 @@ public class LoadoutEditorScreen extends AddonScreen {
 	private IntegerEditBox minimumXpBox;
 	private int lastSlotY;
 	
-	private BFCountry selectedCountry = BFCountry.UNITED_STATES;
-	private int selectedSkinIndex = 0;
-	private MatchClass selectedMatchClass = MatchClass.CLASS_RIFLEMAN;
-	private int selectedLevel = 0;
+	Selection selection;
+	
+	LoadoutEditorScreen(Selection selection) {
+		super(C_HEADER.get());
+		this.selection = selection;
+	}
 	
 	public LoadoutEditorScreen() {
-		super(C_HEADER.get());
+		this(new Selection());
 	}
 	
 	@Override
@@ -69,16 +78,7 @@ public class LoadoutEditorScreen extends AddonScreen {
 		addSelectionButtons();
 		addSlotContainers(!initialized);
 		addOtherWidgets(!initialized);
-		
-		addRenderableWidget(Widgets.button(
-			C_BUTTON_CLOSE.get(),
-			centeredDim(width / 2, height - 20, 120, 20),
-			button -> {
-				saveLoadoutInfo();
-				AddonClientData.getInstance().syncTempLoadouts();
-				Minecraft.getInstance().setScreen(null);
-			}
-		));
+		addFooterButtons();
 		
 		if (!initialized) {
 			loadLoadoutInfo();
@@ -91,9 +91,9 @@ public class LoadoutEditorScreen extends AddonScreen {
 	@Override
 	protected void render(int mouseX, int mouseY, float partialTick) {
 		drawText(C_HEADER.get(), width / 2, 20, true);
-//		if (Minecraft.getInstance().isLocalServer()) {
-//			drawText(C_FOOTER_MULTIPLAYER.get().setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)), width / 2, height - 40, true);
-//		}
+		if (Minecraft.getInstance().isLocalServer()) {
+			drawText(C_FOOTER_MULTIPLAYER.get().setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)), width / 2, height - 40, true);
+		}
 		
 		for (int i = 0; i < SLOT_LABELS.length; i++) {
 			int y = 80 + i * 20;
@@ -107,14 +107,14 @@ public class LoadoutEditorScreen extends AddonScreen {
 	private void addSelectionButtons() {
 		countryButton = addRenderableWidget(Widgets.button(
 			Component.empty(),
-			centeredDim(width / 2 - 150, 45, 90, 20),
+			centeredDim(width / 2 - 170, 45, 90, 20),
 			button -> {
 				saveLoadoutInfo();
 				
 				BFCountry[] values = BFCountry.values();
-				selectedCountry = values[(selectedCountry.ordinal() + 1) % values.length];
-				selectedSkinIndex = 0;
-				selectedLevel = 0;
+				selection.country = values[(selection.country.ordinal() + 1) % values.length];
+				selection.skinIndex = 0;
+				selection.level = 0;
 				
 				updateSelectionState();
 				loadLoadoutInfo();
@@ -123,12 +123,13 @@ public class LoadoutEditorScreen extends AddonScreen {
 		
 		skinButton = addRenderableWidget(Widgets.button(
 			Component.empty(),
-			centeredDim(width / 2 - 50, 45, 90, 20),
+			centeredDim(width / 2 - 70, 45, 90, 20),
 			button -> {
 				saveLoadoutInfo();
 				
-				List<String> skins = LoadoutIndex.SKINS.get(selectedCountry);
-				selectedSkinIndex = (selectedSkinIndex + 1) % skins.size();
+				List<String> skins = LoadoutIndex.SKINS.get(selection.country);
+				selection.skinIndex = (selection.skinIndex + 1) % skins.size();
+				selection.level = 0;
 				
 				updateSelectionState();
 				loadLoadoutInfo();
@@ -137,13 +138,13 @@ public class LoadoutEditorScreen extends AddonScreen {
 		
 		matchClassButton = addRenderableWidget(Widgets.button(
 			Component.empty(),
-			centeredDim(width / 2 + 50, 45, 90, 20),
+			centeredDim(width / 2 + 30, 45, 90, 20),
 			button -> {
 				saveLoadoutInfo();
 				
 				MatchClass[] values = MatchClass.values();
-				selectedMatchClass = values[(selectedMatchClass.ordinal() + 1) % values.length];
-				selectedLevel = 0;
+				selection.matchClass = values[(selection.matchClass.ordinal() + 1) % values.length];
+				selection.level = 0;
 				
 				updateSelectionState();
 				loadLoadoutInfo();
@@ -152,13 +153,40 @@ public class LoadoutEditorScreen extends AddonScreen {
 		
 		levelButton = addRenderableWidget(Widgets.button(
 			Component.empty(),
-			centeredDim(width / 2 + 150, 45, 90, 20),
+			centeredDim(width / 2 + 130, 45, 90, 20),
 			button -> {
 				saveLoadoutInfo();
 				
 				List<Loadout> loadouts = getSelectedTempLoadouts();
 				if (loadouts != null && !loadouts.isEmpty()) {
-					selectedLevel = (selectedLevel + 1) % loadouts.size();
+					selection.level = (selection.level + 1) % loadouts.size();
+				}
+				
+				updateSelectionState();
+				loadLoadoutInfo();
+			}
+		));
+		addRenderableWidget(Widgets.button(
+			Component.literal("+"),
+			sqrCenteredDim(width / 2 + 185, 45, 20),
+			button -> {
+				saveLoadoutInfo();
+				
+				AddonClientData clientData = AddonClientData.getInstance();
+				List<Loadout> loadouts = clientData.tempLoadouts.computeIfAbsent(selection.getIdentifier(), k -> new ObjectArrayList<>());
+				loadouts.add(++selection.level, new Loadout());
+				
+				updateSelectionState();
+				loadLoadoutInfo();
+			}
+		));
+		addRenderableWidget(Widgets.button(
+			Component.literal("-"),
+			sqrCenteredDim(width / 2 + 205, 45, 20),
+			button -> {
+				AddonClientData clientData = AddonClientData.getInstance();
+				if (selection.level >= 0) {
+					clientData.tempLoadouts.get(selection.getIdentifier()).remove(selection.level--);
 				}
 				
 				updateSelectionState();
@@ -191,15 +219,24 @@ public class LoadoutEditorScreen extends AddonScreen {
 			}
 		}
 		
-		if (create) {
-			addExtraButton = addRenderableWidget(Widgets.button(
-				Component.literal("+"),
-				dim(width / 2 + 70, 70, 160, 12), // temporary
-				button -> {}
-			));
-		} else {
-			addRenderableWidget(addExtraButton);
-		}
+		addExtraButton = addRenderableWidget(Widgets.button(
+			Component.literal("+"),
+			dim(width / 2 + 70, 70 + numExtra * 20, 80, 12),
+			button -> {
+				weaponContainers[numExtra + EXTRA_OFFSET].setVisible(true);
+				numExtra++;
+				updateExtraButtons();
+			}
+		));
+		removeExtraButton = addRenderableWidget(Widgets.button(
+			Component.literal("-"),
+			dim(width / 2 + 150, 70 + numExtra * 20, 80, 12),
+			button -> {
+				weaponContainers[(numExtra - 1) + EXTRA_OFFSET].setVisible(false).clear();
+				numExtra--;
+				updateExtraButtons();
+			}
+		));
 	}
 	
 	private void addOtherWidgets(boolean create) {
@@ -214,39 +251,72 @@ public class LoadoutEditorScreen extends AddonScreen {
 		}
 	}
 	
-	private String getSelectedSkin() {
-		return LoadoutIndex.SKINS.get(selectedCountry).get(selectedSkinIndex);
+	private void addFooterButtons() {
+		addRenderableWidget(Widgets.button(
+			C_BUTTON_RESET.get(),
+			centeredDim(width / 2 - 100, height - 20, 90, 20),
+			button -> Minecraft.getInstance().setScreen(new LoadoutResetScreen(this))
+		));
+		
+		addRenderableWidget(Widgets.button(
+			C_BUTTON_COPY.get(),
+			centeredDim(width / 2, height - 20, 90, 20),
+			button -> Minecraft.getInstance().setScreen(new LoadoutCopyScreen(this))
+		));
+		
+		addRenderableWidget(Widgets.button(
+			C_BUTTON_CLOSE_AND_SYNC.get(),
+			centeredDim(width / 2 + 100, height - 20, 90, 20),
+			button -> {
+				saveLoadoutInfo();
+				AddonClientData.getInstance().syncTempLoadouts();
+				Minecraft.getInstance().setScreen(null);
+			}
+		));
 	}
 	
 	private @Nullable List<Loadout> getSelectedTempLoadouts() {
-		return AddonClientData.getInstance().getTempLoadouts(selectedCountry, getSelectedSkin(), selectedMatchClass);
+		return AddonClientData.getInstance().getTempLoadouts(selection.country, selection.getSkin(), selection.matchClass);
 	}
 	
 	private void updateSelectionState() {
-		countryButton.setMessage(Component.literal(selectedCountry.getName()));
-		skinButton.setMessage(Component.literal(StringUtils.capitalize(LoadoutIndex.SKINS.get(selectedCountry).get(selectedSkinIndex))));
-		matchClassButton.setMessage(Component.translatable(selectedMatchClass.getDisplayTitle()));
+		countryButton.setMessage(Component.literal(selection.country.getName()));
+		skinButton.setMessage(Component.literal(StringUtils.capitalize(LoadoutIndex.SKINS.get(selection.country).get(selection.skinIndex))));
+		matchClassButton.setMessage(Component.translatable(selection.matchClass.getDisplayTitle()));
 
 		List<Loadout> loadouts = getSelectedTempLoadouts();
 		if (loadouts != null && !loadouts.isEmpty()) {
-			if (selectedLevel < 0) {
-				selectedLevel = 0;
+			if (selection.level < 0) {
+				selection.level = 0;
 			}
 			
-			levelButton.setMessage(C_BUTTON_LEVEL.apply(selectedLevel + 1));
+			levelButton.setMessage(C_BUTTON_LEVEL.apply(selection.level + 1));
 			levelButton.active = true;
 			for (WeaponEditContainer container : weaponContainers) {
 				container.setActive(true);
 			}
+			
+			addExtraButton.active = true;
+			removeExtraButton.active = true;
 		} else {
-			selectedLevel = -1;
+			selection.level = -1;
 			
 			levelButton.setMessage(C_BUTTON_LEVEL.apply("N/A"));
 			levelButton.active = false;
 			for (WeaponEditContainer container : weaponContainers) {
 				container.setActive(false);
 			}
+			
+			addExtraButton.active = false;
+			removeExtraButton.active = false;
 		}
+	}
+	
+	private void updateExtraButtons() {
+		addExtraButton.setPosition(width / 2 + 70, 70 + numExtra * 20);
+		addExtraButton.active = numExtra < EXTRA_MAX;
+		removeExtraButton.setPosition(width / 2 + 150, 70 + numExtra * 20);
+		removeExtraButton.active = numExtra > 0;
 	}
 	
 	private Component getLabel(String suffix, Object... args) {
@@ -254,7 +324,7 @@ public class LoadoutEditorScreen extends AddonScreen {
 	}
 	
 	private void saveLoadoutInfo() {
-		if (selectedLevel < 0) {
+		if (selection.level < 0) {
 			return;
 		}
 		
@@ -277,11 +347,11 @@ public class LoadoutEditorScreen extends AddonScreen {
 		loadout.setMinimumXp(minimumXpBox.getIntValue().orElse(0));
 		
 		AddonClientData.getInstance().setTempLoadout(
-			selectedCountry, getSelectedSkin(), selectedMatchClass, selectedLevel, loadout);
+			selection.country, selection.getSkin(), selection.matchClass, selection.level, loadout);
 	}
 	
 	private void loadLoadoutInfo() {
-		if (selectedLevel < 0) {
+		if (selection.level < 0) {
 			for (WeaponEditContainer container : weaponContainers) {
 				container.clear();
 			}
@@ -289,9 +359,9 @@ public class LoadoutEditorScreen extends AddonScreen {
 				weaponContainers[i + EXTRA_OFFSET].setVisible(false);
 			}
 			
-			addExtraButton.setPosition(width / 2 + 70, 70);
-			addExtraButton.active = false;
 			numExtra = 0;
+			addExtraButton.setPosition(width / 2 + 70, 70);
+			removeExtraButton.setPosition(width / 2 + 150, 70);
 			
 			return;
 		}
@@ -300,7 +370,7 @@ public class LoadoutEditorScreen extends AddonScreen {
 		if (loadouts == null) {
 			return;
 		}
-		Loadout loadout = loadouts.get(selectedLevel);
+		Loadout loadout = loadouts.get(selection.level);
 		
 		for (int i = 0; i < 8; i++) {
 			weaponContainers[i].setValue(LoadoutIndex.SLOT_FUNCS.get(i).apply(loadout));
@@ -332,9 +402,23 @@ public class LoadoutEditorScreen extends AddonScreen {
 			}
 		}
 		
-		addExtraButton.setPosition(width / 2 + 70, 70 + numExtra * 20);
-		addExtraButton.active = numExtra < EXTRA_MAX;
+		updateExtraButtons();
 		
 		minimumXpBox.setIntValue(loadout.getMinimumXp());
+	}
+	
+	public static final class Selection {
+		public BFCountry country = BFCountry.UNITED_STATES;
+		public int skinIndex = 0;
+		public MatchClass matchClass = MatchClass.CLASS_RIFLEMAN;
+		public int level = 0;
+		
+		public String getSkin() {
+			return LoadoutIndex.SKINS.get(country).get(skinIndex);
+		}
+		
+		public LoadoutIndex.Identifier getIdentifier() {
+			return new LoadoutIndex.Identifier(country, getSkin(), matchClass);
+		}
 	}
 }

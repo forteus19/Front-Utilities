@@ -19,7 +19,7 @@ import red.vuis.frontutil.setup.LoadoutIndex;
 public final class AddonClientData {
 	private static AddonClientData instance = null;
 	
-	private Map<LoadoutIndex.Identifier, List<Loadout>> tempLoadouts;
+	public Map<LoadoutIndex.Identifier, List<Loadout>> tempLoadouts;
 	
 	private AddonClientData() {
 		reloadLoadouts();
@@ -39,13 +39,50 @@ public final class AddonClientData {
 		tempLoadouts = LoadoutIndex.currentFlat();
 	}
 	
+	public void resetLoadouts() {
+		tempLoadouts = LoadoutIndex.copyFlat(LoadoutIndex.DEFAULT);
+	}
+	
 	public @Nullable List<Loadout> getTempLoadouts(BFCountry country, String skin, MatchClass matchClass) {
 		return tempLoadouts.get(new LoadoutIndex.Identifier(country, skin, matchClass));
 	}
 	
 	public void setTempLoadout(BFCountry country, String skin, MatchClass matchClass, int level, Loadout loadout) {
-		LoadoutIndex.Identifier baseId = new LoadoutIndex.Identifier(country, skin, matchClass);
-		tempLoadouts.get(baseId).set(level, loadout);
+		LoadoutIndex.Identifier id = new LoadoutIndex.Identifier(country, skin, matchClass);
+		tempLoadouts.get(id).set(level, loadout);
+	}
+	
+	public void resetTempLoadout(LoadoutIndex.Identifier id, int level) {
+		List<Loadout> toReset = tempLoadouts.get(id);
+		List<Loadout> defaults = LoadoutIndex.DEFAULT.get(id);
+		
+		if (toReset != null && defaults != null) {
+			Loadout defaultLoadout = defaults.get(level);
+			
+			if (defaultLoadout != null) {
+				toReset.set(level, LoadoutIndex.cloneLoadout(defaultLoadout));
+			}
+		}
+	}
+	
+	public void resetTempLoadout(BFCountry country, String skin, MatchClass matchClass, int level) {
+		resetTempLoadout(new LoadoutIndex.Identifier(country, skin, matchClass), level);
+	}
+	
+	public void resetTempLoadoutAllLevels(LoadoutIndex.Identifier id) {
+		List<Loadout> toReset = tempLoadouts.get(id);
+		List<Loadout> defaults = LoadoutIndex.DEFAULT.get(id);
+		
+		if (toReset != null) {
+			toReset.clear();
+			if (defaults != null) {
+				defaults.stream().map(LoadoutIndex::cloneLoadout).forEach(toReset::add);
+			}
+		}
+	}
+	
+	public void resetTempLoadoutAllLevels(BFCountry country, String skin, MatchClass matchClass) {
+		resetTempLoadoutAllLevels(new LoadoutIndex.Identifier(country, skin, matchClass));
 	}
 	
 	public void syncTempLoadouts() {

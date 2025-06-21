@@ -15,21 +15,17 @@ import com.boehmod.blockfront.common.match.BFCountry;
 import com.boehmod.blockfront.common.match.DivisionData;
 import com.boehmod.blockfront.common.match.Loadout;
 import com.boehmod.blockfront.common.match.MatchClass;
-import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.UnmodifiableView;
 
 import red.vuis.frontutil.FrontUtil;
 import red.vuis.frontutil.data.AddonCodecs;
-import red.vuis.frontutil.data.AddonStreamCodecs;
 import red.vuis.frontutil.mixin.DivisionDataAccessor;
 
 public final class LoadoutIndex {
@@ -42,6 +38,8 @@ public final class LoadoutIndex {
 		Loadout::getPrimary, Loadout::getSecondary, Loadout::getMelee, Loadout::getOffHand,
 		Loadout::getHead, Loadout::getChest, Loadout::getLegs, Loadout::getFeet
 	);
+	
+	public static final String DEFAULT_LOADOUTS_PATH_NAME = "loadouts.dat";
 	
 	private LoadoutIndex() {}
 	
@@ -66,7 +64,7 @@ public final class LoadoutIndex {
 		}
 	}
 	
-	private static Loadout cloneLoadout(Loadout original) {
+	public static Loadout cloneLoadout(Loadout original) {
 		return new Loadout(
 			original.getPrimary().copy(),
 			original.getSecondary().copy(),
@@ -80,6 +78,18 @@ public final class LoadoutIndex {
 			.addExtra(original.getExtra().stream().map(ItemStack::copy).toList())
 			.method_3154(original.method_3160())
 			.setMinimumXp(original.getMinimumXp());
+	}
+	
+	public static Map<Identifier, List<Loadout>> copyFlat(Map<Identifier, List<Loadout>> original) {
+		Map<Identifier, List<Loadout>> result = new Object2ObjectOpenHashMap<>();
+		
+		for (Map.Entry<Identifier, List<Loadout>> entry : original.entrySet()) {
+			List<Loadout> clonedLoadouts = new ObjectArrayList<>();
+			entry.getValue().forEach(loudout -> clonedLoadouts.add(cloneLoadout(loudout)));
+			result.put(entry.getKey(), clonedLoadouts);
+		}
+		
+		return result;
 	}
 	
 	public static void apply(Map<Identifier, List<Loadout>> loadouts) {
@@ -153,7 +163,7 @@ public final class LoadoutIndex {
 		return flat;
 	}
 	
-	public static void parseAndApply(Path indexPath) {
+	public static boolean parseAndApply(Path indexPath) {
 		FrontUtil.LOGGER.info("Parsing and applying loadout data from disk...");
 		long startNs = Util.getNanos();
 		
@@ -162,10 +172,10 @@ public final class LoadoutIndex {
 			indexTag = NbtIo.read(new DataInputStream(Files.newInputStream(indexPath)));
 		} catch (NoSuchFileException e) {
 			FrontUtil.LOGGER.info("No loadout file.");
-			return;
+			return true;
 		} catch (Exception e) {
 			FrontUtil.LOGGER.error("Error while reading loadout data from disk!", e);
-			return;
+			return false;
 		}
 		
 		AddonCodecs.LOADOUT_INDEX.parse(NbtOps.INSTANCE, indexTag)
@@ -174,9 +184,10 @@ public final class LoadoutIndex {
 		
 		long endNs = Util.getNanos();
 		FrontUtil.LOGGER.info("Loadout data loaded in {} ms.", String.format("%.3f", (endNs - startNs) / 1.0E6));
+		return true;
 	}
 	
-	public static void saveCurrent(Path indexPath) {
+	public static boolean saveCurrent(Path indexPath) {
 		FrontUtil.LOGGER.info("Saving loadout data to disk...");
 		long startNs = Util.getNanos();
 		
@@ -188,10 +199,12 @@ public final class LoadoutIndex {
 			NbtIo.write(encodeResult, new DataOutputStream(Files.newOutputStream(indexPath)));
 		} catch (Exception e) {
 			FrontUtil.LOGGER.error("Error while writing loadout data to disk!", e);
+			return false;
 		}
 		
 		long endNs = Util.getNanos();
 		FrontUtil.LOGGER.info("Loadout data saved in {} ms.", String.format("%.3f", (endNs - startNs) / 1.0E6));
+		return true;
 	}
 	
 	static {
@@ -205,11 +218,5 @@ public final class LoadoutIndex {
 	}
 	
 	public record Identifier(BFCountry country, String skin, MatchClass matchClass) {
-		public static final StreamCodec<ByteBuf, Identifier> STREAM_CODEC = StreamCodec.composite(
-			AddonStreamCodecs.BF_COUNTRY, Identifier::country,
-			ByteBufCodecs.STRING_UTF8, Identifier::skin,
-			AddonStreamCodecs.MATCH_CLASS, Identifier::matchClass,
-			Identifier::new
-		);
 	}
 }

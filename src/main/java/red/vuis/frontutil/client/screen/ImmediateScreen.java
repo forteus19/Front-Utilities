@@ -40,6 +40,6 @@ public abstract class ImmediateScreen extends Screen {
 	}
 	
 	protected void drawText(Component text, int x, int y, boolean centered) {
-		drawText(text, x, y, 1f, centered, centered);
+		drawText(text, x, y, centered, centered);
 	}
 }
