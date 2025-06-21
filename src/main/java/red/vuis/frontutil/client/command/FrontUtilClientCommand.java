@@ -56,7 +56,7 @@ public final class FrontUtilClientCommand {
 			return -1;
 		}
 		
-		PacketDistributor.sendToServer(new LoadoutsPacket(LoadoutIndex.getAsMap()));
+		PacketDistributor.sendToServer(new LoadoutsPacket(LoadoutIndex.currentFlat()));
 		return 1;
 	}
 }

@@ -33,13 +33,22 @@ public record LoadoutsPacket(Map<LoadoutIndex.Identifier, List<Loadout>> loadout
 	public static final StreamCodec<RegistryFriendlyByteBuf, LoadoutsPacket> STREAM_CODEC = StreamCodec.composite(
 		ByteBufCodecs.map(
 			Object2ObjectOpenHashMap::new,
-			LoadoutIndex.Identifier.STREAM_CODEC,
-			ByteBufCodecs.collection(
-				ObjectArrayList::new,
-				AddonStreamCodecs.LOADOUT
+			AddonStreamCodecs.BF_COUNTRY,
+			ByteBufCodecs.map(
+				Object2ObjectOpenHashMap::new,
+				ByteBufCodecs.STRING_UTF8,
+				ByteBufCodecs.map(
+					Object2ObjectOpenHashMap::new,
+					AddonStreamCodecs.MATCH_CLASS,
+					ByteBufCodecs.collection(
+						ObjectArrayList::new,
+						AddonStreamCodecs.LOADOUT
+					)
+				)
 			)
-		), LoadoutsPacket::loadouts,
-		LoadoutsPacket::new
+		),
+		packet -> LoadoutIndex.flatToNested(packet.loadouts),
+		nested -> new LoadoutsPacket(LoadoutIndex.nestedToFlat(nested))
 	);
 	
 	@Override
@@ -51,7 +60,6 @@ public record LoadoutsPacket(Map<LoadoutIndex.Identifier, List<Loadout>> loadout
 		FrontUtil.LOGGER.info("Applying loadouts from server.");
 		
 		LoadoutIndex.apply(packet.loadouts);
-		
 		AddonClientData.getInstance().reloadLoadouts();
 	}
 	

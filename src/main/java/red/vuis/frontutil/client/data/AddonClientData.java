@@ -36,7 +36,7 @@ public final class AddonClientData {
 	}
 	
 	public void reloadLoadouts() {
-		tempLoadouts = LoadoutIndex.getAsMap();
+		tempLoadouts = LoadoutIndex.currentFlat();
 	}
 	
 	public @Nullable List<Loadout> getTempLoadouts(BFCountry country, String skin, MatchClass matchClass) {

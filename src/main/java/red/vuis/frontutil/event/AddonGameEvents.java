@@ -1,20 +1,11 @@
 package red.vuis.frontutil.event;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.Reader;
-import java.util.List;
-import java.util.Optional;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
-import com.boehmod.blockfront.common.item.GunItem;
-import com.google.gson.JsonParser;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.JsonOps;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.server.packs.resources.ResourceManager;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -24,7 +15,6 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
 
 import red.vuis.frontutil.FrontUtil;
 import red.vuis.frontutil.client.command.FrontUtilClientCommand;
@@ -41,8 +31,6 @@ import red.vuis.frontutil.setup.LoadoutIndex;
 	bus = EventBusSubscriber.Bus.GAME
 )
 public final class AddonGameEvents {
-	private static final String GUN_MODIFIER_TARGETS_FILENAME = "gun_modifier_targets.json";
-	
 	private AddonGameEvents() {
 	}
 	
@@ -62,72 +50,12 @@ public final class AddonGameEvents {
 		
 		FrontUtil.LOGGER.info("Parsing and applying gun modifier targets...");
 		
-		ResourceManager resourceManager = event.getServer().getResourceManager();
-		List<Resource> targetResources = resourceManager.getResourceStack(FrontUtil.res(GUN_MODIFIER_TARGETS_FILENAME));
-		
-		for (Resource targetResource : targetResources) {
-			try (BufferedReader targetReader = targetResource.openAsReader()) {
-				List<GunModifierTarget> targets = parseGunModifierTargets(targetResource, targetReader);
-				if (targets == null || !targets.stream().allMatch(AddonGameEvents::checkGunModifierTarget)) {
-					continue;
-				}
-				GunModifierTarget.ACTIVE.addAll(targets);
-				
-				for (GunModifierTarget target : targets) {
-					Optional<Resource> modifierResource = resourceManager.getResource(target.modifier());
-					if (modifierResource.isEmpty()) {
-						FrontUtil.LOGGER.error("Modifier '{}' does not exist!", target.modifier());
-						continue;
-					}
-					try (BufferedReader modifierReader = modifierResource.get().openAsReader()) {
-						GunModifier modifier = parseGunModifier(target.modifier(), modifierReader);
-						if (modifier == null) {
-							continue;
-						}
-						
-						for (ResourceLocation itemRes : target.targets()) {
-							GunItem item = (GunItem) BuiltInRegistries.ITEM.get(itemRes);
-							GunModifier.ACTIVE.put(BuiltInRegistries.ITEM.wrapAsHolder(item), modifier);
-							modifier.apply(item);
-						}
-					}
-				}
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
+		GunModifierTarget.parseAndApply(event.getServer().getResourceManager());
 	}
 	
 	@SubscribeEvent
 	public static void onServerStopping(ServerStoppingEvent event) {
 		GunModifierTarget.ACTIVE.clear();
-	}
-	
-	private static @Nullable List<GunModifierTarget> parseGunModifierTargets(Resource targetResource, Reader targetReader) {
-		DataResult<List<GunModifierTarget>> targetResult = GunModifierTarget.CODEC.listOf().parse(JsonOps.INSTANCE, JsonParser.parseReader(targetReader));
-		if (targetResult.isError()) {
-			FrontUtil.LOGGER.error("Failed to parse gun modifier targets for pack id '{}'!", targetResource.sourcePackId());
-			return null;
-		}
-		return targetResult.getOrThrow();
-	}
-	
-	private static boolean checkGunModifierTarget(GunModifierTarget target) {
-		for (ResourceLocation itemRes : target.targets()) {
-			if (!BuiltInRegistries.ITEM.containsKey(itemRes) || !(BuiltInRegistries.ITEM.get(itemRes) instanceof GunItem)) {
-				FrontUtil.LOGGER.error("Modifier target '{}' is not a modifiable item!", itemRes);
-				return false;
-			}
-		}
-		return true;
-	}
-	
-	private static @Nullable GunModifier parseGunModifier(ResourceLocation name, Reader reader) {
-		DataResult<GunModifier> result = GunModifier.CODEC.parse(JsonOps.INSTANCE, JsonParser.parseReader(reader));
-		if (result.isError()) {
-			FrontUtil.LOGGER.error("Failed to parse gun modifier '{}'!", name);
-		}
-		return result.getOrThrow();
 	}
 	
 	@EventBusSubscriber(
@@ -162,8 +90,34 @@ public final class AddonGameEvents {
 			if (event.getEntity() instanceof ServerPlayer serverPlayer) {
 				FrontUtil.LOGGER.info("Syncing custom data with player '{}'.", event.getEntity().getName().getString());
 				PacketDistributor.sendToPlayer(serverPlayer, new GunModifiersPacket(GunModifier.ACTIVE));
-				PacketDistributor.sendToPlayer(serverPlayer, new LoadoutsPacket(LoadoutIndex.getAsMap()));
+				PacketDistributor.sendToPlayer(serverPlayer, new LoadoutsPacket(LoadoutIndex.currentFlat()));
 			}
+		}
+		
+		@SubscribeEvent
+		public static void onServerAboutToStart(ServerAboutToStartEvent event) {
+			Path basePath = getBasePath(event.getServer());
+			
+			LoadoutIndex.parseAndApply(basePath.resolve("loadouts.dat"));
+		}
+		
+		@SubscribeEvent
+		public static void onServerStopping(ServerStoppingEvent event) {
+			Path basePath = getBasePath(event.getServer());
+			
+			LoadoutIndex.saveCurrent(basePath.resolve("loadouts.dat"));
+		}
+		
+		private static Path getBasePath(MinecraftServer server) {
+			Path basePath = server.getFile("frontutil");
+			if (!Files.isDirectory(basePath)) {
+				try {
+					Files.createDirectory(basePath);
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+			return basePath;
 		}
 	}
 }
