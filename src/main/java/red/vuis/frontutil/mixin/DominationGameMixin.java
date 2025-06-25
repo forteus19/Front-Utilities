@@ -43,11 +43,11 @@ public abstract class DominationGameMixin extends AbstractGame<DominationGame, D
 		method = "<init>",
 		at = @At("TAIL")
 	)
-	private void addCommands(BFAbstractManager<?, ?, ?> par1, CallbackInfo ci) {
+	private void addCommands(BFAbstractManager<?, ?, ?> manager, CallbackInfo ci) {
 		GameCommands.capturePointCommands(
 			command.subCommands.get("cpoint"),
 			capturePoints,
-			(player, name) -> new DominationCapturePoint(gameManager, player, name)
+			(player, name) -> new DominationCapturePoint(playerManager, player, name)
 		);
 		
 		AssetCommandBuilder apointCommand = command.subCommands.get("apoint");

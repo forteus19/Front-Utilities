@@ -56,14 +56,14 @@ public record GunModifier(Optional<Ammo> ammo, Optional<List<Damage>> damage) {
 		);
 		
 		public static Ammo of(GunMagType magType) {
-			return new Ammo(magType.clipCapacity(), magType.reserveCapacity());
+			return new Ammo(magType.capacity(), magType.maxAmmo());
 		}
 		
 		private static void apply(Ammo ammo, @NotNull GunItem item) {
 			GunItemAccessor accessor = (GunItemAccessor) (Object) item;
 			
 			GunMagType prevMagType = accessor.getMagIdMap().get("default");
-			accessor.getMagIdMap().replace("default", new GunMagType(prevMagType.method_4235(), prevMagType.name(), ammo.magazine, ammo.reserve));
+			accessor.getMagIdMap().replace("default", new GunMagType(prevMagType.isDefault(), prevMagType.displayName(), ammo.magazine, ammo.reserve));
 		}
 	}
 	

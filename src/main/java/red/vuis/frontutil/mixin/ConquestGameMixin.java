@@ -40,7 +40,7 @@ public abstract class ConquestGameMixin extends AbstractGame<ConquestGame, Conqu
 		GameCommands.capturePointCommands(
 			command.subCommands.get("cpoint"),
 			capturePoints,
-			(player, name) -> new ConquestCapturePoint(gameManager, player, name)
+			(player, name) -> new ConquestCapturePoint(playerManager, player, name)
 		);
 	}
 }

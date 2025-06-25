@@ -13,11 +13,11 @@ repositories {
 }
 
 dependencies {
-    compileOnly(files("bflib-0.7.0.10b.jar", "geckolib-neoforge-1.21.1-4.7.3.jar"))
+    compileOnly(files("bflib-0.7.0.12b+1.jar", "geckolib-neoforge-1.21.1-4.7.3.jar"))
 }
 
 neoForge {
-    version = "21.1.172"
+    version = "21.1.183"
 
     parchment {
         minecraftVersion = "1.21.1"
@@ -34,8 +34,8 @@ neoForge {
 }
 
 vbmPlugin {
-    bfVersion = "0.7.0.10b"
-    mappings = file("0.7.0.10b-merged.tiny")
+    bfVersion = "0.7.0.12b+1"
+    mappings = file("0.7.0.12b+1-merged.tiny")
     runTask(tasks.named<RunGameTask>("runClient"))
 }
 

@@ -20,6 +20,8 @@
   "frontutil.message.command.loadout.openEditor.error.client.match": "Loadouts cannot be edited while you are in a match!",
   "frontutil.message.command.loadout.sync.error.client.match": "Loadouts cannot be synced while you are in a match!",
   "frontutil.message.command.loadout.write.error": "Failed to write loadouts to disk! Checks the server logs for more info.",
+  "frontutil.message.command.map.env.error.none": "You have to specify the environment!",
+  "frontutil.message.command.map.env.error.notFound": "Environment does not exist for map '%s'!",
   "frontutil.message.command.mapEffect.add.bulletTracerSpawner.error": "Failed to add bullet tracer spawner map effect for map '%s'.",
   "frontutil.message.command.mapEffect.add.bulletTracerSpawner.success": "Successfully added bullet tracer spawner map effect for map '%s'.",
   "frontutil.message.command.mapEffect.add.loopingSoundPoint.error": "Failed to add looping sound point map effect for map '%s'.",

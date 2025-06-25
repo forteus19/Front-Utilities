@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import red.vuis.frontutil.registry.AddonSounds;
+import red.vuis.frontutil.setup.AddonRegistryMigration;
 
 @Mod(FrontUtil.MOD_ID)
 public final class FrontUtil {
@@ -15,6 +16,7 @@ public final class FrontUtil {
 	
 	public FrontUtil(IEventBus eventBus) {
 		AddonSounds.init(eventBus);
+		AddonRegistryMigration.init();
 		
 		LOGGER.info("Front-Utilities is active!");
 	}
