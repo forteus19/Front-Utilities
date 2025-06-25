@@ -53,6 +53,16 @@ public final class AddonUtils {
 		return String.format("%.2f, %.2f, %.2f", vec.x, vec.y, vec.z);
 	}
 	
+	public static String listify(Iterable<String> strings) {
+		StringBuilder builder = new StringBuilder();
+		for (String str : strings) {
+			builder.append(str);
+			builder.append(", ");
+		}
+		builder.setLength(builder.length() - 2);
+		return builder.toString();
+	}
+	
 	public static void setPoseFromEntity(FDSPose pose, Entity entity) {
 		pose.position = copyVec3(entity.position());
 		pose.rotation = new Vec2(entity.getYHeadRot(), entity.getXRot());
