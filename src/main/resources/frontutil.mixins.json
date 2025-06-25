@@ -9,7 +9,8 @@
     "FallingArtilleryMapEffectAccessor",
     "GunItemAccessor",
     "MapAssetMixin",
-    "ParticleEmitterMapEffectAccessor"
+    "ParticleEmitterMapEffectAccessor",
+    "ParticleEmitterMapEffectMixin"
   ],
   "client": [
     "client.ClientCorpseManagerMixin",

@@ -252,6 +252,8 @@ public abstract class MapAssetMixin {
 					CommandUtils.sendBfaWarn(source, Component.translatable("frontutil.message.command.error.args.count"));
 					CommandUtils.sendBfaWarn(source, Component.literal("environment, particle, maxTick, x, y, z"));
 					CommandUtils.sendBfaWarn(source, Component.literal("environment, particle, maxTick, x, y, z, sound, soundVolume"));
+					CommandUtils.sendBfaWarn(source, Component.literal("environment, particle, maxTick, x, y, z, velX, velY, velZ"));
+					CommandUtils.sendBfaWarn(source, Component.literal("environment, particle, maxTick, x, y, z, velX, velY, velZ, sound, soundVolume"));
 					return;
 				}
 				

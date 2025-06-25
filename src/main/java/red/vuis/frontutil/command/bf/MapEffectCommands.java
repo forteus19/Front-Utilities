@@ -11,6 +11,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
+import red.vuis.frontutil.inject.ParticleEmitterMapEffectInject;
 import red.vuis.frontutil.mixin.BulletTracerSpawnerMapEffectAccessor;
 import red.vuis.frontutil.util.AddonUtils;
 
@@ -79,7 +80,7 @@ public final class MapEffectCommands {
 	
 	@Nullable
 	public static ParticleEmitterMapEffect parseParticleEmitter(@UnmodifiableView List<String> args) {
-		if (!(args.size() == 5 || args.size() == 7)) {
+		if (!(args.size() == 5 || args.size() == 7 || args.size() == 8 || args.size() == 10)) {
 			return null;
 		}
 		
@@ -95,15 +96,42 @@ public final class MapEffectCommands {
 		
 		var mapEffect = new ParticleEmitterMapEffect((SimpleParticleType) particle.get().get(), new Vec3(x.get(), y.get(), z.get()), maxTick.get());
 		
-		if (args.size() == 7) {
-			var sound = AddonUtils.parse(RegistryUtils::retrieveSoundEvent, args.get(5));
-			var soundVolume = AddonUtils.parse(Float::parseFloat, args.get(6));
-			
-			if (AddonUtils.anyEmpty(sound, soundVolume)) {
-				return null;
+		switch (args.size()) {
+			case 7 -> {
+				var sound = AddonUtils.parse(RegistryUtils::retrieveSoundEvent, args.get(5));
+				var soundVolume = AddonUtils.parse(Float::parseFloat, args.get(6));
+				
+				if (AddonUtils.anyEmpty(sound, soundVolume)) {
+					return null;
+				}
+				
+				mapEffect.method_3111(sound.get(), soundVolume.get());
 			}
-			
-			mapEffect.method_3111(sound.get(), soundVolume.get());
+			case 8 -> {
+				var velX = AddonUtils.parse(Double::parseDouble, args.get(5));
+				var velY = AddonUtils.parse(Double::parseDouble, args.get(6));
+				var velZ = AddonUtils.parse(Double::parseDouble, args.get(7));
+				
+				if (AddonUtils.anyEmpty(velX, velY, velZ)) {
+					return null;
+				}
+				
+				((ParticleEmitterMapEffectInject) mapEffect).frontutil$setVelocity(new Vec3(x.get(), y.get(), z.get()));
+			}
+			case 10 -> {
+				var velX = AddonUtils.parse(Double::parseDouble, args.get(5));
+				var velY = AddonUtils.parse(Double::parseDouble, args.get(6));
+				var velZ = AddonUtils.parse(Double::parseDouble, args.get(7));
+				var sound = AddonUtils.parse(RegistryUtils::retrieveSoundEvent, args.get(8));
+				var soundVolume = AddonUtils.parse(Float::parseFloat, args.get(9));
+				
+				if (AddonUtils.anyEmpty(sound, soundVolume, velX, velY, velZ)) {
+					return null;
+				}
+				
+				((ParticleEmitterMapEffectInject) mapEffect).frontutil$setVelocity(new Vec3(x.get(), y.get(), z.get()));
+				mapEffect.method_3111(sound.get(), soundVolume.get());
+			}
 		}
 		
 		return mapEffect;

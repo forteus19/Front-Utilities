@@ -9,6 +9,7 @@ import com.boehmod.blockfront.map.effect.ParticleEmitterMapEffect;
 import com.boehmod.blockfront.util.RegistryUtils;
 import com.boehmod.blockfront.util.math.FDSPose;
 
+import red.vuis.frontutil.inject.ParticleEmitterMapEffectInject;
 import red.vuis.frontutil.mixin.BulletTracerSpawnerMapEffectAccessor;
 import red.vuis.frontutil.mixin.FallingArtilleryMapEffectAccessor;
 import red.vuis.frontutil.mixin.ParticleEmitterMapEffectAccessor;
@@ -72,13 +73,17 @@ public final class InfoFunctions {
 			);
 			case ParticleEmitterMapEffect effect -> {
 				var accessor = (ParticleEmitterMapEffectAccessor) effect;
+				var inject = (ParticleEmitterMapEffectInject) effect;
 				yield String.format(
-					"particleEmitter (particle: %s, maxTick: %d, x: %.2f, y: %.2f, z: %.2f, sound: %s, soundVolume: %.2f)",
+					"particleEmitter (particle: %s, maxTick: %d, x: %.2f, y: %.2f, z: %.2f, velX: %.03f, velY: %.03f, velZ: %.03f, sound: %s, soundVolume: %.2f)",
 					accessor.getParticle() != null ? RegistryUtils.getParticleTypeId(accessor.getParticle()) : "null",
 					accessor.getMaxTick(),
 					effect.getPosition().x,
 					effect.getPosition().y,
 					effect.getPosition().z,
+					inject.frontutil$getVelocity().x,
+					inject.frontutil$getVelocity().y,
+					inject.frontutil$getVelocity().z,
 					accessor.getSound() != null ? RegistryUtils.getSoundEventId(accessor.getSound().get()) : "null",
 					accessor.getSoundVolume()
 				);
