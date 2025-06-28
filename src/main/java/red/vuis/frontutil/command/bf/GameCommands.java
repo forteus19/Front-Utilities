@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 import com.boehmod.blockfront.assets.AssetCommandBuilder;
-import com.boehmod.blockfront.assets.AssetCommandValidators;
 import com.boehmod.blockfront.game.AbstractCapturePoint;
 import com.boehmod.blockfront.util.BFStyles;
 import com.boehmod.blockfront.util.CommandUtils;
@@ -74,7 +73,7 @@ public final class GameCommands {
 			capturePoints.add(index, constructor.apply(player, name));
 			CommandUtils.sendBfa(player, Component.translatable("frontutil.message.command.game.cpoint.insert.success", name, indexComponent, capturePoints.size()));
 		}).validator(
-			AssetCommandValidators.count(new String[]{"index", "name"})
+			AssetCommandValidatorsEx.count("index", "name")
 		);
 	}
 	
@@ -93,7 +92,7 @@ public final class GameCommands {
 			capturePoints.get(index).name = name;
 			CommandUtils.sendBfa(source, Component.translatable("frontutil.message.command.game.cpoint.rename.success", indexComponent, name));
 		}).validator(
-			AssetCommandValidators.count(new String[]{"index", "name"})
+			AssetCommandValidatorsEx.count("index", "name")
 		);
 	}
 	
@@ -118,7 +117,7 @@ public final class GameCommands {
 			AddonUtils.setPoseFromEntity(capturePoint, player);
 			CommandUtils.sendBfa(player, Component.translatable("frontutil.message.command.game.cpoint.move.success", cpNameComponent, indexComponent, positionComponent));
 		}).validator(
-			AssetCommandValidators.count(new String[]{"index"})
+			AssetCommandValidatorsEx.count("index")
 		);
 	}
 	

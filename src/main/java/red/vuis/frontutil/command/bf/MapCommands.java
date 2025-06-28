@@ -24,8 +24,8 @@ import static red.vuis.frontutil.util.AddonAccessors.accessFallingArtillery;
 import static red.vuis.frontutil.util.AddonAccessors.accessParticleEmitter;
 
 @SuppressWarnings("OptionalGetWithoutIsPresent")
-public final class MapEffectCommands {
-	public static final PropertyRegistry PROPERTIES = new PropertyRegistry(
+public final class MapCommands {
+	public static final PropertyRegistry MAP_EFFECT_PROPERTIES = new PropertyRegistry(
 		new PropertyHandler<>(BulletTracerSpawnerMapEffect.class, Map.of(
 			"chance", new PropertyEntry<>(Float::parseFloat, (m, v) -> accessBulletTracerSpawner(m, a -> a.setChance(v))),
 			"endPosX", new PropertyEntry<>(Double::parseDouble, (m, v) -> accessBulletTracerSpawner(m, a -> a.setEndPos(AddonUtils.vec3WithX(a.getEndPos(), v)))),
@@ -65,7 +65,7 @@ public final class MapEffectCommands {
 		))
 	);
 	
-	private MapEffectCommands() {
+	private MapCommands() {
 	}
 	
 	@Nullable
