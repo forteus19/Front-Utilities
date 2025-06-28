@@ -19,6 +19,8 @@ import org.jetbrains.annotations.NotNull;
 
 import red.vuis.frontutil.mixin.GunItemAccessor;
 
+import static red.vuis.frontutil.util.AddonAccessors.applyGunItem;
+
 public record GunModifier(Optional<Ammo> ammo, Optional<List<Damage>> damage) {
 	public static final Map<Holder<Item>, GunModifier> ACTIVE = new Object2ObjectOpenHashMap<>();
 	public static final Codec<GunModifier> CODEC = RecordCodecBuilder.create(instance ->
@@ -60,10 +62,9 @@ public record GunModifier(Optional<Ammo> ammo, Optional<List<Damage>> damage) {
 		}
 		
 		private static void apply(Ammo ammo, @NotNull GunItem item) {
-			GunItemAccessor accessor = (GunItemAccessor) (Object) item;
-			
-			GunMagType prevMagType = accessor.getMagIdMap().get("default");
-			accessor.getMagIdMap().replace("default", new GunMagType(prevMagType.isDefault(), prevMagType.displayName(), ammo.magazine, ammo.reserve));
+			Map<String, GunMagType> magIdMap = applyGunItem(item, GunItemAccessor::getMagIdMap);
+			GunMagType prevMagType = magIdMap.get("default");
+			magIdMap.replace("default", new GunMagType(prevMagType.isDefault(), prevMagType.displayName(), ammo.magazine, ammo.reserve));
 		}
 	}
 	

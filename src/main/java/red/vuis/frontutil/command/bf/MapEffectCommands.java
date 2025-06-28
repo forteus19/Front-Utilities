@@ -1,22 +1,70 @@
 package red.vuis.frontutil.command.bf;
 
 import java.util.List;
+import java.util.Map;
 
 import com.boehmod.blockfront.map.effect.BulletTracerSpawnerMapEffect;
+import com.boehmod.blockfront.map.effect.FallingArtilleryMapEffect;
 import com.boehmod.blockfront.map.effect.LoopingSoundPointMapEffect;
 import com.boehmod.blockfront.map.effect.ParticleEmitterMapEffect;
+import com.boehmod.blockfront.map.effect.PositionedMapEffect;
 import com.boehmod.blockfront.util.RegistryUtils;
-import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
-import red.vuis.frontutil.inject.ParticleEmitterMapEffectInject;
-import red.vuis.frontutil.mixin.BulletTracerSpawnerMapEffectAccessor;
+import red.vuis.frontutil.util.AddonRegUtils;
 import red.vuis.frontutil.util.AddonUtils;
+import red.vuis.frontutil.util.property.PropertyEntry;
+import red.vuis.frontutil.util.property.PropertyHandler;
+import red.vuis.frontutil.util.property.PropertyRegistry;
+
+import static red.vuis.frontutil.util.AddonAccessors.accessBulletTracerSpawner;
+import static red.vuis.frontutil.util.AddonAccessors.accessFallingArtillery;
+import static red.vuis.frontutil.util.AddonAccessors.accessParticleEmitter;
 
 @SuppressWarnings("OptionalGetWithoutIsPresent")
 public final class MapEffectCommands {
+	public static final PropertyRegistry PROPERTIES = new PropertyRegistry(
+		new PropertyHandler<>(BulletTracerSpawnerMapEffect.class, Map.of(
+			"chance", new PropertyEntry<>(Float::parseFloat, (m, v) -> accessBulletTracerSpawner(m, a -> a.setChance(v))),
+			"endPosX", new PropertyEntry<>(Double::parseDouble, (m, v) -> accessBulletTracerSpawner(m, a -> a.setEndPos(AddonUtils.vec3WithX(a.getEndPos(), v)))),
+			"endPosY", new PropertyEntry<>(Double::parseDouble, (m, v) -> accessBulletTracerSpawner(m, a -> a.setEndPos(AddonUtils.vec3WithY(a.getEndPos(), v)))),
+			"endPosZ", new PropertyEntry<>(Double::parseDouble, (m, v) -> accessBulletTracerSpawner(m, a -> a.setEndPos(AddonUtils.vec3WithZ(a.getEndPos(), v)))),
+			"playSound", new PropertyEntry<>(Boolean::parseBoolean, (m, v) -> accessBulletTracerSpawner(m, a -> a.setPlaySound(v))),
+			"spreadX", new PropertyEntry<>(Double::parseDouble, (m, v) -> accessBulletTracerSpawner(m, a -> a.setSpread(AddonUtils.vec3WithX(a.getSpread(), v)))),
+			"spreadY", new PropertyEntry<>(Double::parseDouble, (m, v) -> accessBulletTracerSpawner(m, a -> a.setSpread(AddonUtils.vec3WithY(a.getSpread(), v)))),
+			"spreadZ", new PropertyEntry<>(Double::parseDouble, (m, v) -> accessBulletTracerSpawner(m, a -> a.setSpread(AddonUtils.vec3WithZ(a.getSpread(), v))))
+		)),
+		new PropertyHandler<>(FallingArtilleryMapEffect.class, Map.of(
+			"startX", new PropertyEntry<>(Float::parseFloat, (m, v) -> accessFallingArtillery(m, a -> a.setStart(AddonUtils.vec2WithX(a.getStart(), v)))),
+			"startY", new PropertyEntry<>(Float::parseFloat, (m, v) -> accessFallingArtillery(m, a -> a.setStart(AddonUtils.vec2WithY(a.getStart(), v)))),
+			"endX", new PropertyEntry<>(Float::parseFloat, (m, v) -> accessFallingArtillery(m, a -> a.setEnd(AddonUtils.vec2WithX(a.getEnd(), v)))),
+			"endY", new PropertyEntry<>(Float::parseFloat, (m, v) -> accessFallingArtillery(m, a -> a.setEnd(AddonUtils.vec2WithY(a.getEnd(), v))))
+		)),
+		new PropertyHandler<>(LoopingSoundPointMapEffect.class, Map.of(
+			"activationDistance", new PropertyEntry<>(Float::parseFloat, LoopingSoundPointMapEffect::setActivationDistance),
+			"maxTime", new PropertyEntry<>(Integer::parseUnsignedInt, (m, v) -> m.maxTime = v),
+			"pitch", new PropertyEntry<>(Float::parseFloat, LoopingSoundPointMapEffect::setPitch),
+			"sound", new PropertyEntry<>(RegistryUtils::retrieveSoundEvent, (m, v) -> m.sound = v),
+			"volume", new PropertyEntry<>(Float::parseFloat, LoopingSoundPointMapEffect::setVolume)
+		)),
+		new PropertyHandler<>(ParticleEmitterMapEffect.class, Map.of(
+			"maxTick", new PropertyEntry<>(Integer::parseUnsignedInt, (m, v) -> accessParticleEmitter(m, a -> a.setMaxTick(v))),
+			"particle", new PropertyEntry<>(AddonRegUtils::getSimpleParticle, (m, v) -> accessParticleEmitter(m, a -> a.setParticle(v))),
+			"sound", new PropertyEntry<>(RegistryUtils::retrieveSoundEvent, (m, v) -> accessParticleEmitter(m, a -> a.setSound(v))),
+			"soundVolume", new PropertyEntry<>(Float::parseFloat, (m, v) -> accessParticleEmitter(m, a -> a.setSoundVolume(v))),
+			"velX", new PropertyEntry<>(Double::parseDouble, (m, v) -> accessParticleEmitter(m, (a, i) -> i.frontutil$setVelocity(AddonUtils.vec3WithX(i.frontutil$getVelocity(), v)))),
+			"velY", new PropertyEntry<>(Double::parseDouble, (m, v) -> accessParticleEmitter(m, (a, i) -> i.frontutil$setVelocity(AddonUtils.vec3WithY(i.frontutil$getVelocity(), v)))),
+			"velZ", new PropertyEntry<>(Double::parseDouble, (m, v) -> accessParticleEmitter(m, (a, i) -> i.frontutil$setVelocity(AddonUtils.vec3WithZ(i.frontutil$getVelocity(), v))))
+		)),
+		new PropertyHandler<>(PositionedMapEffect.class, Map.of(
+			"x", new PropertyEntry<>(Double::parseDouble, (m, v) -> m.position = AddonUtils.vec3WithX(m.position, v)),
+			"y", new PropertyEntry<>(Double::parseDouble, (m, v) -> m.position = AddonUtils.vec3WithY(m.position, v)),
+			"z", new PropertyEntry<>(Double::parseDouble, (m, v) -> m.position = AddonUtils.vec3WithZ(m.position, v))
+		))
+	);
+	
 	private MapEffectCommands() {
 	}
 	
@@ -50,9 +98,10 @@ public final class MapEffectCommands {
 				return null;
 			}
 			
-			var accessor = (BulletTracerSpawnerMapEffectAccessor) mapEffect;
-			accessor.setChance(chance.get());
-			accessor.setPlaySound(playSound.get());
+			accessBulletTracerSpawner(mapEffect, accessor -> {
+				accessor.setChance(chance.get());
+				accessor.setPlaySound(playSound.get());
+			});
 			mapEffect.method_3105(new Vec3(spreadX.get(), spreadY.get(), spreadZ.get()));
 		}
 		
@@ -84,7 +133,7 @@ public final class MapEffectCommands {
 			return null;
 		}
 		
-		var particle = AddonUtils.parse(RegistryUtils::retrieveParticleType, args.get(0));
+		var particle = AddonUtils.parse(AddonRegUtils::getSimpleParticle, args.get(0));
 		var maxTick = AddonUtils.parse(Integer::parseInt, args.get(1));
 		var x = AddonUtils.parse(Double::parseDouble, args.get(2));
 		var y = AddonUtils.parse(Double::parseDouble, args.get(3));
@@ -94,7 +143,7 @@ public final class MapEffectCommands {
 			return null;
 		}
 		
-		var mapEffect = new ParticleEmitterMapEffect((SimpleParticleType) particle.get().get(), new Vec3(x.get(), y.get(), z.get()), maxTick.get());
+		var mapEffect = new ParticleEmitterMapEffect(particle.get(), new Vec3(x.get(), y.get(), z.get()), maxTick.get());
 		
 		switch (args.size()) {
 			case 7 -> {
@@ -116,7 +165,7 @@ public final class MapEffectCommands {
 					return null;
 				}
 				
-				((ParticleEmitterMapEffectInject) mapEffect).frontutil$setVelocity(new Vec3(x.get(), y.get(), z.get()));
+				accessParticleEmitter(mapEffect, (accessor, inject) -> inject.frontutil$setVelocity(new Vec3(x.get(), y.get(), z.get())));
 			}
 			case 10 -> {
 				var velX = AddonUtils.parse(Double::parseDouble, args.get(5));
@@ -129,7 +178,7 @@ public final class MapEffectCommands {
 					return null;
 				}
 				
-				((ParticleEmitterMapEffectInject) mapEffect).frontutil$setVelocity(new Vec3(x.get(), y.get(), z.get()));
+				accessParticleEmitter(mapEffect, (accessor, inject) -> inject.frontutil$setVelocity(new Vec3(x.get(), y.get(), z.get())));
 				mapEffect.method_3111(sound.get(), soundVolume.get());
 			}
 		}

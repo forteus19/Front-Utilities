@@ -28,6 +28,9 @@ import red.vuis.frontutil.FrontUtil;
 import red.vuis.frontutil.data.AddonCodecs;
 import red.vuis.frontutil.mixin.DivisionDataAccessor;
 
+import static red.vuis.frontutil.util.AddonAccessors.accessDivisionData;
+import static red.vuis.frontutil.util.AddonAccessors.applyDivisionData;
+
 public final class LoadoutIndex {
 	public static final Map<String, BFCountry> COUNTRIES = new Object2ObjectOpenHashMap<>();
 	public static final Map<BFCountry, List<String>> SKINS = new EnumMap<>(BFCountry.class);
@@ -94,8 +97,7 @@ public final class LoadoutIndex {
 	
 	public static void apply(Map<Identifier, List<Loadout>> loadouts) {
 		for (DivisionData divisionData : DivisionData.INSTANCES) {
-			DivisionDataAccessor accessor = (DivisionDataAccessor) (Object) divisionData;
-			accessor.getRawLoadouts().clear();
+			accessDivisionData(divisionData, accessor -> accessor.getRawLoadouts().clear());
 		}
 		
 		for (Map.Entry<Identifier, List<Loadout>> entry : loadouts.entrySet()) {
@@ -106,8 +108,7 @@ public final class LoadoutIndex {
 			if (divisionData == null) {
 				continue;
 			}
-			DivisionDataAccessor accessor = (DivisionDataAccessor) (Object) divisionData;
-			Map<MatchClass, List<Loadout>> rawLoadouts = accessor.getRawLoadouts();
+			Map<MatchClass, List<Loadout>> rawLoadouts = applyDivisionData(divisionData, DivisionDataAccessor::getRawLoadouts);
 			
 			List<Loadout> clonedLoadouts = new ObjectArrayList<>();
 			value.forEach(loudout -> clonedLoadouts.add(cloneLoadout(loudout)));

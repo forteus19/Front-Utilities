@@ -11,6 +11,7 @@ import com.boehmod.blockfront.assets.AssetCommandValidators;
 import com.boehmod.blockfront.assets.impl.MapAsset;
 import com.boehmod.blockfront.common.match.DivisionData;
 import com.boehmod.blockfront.map.MapEnvironment;
+import com.boehmod.blockfront.map.effect.AbstractMapEffect;
 import com.boehmod.blockfront.util.BFStyles;
 import com.boehmod.blockfront.util.CommandUtils;
 import com.mojang.brigadier.context.CommandContext;
@@ -35,6 +36,7 @@ import red.vuis.frontutil.command.bf.InfoFunctions;
 import red.vuis.frontutil.command.bf.MapEffectCommands;
 import red.vuis.frontutil.data.bf.AddonMapAssetData;
 import red.vuis.frontutil.util.AddonUtils;
+import red.vuis.frontutil.util.property.PropertyHandleResult;
 
 @Mixin(MapAsset.class)
 public abstract class MapAssetMixin {
@@ -145,6 +147,54 @@ public abstract class MapAssetMixin {
 	
 	@Unique
 	private AssetCommandBuilder frontutil$addMapEffectCommands(AssetCommandBuilder baseCommand) {
+		baseCommand.subCommand("edit", new AssetCommandBuilder((context, fixedArgs) -> {
+			CommandSource source = context.getSource().source;
+			
+			List<String> args = new ArrayList<>(Arrays.asList(fixedArgs));
+			
+			var envResult = frontutil$getEnvironment(context, args);
+			if (envResult == null) return;
+			MapEnvironment env = environments.get(envResult.first());
+			
+			var indexParse = AddonAssetCommands.parseIndex(source, args.getFirst(), env.getMapEffects(), false);
+			if (indexParse == null) {
+				return;
+			}
+			int index = indexParse.leftInt();
+			Component indexComponent = indexParse.right();
+			AbstractMapEffect mapEffect = env.getMapEffects().get(index);
+			
+			String property = args.get(1);
+			String value = args.get(2);
+			
+			PropertyHandleResult result = MapEffectCommands.PROPERTIES.handle(mapEffect, property, value);
+			switch (result) {
+				case SUCCESS -> CommandUtils.sendBfa(source, Component.translatable(
+					"frontutil.message.command.map.mapEffect.edit.success",
+					Component.literal(property).withStyle(BFStyles.LIME),
+					Component.literal(value).withStyle(BFStyles.LIME),
+					indexComponent
+				));
+				case ERROR_PROPERTY -> CommandUtils.sendBfa(source, Component.translatable(
+					"frontutil.message.command.map.mapEffect.edit.error.property",
+					Component.literal(property).withStyle(BFStyles.LIME),
+					indexComponent
+				));
+				case ERROR_PARSE -> CommandUtils.sendBfa(source, Component.translatable(
+					"frontutil.message.command.map.mapEffect.edit.error.parse",
+					Component.literal(value).withStyle(BFStyles.LIME),
+					Component.literal(property).withStyle(BFStyles.LIME),
+					indexComponent
+				));
+				case ERROR_TYPE -> CommandUtils.sendBfa(source, Component.translatable(
+					"frontutil.message.command.map.mapEffect.edit.error.type",
+					indexComponent
+				));
+			}
+		}).validator(
+			AssetCommandValidatorsEx.count("environment", "index", "property", "value")
+		));
+		
 		baseCommand.subCommand("list", new AssetCommandBuilder((context, fixedArgs) -> {
 			List<String> args = new ArrayList<>(Arrays.asList(fixedArgs));
 			
@@ -164,6 +214,41 @@ public abstract class MapAssetMixin {
 			AssetCommandValidatorsEx.count("environment")
 		));
 		
+		baseCommand.subCommand("properties", new AssetCommandBuilder((context, fixedArgs) -> {
+			CommandSource source = context.getSource().source;
+			
+			List<String> args = new ArrayList<>(Arrays.asList(fixedArgs));
+			
+			var envResult = frontutil$getEnvironment(context, args);
+			if (envResult == null) return;
+			MapEnvironment env = environments.get(envResult.first());
+			
+			var indexParse = AddonAssetCommands.parseIndex(source, args.getFirst(), env.getMapEffects(), false);
+			if (indexParse == null) {
+				return;
+			}
+			int index = indexParse.leftInt();
+			Component indexComponent = indexParse.right();
+			AbstractMapEffect mapEffect = env.getMapEffects().get(index);
+			
+			List<String> properties = MapEffectCommands.PROPERTIES.getProperties(mapEffect);
+			
+			if (properties.isEmpty()) {
+				CommandUtils.sendBfa(source, Component.translatable(
+					"frontutil.message.command.map.mapEffect.properties.none",
+					indexComponent
+				));
+			} else {
+				CommandUtils.sendBfa(source, Component.translatable(
+					"frontutil.message.command.map.mapEffect.properties.header",
+					indexComponent
+				));
+				CommandUtils.sendBfa(source, Component.literal(AddonUtils.listify(properties)));
+			}
+		}).validator(
+			AssetCommandValidatorsEx.count("environment", "index")
+		));
+		
 		baseCommand.subCommand("remove", new AssetCommandBuilder((context, fixedArgs) -> {
 			List<String> args = new ArrayList<>(Arrays.asList(fixedArgs));
 			
@@ -179,6 +264,25 @@ public abstract class MapAssetMixin {
 			);
 		}).validator(
 			AssetCommandValidatorsEx.count("environment", "index")
+		));
+		
+		baseCommand.subCommand("types", new AssetCommandBuilder((context, fixedArgs) -> {
+			List<String> args = new ArrayList<>(Arrays.asList(fixedArgs));
+			
+			var envResult = frontutil$getEnvironment(context, args);
+			if (envResult == null) return;
+			MapEnvironment env = environments.get(envResult.first());
+			
+			AddonAssetCommands.genericList(
+				context,
+				this::getName,
+				"frontutil.message.command.map.mapEffect.list.none",
+				"frontutil.message.command.map.mapEffect.types.header",
+				env.getMapEffects(),
+				InfoFunctions::mapEffectType
+			);
+		}).validator(
+			AssetCommandValidatorsEx.count("environment")
 		));
 		
 		AssetCommandBuilder addCommand = new AssetCommandBuilder();

@@ -9,10 +9,9 @@ import com.boehmod.blockfront.map.effect.ParticleEmitterMapEffect;
 import com.boehmod.blockfront.util.RegistryUtils;
 import com.boehmod.blockfront.util.math.FDSPose;
 
-import red.vuis.frontutil.inject.ParticleEmitterMapEffectInject;
-import red.vuis.frontutil.mixin.BulletTracerSpawnerMapEffectAccessor;
-import red.vuis.frontutil.mixin.FallingArtilleryMapEffectAccessor;
-import red.vuis.frontutil.mixin.ParticleEmitterMapEffectAccessor;
+import static red.vuis.frontutil.util.AddonAccessors.applyBulletTracerSpawner;
+import static red.vuis.frontutil.util.AddonAccessors.applyFallingArtillery;
+import static red.vuis.frontutil.util.AddonAccessors.applyParticleEmitter;
 
 public final class InfoFunctions {
 	private InfoFunctions() {
@@ -31,37 +30,41 @@ public final class InfoFunctions {
 		return String.format("%s %s", capturePoint.name, pose(capturePoint));
 	}
 	
-	public static String mapEffect(AbstractMapEffect absEffect) {
+	public static String mapEffectType(AbstractMapEffect absEffect) {
 		return switch (absEffect) {
-			case BulletTracerSpawnerMapEffect effect -> {
-				var accessor = (BulletTracerSpawnerMapEffectAccessor) effect;
-				yield String.format(
-					"bulletTracerSpawner (x: %.2f, y: %.2f, z: %.2f, endPosX: %.2f, endPosY: %.2f, endPosZ: %.2f, chance: %.2f, playSound: %b, spreadX: %.2f, spreadY: %.2f, spreadZ: %.2f",
-					effect.position.x,
-					effect.position.y,
-					effect.position.z,
-					accessor.getEndPos().x,
-					accessor.getEndPos().y,
-					accessor.getEndPos().z,
-					accessor.getChance(),
-					accessor.getPlaySound(),
-					accessor.getSpread().x,
-					accessor.getSpread().y,
-					accessor.getSpread().z
-				);
-			}
-			case FallingArtilleryMapEffect effect -> {
-				var accessor = (FallingArtilleryMapEffectAccessor) effect;
-				yield String.format(
-					"fallingArtillery (minX: %.2f, minZ: %.2f, maxX: %.2f, maxZ: %.2f)",
-					accessor.getMin().x,
-					accessor.getMin().y,
-					accessor.getMax().x,
-					accessor.getMax().y
-				);
-			}
+			case BulletTracerSpawnerMapEffect ignored -> "bulletTracerSpawner";
+			case FallingArtilleryMapEffect ignored -> "fallingArtillery";
+			case LoopingSoundPointMapEffect ignored -> "loopingSoundPoint";
+			case ParticleEmitterMapEffect ignored -> "particleEmitter";
+			default -> "unknown";
+		};
+	}
+	
+	public static String mapEffect(AbstractMapEffect absEffect) {
+		return mapEffectType(absEffect) + switch (absEffect) {
+			case BulletTracerSpawnerMapEffect effect -> applyBulletTracerSpawner(effect, accessor -> String.format(
+				" (x: %.2f, y: %.2f, z: %.2f, endPosX: %.2f, endPosY: %.2f, endPosZ: %.2f, chance: %.2f, playSound: %b, spreadX: %.2f, spreadY: %.2f, spreadZ: %.2f",
+				effect.position.x,
+				effect.position.y,
+				effect.position.z,
+				accessor.getEndPos().x,
+				accessor.getEndPos().y,
+				accessor.getEndPos().z,
+				accessor.getChance(),
+				accessor.getPlaySound(),
+				accessor.getSpread().x,
+				accessor.getSpread().y,
+				accessor.getSpread().z
+			));
+			case FallingArtilleryMapEffect effect -> applyFallingArtillery(effect, accessor -> String.format(
+				" (startX: %.2f, startY: %.2f, endX: %.2f, endY: %.2f)",
+				accessor.getStart().x,
+				accessor.getStart().y,
+				accessor.getEnd().x,
+				accessor.getEnd().y
+			));
 			case LoopingSoundPointMapEffect effect -> String.format(
-				"loopingSoundPoint (sound: %s, maxTime: %d, x: %.2f, y: %.2f, z: %.2f, volume: %.2f, pitch: %.2f, activationDistance: %.2f)",
+				" (sound: %s, maxTime: %d, x: %.2f, y: %.2f, z: %.2f, volume: %.2f, pitch: %.2f, activationDistance: %.2f)",
 				effect.sound != null ? RegistryUtils.getSoundEventId(effect.sound.get()) : "null",
 				effect.maxTime,
 				effect.position.x,
@@ -71,24 +74,20 @@ public final class InfoFunctions {
 				effect.pitch,
 				effect.activationDistance
 			);
-			case ParticleEmitterMapEffect effect -> {
-				var accessor = (ParticleEmitterMapEffectAccessor) effect;
-				var inject = (ParticleEmitterMapEffectInject) effect;
-				yield String.format(
-					"particleEmitter (particle: %s, maxTick: %d, x: %.2f, y: %.2f, z: %.2f, velX: %.03f, velY: %.03f, velZ: %.03f, sound: %s, soundVolume: %.2f)",
-					accessor.getParticle() != null ? RegistryUtils.getParticleTypeId(accessor.getParticle()) : "null",
-					accessor.getMaxTick(),
-					effect.getPosition().x,
-					effect.getPosition().y,
-					effect.getPosition().z,
-					inject.frontutil$getVelocity().x,
-					inject.frontutil$getVelocity().y,
-					inject.frontutil$getVelocity().z,
-					accessor.getSound() != null ? RegistryUtils.getSoundEventId(accessor.getSound().get()) : "null",
-					accessor.getSoundVolume()
-				);
-			}
-			default -> "unknown";
+			case ParticleEmitterMapEffect effect -> applyParticleEmitter(effect, (accessor, inject) -> String.format(
+				" (particle: %s, maxTick: %d, x: %.2f, y: %.2f, z: %.2f, velX: %.03f, velY: %.03f, velZ: %.03f, sound: %s, soundVolume: %.2f)",
+				accessor.getParticle() != null ? RegistryUtils.getParticleTypeId(accessor.getParticle()) : "null",
+				accessor.getMaxTick(),
+				effect.getPosition().x,
+				effect.getPosition().y,
+				effect.getPosition().z,
+				inject.frontutil$getVelocity().x,
+				inject.frontutil$getVelocity().y,
+				inject.frontutil$getVelocity().z,
+				accessor.getSound() != null ? RegistryUtils.getSoundEventId(accessor.getSound().get()) : "null",
+				accessor.getSoundVolume()
+			));
+			default -> "";
 		};
 	}
 }

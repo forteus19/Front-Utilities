@@ -8,8 +8,14 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(FallingArtilleryMapEffect.class)
 public interface FallingArtilleryMapEffectAccessor {
 	@Accessor("field_3050")
-	Vec2 getMin();
+	Vec2 getStart();
+	
+	@Accessor("field_3050")
+	void setStart(Vec2 start);
 	
 	@Accessor("field_3051")
-	Vec2 getMax();
+	Vec2 getEnd();
+	
+	@Accessor("field_3051")
+	void setEnd(Vec2 start);
 }

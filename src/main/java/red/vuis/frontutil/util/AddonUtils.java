@@ -45,6 +45,26 @@ public final class AddonUtils {
 		return Stream.concat(StreamSupport.stream(parent.spliterator(), false), Arrays.stream(other)).toList();
 	}
 	
+	public static Vec2 vec2WithX(Vec2 original, float x) {
+		return new Vec2(x, original.y);
+	}
+	
+	public static Vec2 vec2WithY(Vec2 original, float y) {
+		return new Vec2(original.x, y);
+	}
+	
+	public static Vec3 vec3WithX(Vec3 original, double x) {
+		return new Vec3(x, original.y, original.z);
+	}
+	
+	public static Vec3 vec3WithY(Vec3 original, double y) {
+		return new Vec3(original.x, y, original.z);
+	}
+	
+	public static Vec3 vec3WithZ(Vec3 original, double z) {
+		return new Vec3(original.x, original.y, z);
+	}
+	
 	public static Vec3 copyVec3(Vec3 other) {
 		return new Vec3(other.x, other.y, other.z);
 	}

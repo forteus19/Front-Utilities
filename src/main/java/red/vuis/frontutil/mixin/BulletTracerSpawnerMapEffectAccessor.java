@@ -10,6 +10,9 @@ public interface BulletTracerSpawnerMapEffectAccessor {
 	@Accessor("field_3152")
 	Vec3 getEndPos();
 	
+	@Accessor("field_3152")
+	void setEndPos(Vec3 endPos);
+	
 	@Accessor("field_3154")
 	float getChance();
 	
@@ -24,4 +27,7 @@ public interface BulletTracerSpawnerMapEffectAccessor {
 	
 	@Accessor("field_3151")
 	Vec3 getSpread();
+	
+	@Accessor("field_3151")
+	void setSpread(Vec3 spread);
 }

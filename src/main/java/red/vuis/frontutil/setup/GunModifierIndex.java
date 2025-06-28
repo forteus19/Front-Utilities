@@ -11,6 +11,8 @@ import net.minecraft.world.item.Item;
 import red.vuis.frontutil.data.GunModifier;
 import red.vuis.frontutil.mixin.GunItemAccessor;
 
+import static red.vuis.frontutil.util.AddonAccessors.applyGunItem;
+
 public final class GunModifierIndex {
 	public static final Map<Holder<Item>, GunModifier> DEFAULT = new Object2ObjectOpenHashMap<>();
 	
@@ -22,11 +24,10 @@ public final class GunModifierIndex {
 			if (!(item instanceof GunItem gunItem)) {
 				continue;
 			}
-			GunItemAccessor accessor = (GunItemAccessor) (Object) gunItem;
 			DEFAULT.put(
-				BuiltInRegistries.ITEM.wrapAsHolder(item),
+				BuiltInRegistries.ITEM.wrapAsHolder(gunItem),
 				new GunModifier(
-					GunModifier.Ammo.of(accessor.getMagIdMap().get("default")),
+					GunModifier.Ammo.of(applyGunItem(gunItem, GunItemAccessor::getMagIdMap).get("default")),
 					GunModifier.Damage.of(gunItem.getDamageConfig())
 				)
 			);

@@ -13,12 +13,24 @@ public interface ParticleEmitterMapEffectAccessor {
 	@Accessor("field_3165")
 	SimpleParticleType getParticle();
 	
+	@Accessor("field_3165")
+	void setParticle(SimpleParticleType particle);
+	
 	@Accessor("field_3168")
 	int getMaxTick();
+	
+	@Accessor("field_3168")
+	void setMaxTick(int maxTick);
 	
 	@Accessor("field_3167")
 	Supplier<SoundEvent> getSound();
 	
+	@Accessor("field_3167")
+	void setSound(Supplier<SoundEvent> sound);
+	
 	@Accessor("field_3166")
 	float getSoundVolume();
+	
+	@Accessor("field_3166")
+	void setSoundVolume(float soundVolume);
 }
