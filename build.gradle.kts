@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "red.vuis"
-version = "0.1.0-0.7.0.12b"
+version = "0.1.1-0.7.0.12b"
 
 repositories {
     mavenCentral()
