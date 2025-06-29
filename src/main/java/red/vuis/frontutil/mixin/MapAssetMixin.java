@@ -48,6 +48,10 @@ public abstract class MapAssetMixin {
 	@Shadow
 	private @NotNull String name;
 	@Shadow
+	private @NotNull DivisionData alliesDivision;
+	@Shadow
+	private @NotNull DivisionData axisDivision;
+	@Shadow
 	@Final
 	private @NotNull AssetCommandBuilder command;
 	
@@ -62,6 +66,7 @@ public abstract class MapAssetMixin {
 		command.subCommand("color", frontutil$addColorCommands(new AssetCommandBuilder()));
 		command.subCommand("env", frontutil$addEnvironmentCommands(new AssetCommandBuilder()));
 		command.subCommand("mapEffect", frontutil$addMapEffectCommands(new AssetCommandBuilder()));
+		frontutil$addTeamsCommands(command.subCommands.get("teams"));
 	}
 	
 	@Inject(
@@ -451,6 +456,24 @@ public abstract class MapAssetMixin {
 			}));
 		
 		baseCommand.subCommand("add", addCommand);
+		
+		return baseCommand;
+	}
+	
+	@Unique
+	private AssetCommandBuilder frontutil$addTeamsCommands(AssetCommandBuilder baseCommand) {
+		baseCommand.subCommand("list", new AssetCommandBuilder((context, args) -> {
+			Component nameComponent = Component.literal(name).withStyle(BFStyles.LIME);
+			CommandSource source = context.getSource().source;
+			
+			CommandUtils.sendBfa(source, Component.translatable(
+				"frontutil.message.command.map.teams.list.header",
+				nameComponent
+			));
+			
+			CommandUtils.sendBfa(source, Component.literal(String.format("Allies: %s (%s)", alliesDivision.getCountry().getName(), alliesDivision.getSkin())));
+			CommandUtils.sendBfa(source, Component.literal(String.format("Axis: %s (%s)", axisDivision.getCountry().getName(), axisDivision.getSkin())));
+		}));
 		
 		return baseCommand;
 	}
