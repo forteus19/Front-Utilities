@@ -2,11 +2,12 @@ package red.vuis.frontutil.data;
 
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.ToIntFunction;
 
+import com.boehmod.blockfront.common.gun.GunFireMode;
 import com.boehmod.blockfront.common.match.BFCountry;
 import com.boehmod.blockfront.common.match.Loadout;
 import com.boehmod.blockfront.common.match.MatchClass;
+import com.boehmod.blockfront.unnamed.BF_959;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -18,8 +19,10 @@ import org.jetbrains.annotations.NotNull;
 import red.vuis.frontutil.setup.LoadoutIndex;
 
 public final class AddonStreamCodecs {
-	public static final StreamCodec<ByteBuf, BFCountry> BF_COUNTRY = enumOrdinal(BFCountry.class);
-	public static final StreamCodec<ByteBuf, MatchClass> MATCH_CLASS = enumOrdinal(MatchClass.class);
+	public static final StreamCodec<ByteBuf, BFCountry> BF_COUNTRY = enumOrdinal(BFCountry.values());
+	public static final StreamCodec<ByteBuf, GunFireMode> GUN_FIRE_MODE = enumOrdinal(GunFireMode.values());
+	public static final StreamCodec<ByteBuf, BF_959> GUN_FIRE_TYPE = enumOrdinal(BF_959.values());
+	public static final StreamCodec<ByteBuf, MatchClass> MATCH_CLASS = enumOrdinal(MatchClass.values());
 	public static final StreamCodec<RegistryFriendlyByteBuf, Loadout> LOADOUT = new StreamCodec<>() {
 		@Override
 		public @NotNull Loadout decode(@NotNull RegistryFriendlyByteBuf buf) {
@@ -63,13 +66,11 @@ public final class AddonStreamCodecs {
 	private AddonStreamCodecs() {
 	}
 	
-	public static <T extends Enum<T>> StreamCodec<ByteBuf, T> enumOrdinal(Class<T> clazz, ByIdMap.OutOfBoundsStrategy oobStrategy) {
-		ToIntFunction<T> ordinalFunc = Enum::ordinal;
-		T[] values = clazz.getEnumConstants();
-		return ByteBufCodecs.idMapper(ByIdMap.continuous(ordinalFunc, values, oobStrategy), ordinalFunc);
+	public static <T extends Enum<T>> StreamCodec<ByteBuf, T> enumOrdinal(T[] values, ByIdMap.OutOfBoundsStrategy oobStrategy) {
+		return ByteBufCodecs.idMapper(ByIdMap.continuous(Enum::ordinal, values, oobStrategy), Enum::ordinal);
 	}
 	
-	public static <T extends Enum<T>> StreamCodec<ByteBuf, T> enumOrdinal(Class<T> clazz) {
-		return enumOrdinal(clazz, ByIdMap.OutOfBoundsStrategy.ZERO);
+	public static <T extends Enum<T>> StreamCodec<ByteBuf, T> enumOrdinal(T[] values) {
+		return enumOrdinal(values, ByIdMap.OutOfBoundsStrategy.ZERO);
 	}
 }

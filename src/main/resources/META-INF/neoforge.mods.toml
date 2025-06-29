@@ -7,7 +7,7 @@ config = "frontutil.mixins.json"
 
 [[mods]]
 modId = "frontutil"
-version = "0.1.1-0.7.0.12b"
+version = "0.1.1-0.7.0.13b"
 displayName = "Front-Utilities"
 description = '''Helper stuff for BlockFront'''
 
@@ -28,6 +28,6 @@ side = "BOTH"
 [[dependencies.frontutil]]
 modId = "bf"
 type = "required"
-versionRange = "[0.7.0.12b]"
+versionRange = "[0.7.0.13b]"
 ordering = "AFTER"
 side = "BOTH"

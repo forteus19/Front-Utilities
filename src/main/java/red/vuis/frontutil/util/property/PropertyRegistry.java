@@ -49,7 +49,7 @@ public class PropertyRegistry {
 		
 		return handleEntry(handler.type(), entry, object, arg);
 	}
-
+	
 	private static <O, V> PropertyHandleResult handleEntry(Class<O> clazz, PropertyEntry<O, V> entry, Object object, String arg) {
 		Optional<V> result = AddonUtils.parse(entry.parser(), arg);
 		if (result.isEmpty()) {

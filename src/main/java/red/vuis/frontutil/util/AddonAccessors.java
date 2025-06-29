@@ -33,7 +33,7 @@ public final class AddonAccessors {
 	public static <R> R applyBulletTracerSpawner(BulletTracerSpawnerMapEffect mapEffect, Function<BulletTracerSpawnerMapEffectAccessor, R> function) {
 		return function.apply((BulletTracerSpawnerMapEffectAccessor) mapEffect);
 	}
-
+	
 	public static DivisionData accessDivisionData(DivisionData divisionData, Consumer<DivisionDataAccessor> consumer) {
 		consumer.accept((DivisionDataAccessor) (Object) divisionData);
 		return divisionData;

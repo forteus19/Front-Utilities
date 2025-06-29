@@ -28,7 +28,9 @@ public final class GunModifierIndex {
 				BuiltInRegistries.ITEM.wrapAsHolder(gunItem),
 				new GunModifier(
 					GunModifier.Ammo.of(applyGunItem(gunItem, GunItemAccessor::getMagIdMap).get("default")),
-					GunModifier.Damage.of(gunItem.getDamageConfig())
+					GunModifier.Damage.of(gunItem.getDamageConfig()),
+					GunModifier.FireMode.of(gunItem.getFireConfigs()),
+					gunItem.getWeight(null) // Unused parameter
 				)
 			);
 		}

@@ -283,7 +283,7 @@ public class LoadoutEditorScreen extends AddonScreen {
 		countryButton.setMessage(Component.literal(selection.country.getName()));
 		skinButton.setMessage(Component.literal(StringUtils.capitalize(LoadoutIndex.SKINS.get(selection.country).get(selection.skinIndex))));
 		matchClassButton.setMessage(Component.translatable(selection.matchClass.getDisplayTitle()));
-
+		
 		List<Loadout> loadouts = getSelectedTempLoadouts();
 		if (loadouts != null && !loadouts.isEmpty()) {
 			if (selection.level < 0) {

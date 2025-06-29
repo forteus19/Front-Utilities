@@ -44,7 +44,8 @@ public final class LoadoutIndex {
 	
 	public static final String DEFAULT_LOADOUTS_PATH_NAME = "loadouts.dat";
 	
-	private LoadoutIndex() {}
+	private LoadoutIndex() {
+	}
 	
 	public static void init() {
 		for (DivisionData division : DivisionData.INSTANCES) {

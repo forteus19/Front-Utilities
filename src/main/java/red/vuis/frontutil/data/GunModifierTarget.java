@@ -22,7 +22,10 @@ import org.jetbrains.annotations.Nullable;
 
 import red.vuis.frontutil.FrontUtil;
 
-public record GunModifierTarget(List<ResourceLocation> targets, ResourceLocation modifier) {
+public record GunModifierTarget(
+	List<ResourceLocation> targets,
+	ResourceLocation modifier
+) {
 	public static final List<GunModifierTarget> ACTIVE = new ObjectArrayList<>();
 	public static final Codec<GunModifierTarget> CODEC = RecordCodecBuilder.create(instance ->
 		instance.group(

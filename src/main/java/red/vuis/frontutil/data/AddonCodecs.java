@@ -6,9 +6,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
+import com.boehmod.blockfront.common.gun.GunFireMode;
 import com.boehmod.blockfront.common.match.BFCountry;
 import com.boehmod.blockfront.common.match.Loadout;
 import com.boehmod.blockfront.common.match.MatchClass;
+import com.boehmod.blockfront.unnamed.BF_959;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -18,6 +20,8 @@ import net.minecraft.world.item.ItemStack;
 import red.vuis.frontutil.setup.LoadoutIndex;
 
 public final class AddonCodecs {
+	public static final Codec<GunFireMode> GUN_FIRE_MODE = stringKey(GunFireMode.values(), mode -> mode.getName().toLowerCase(), key -> "Invalid fire mode: " + key);
+	public static final Codec<BF_959> GUN_FIRE_TYPE = stringKey(BF_959.values(), mode -> mode.name().toLowerCase(), key -> "Invalid fire type: " + key);
 	public static final Codec<Loadout> LOADOUT = RecordCodecBuilder.create(instance ->
 		instance.group(
 			ItemStack.CODEC.optionalFieldOf("primary").forGetter(wrapLoadoutGetter(Loadout::getPrimary)),

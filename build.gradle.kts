@@ -6,14 +6,14 @@ plugins {
 }
 
 group = "red.vuis"
-version = "0.1.1-0.7.0.12b"
+version = "0.1.1-0.7.0.13b"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    compileOnly(files("bflib-0.7.0.12b+1.jar", "geckolib-neoforge-1.21.1-4.7.3.jar"))
+    compileOnly(files("bflib-0.7.0.13b.jar", "geckolib-neoforge-1.21.1-4.7.3.jar"))
 }
 
 neoForge {
@@ -34,8 +34,8 @@ neoForge {
 }
 
 vbmPlugin {
-    bfVersion = "0.7.0.12b+1"
-    mappings = file("0.7.0.12b+1-merged.tiny")
+    bfVersion = "0.7.0.13b"
+    mappings = file("0.7.0.13b-merged.tiny")
     runTask(tasks.named<RunGameTask>("runClient"))
 }
 
