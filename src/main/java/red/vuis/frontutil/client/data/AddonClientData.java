@@ -87,6 +87,7 @@ public final class AddonClientData {
 	
 	public void syncTempLoadouts() {
 		LoadoutIndex.apply(tempLoadouts);
+		reloadLoadouts();
 		
 		if (!Minecraft.getInstance().isLocalServer()) {
 			FrontUtil.LOGGER.info("Syncing edited loadouts with the server...");

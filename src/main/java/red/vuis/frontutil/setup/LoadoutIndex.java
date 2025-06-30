@@ -105,6 +105,10 @@ public final class LoadoutIndex {
 			Identifier id = entry.getKey();
 			List<Loadout> value = entry.getValue();
 			
+			if (value.isEmpty()) {
+				continue;
+			}
+			
 			DivisionData divisionData = DivisionData.getByCountryAndSkin(id.country(), id.skin());
 			if (divisionData == null) {
 				continue;
