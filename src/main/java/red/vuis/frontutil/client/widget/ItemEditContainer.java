@@ -64,9 +64,7 @@ public class ItemEditContainer implements CompoundWidget {
 	
 	public ItemStack getValue() {
 		Item item = BuiltInRegistries.ITEM.get(ResourceLocation.tryParse(itemIdBox.getValue()));
-		return countBox.getIntValue()
-			.map(integer -> new ItemStack(item, integer))
-			.orElse(ItemStack.EMPTY);
+		return item == Items.AIR ? ItemStack.EMPTY : new ItemStack(item, countBox.getIntValue().orElse(1));
 	}
 	
 	public void setValue(ItemStack itemStack) {
