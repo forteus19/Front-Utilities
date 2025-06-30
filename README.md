@@ -10,6 +10,8 @@ Most of the time you're gonna be consulting the [wiki](https://github.com/forteu
 * Loadout editor (see gallery)
 * Gun modifiers (very experimental)
 
+<!-- modrinth_exclude.start -->
+
 ## Installation
 
 The downloads for the mod can be found on the [Modrinth](https://modrinth.com/mod/front-utilities/versions) page.
@@ -17,6 +19,8 @@ The downloads for the mod can be found on the [Modrinth](https://modrinth.com/mo
 ## License
 
 Front-Utilities is licensed under the GNU General Public License version 3.
+
+<!-- modrinth_exclude.end -->
 
 ## Disclaimer
 

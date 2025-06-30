@@ -3,6 +3,7 @@ import net.neoforged.moddevgradle.internal.RunGameTask
 plugins {
     id("net.neoforged.moddev") version "2.0.89"
     id("red.vuis.vbm-plugin") version "1.0-SNAPSHOT"
+    id("com.modrinth.minotaur") version "2.+"
 }
 
 group = "red.vuis"
@@ -27,7 +28,7 @@ neoForge {
     runs {
         create("client") {
             client()
-            taskBefore(tasks.named("remapMod"))
+            taskBefore(tasks.remapMod)
             environment("__GL_THREADED_OPTIMIZATIONS", "0")
         }
     }
@@ -37,6 +38,25 @@ vbmPlugin {
     bfVersion = "0.7.0.13b"
     mappings = file("0.7.0.13b-merged.tiny")
     runTask(tasks.named<RunGameTask>("runClient"))
+}
+
+modrinth {
+    token.set(System.getenv("MODRINTH_TOKEN"))
+    projectId.set("front-utilities")
+    versionType.set("beta")
+    uploadFile.set(tasks.remapMod.get().output.get())
+    gameVersions.add("1.21.1")
+    loaders.add("neoforge")
+
+    dependencies {
+        required.project("blockfront")
+    }
+
+    syncBodyFrom.set(file("README.md").readText())
+}
+
+tasks.modrinth {
+    dependsOn(tasks.modrinthSyncBody)
 }
 
 //tasks.remapMod {
