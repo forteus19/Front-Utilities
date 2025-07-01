@@ -28,7 +28,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import org.jetbrains.annotations.NotNull;
 
-import red.vuis.frontutil.FrontUtil;
+import red.vuis.frontutil.AddonConstants;
 import red.vuis.frontutil.mixin.GunItemAccessor;
 import red.vuis.frontutil.util.AddonEntityUtils;
 
@@ -185,7 +185,7 @@ public record GunModifier(
 					EntityType<?> entityType = fireMode.entity.orElseThrow().value();
 					
 					if (!AddonEntityUtils.PRODUCED_PROJECTILES.contains(entityType)) {
-						FrontUtil.LOGGER.error(
+						AddonConstants.LOGGER.error(
 							"Entity type {} is not a valid projectile! Discarding fire mode.",
 							BuiltInRegistries.ENTITY_TYPE.getKey(entityType)
 						);
@@ -199,7 +199,7 @@ public record GunModifier(
 					));
 					case ENTITY -> {
 						if (fireMode.entity.isEmpty()) {
-							FrontUtil.LOGGER.error("Entity is not specified for fire mode of type entity! Discarding fire mode.");
+							AddonConstants.LOGGER.error("Entity is not specified for fire mode of type entity! Discarding fire mode.");
 							break;
 						}
 						
@@ -211,7 +211,7 @@ public record GunModifier(
 			}
 			
 			if (fireConfigs.isEmpty()) {
-				FrontUtil.LOGGER.error(
+				AddonConstants.LOGGER.error(
 					"No valid fire modes for item {}! Not applying.",
 					BuiltInRegistries.ITEM.getKey(item)
 				);

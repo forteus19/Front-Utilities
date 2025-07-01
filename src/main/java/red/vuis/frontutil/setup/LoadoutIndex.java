@@ -24,7 +24,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.UnmodifiableView;
 
-import red.vuis.frontutil.FrontUtil;
+import red.vuis.frontutil.AddonConstants;
 import red.vuis.frontutil.data.AddonCodecs;
 import red.vuis.frontutil.mixin.DivisionDataAccessor;
 
@@ -170,46 +170,46 @@ public final class LoadoutIndex {
 	}
 	
 	public static boolean parseAndApply(Path indexPath) {
-		FrontUtil.LOGGER.info("Parsing and applying loadout data from disk...");
+		AddonConstants.LOGGER.info("Parsing and applying loadout data from disk...");
 		long startNs = Util.getNanos();
 		
 		CompoundTag indexTag;
 		try {
 			indexTag = NbtIo.read(new DataInputStream(Files.newInputStream(indexPath)));
 		} catch (NoSuchFileException e) {
-			FrontUtil.LOGGER.info("No loadout file.");
+			AddonConstants.LOGGER.info("No loadout file.");
 			return true;
 		} catch (Exception e) {
-			FrontUtil.LOGGER.error("Error while reading loadout data from disk!", e);
+			AddonConstants.LOGGER.error("Error while reading loadout data from disk!", e);
 			return false;
 		}
 		
 		AddonCodecs.LOADOUT_INDEX.parse(NbtOps.INSTANCE, indexTag)
-			.resultOrPartial(FrontUtil.LOGGER::error)
+			.resultOrPartial(AddonConstants.LOGGER::error)
 			.ifPresent(LoadoutIndex::apply);
 		
 		long endNs = Util.getNanos();
-		FrontUtil.LOGGER.info("Loadout data loaded in {} ms.", String.format("%.3f", (endNs - startNs) / 1.0E6));
+		AddonConstants.LOGGER.info("Loadout data loaded in {} ms.", String.format("%.3f", (endNs - startNs) / 1.0E6));
 		return true;
 	}
 	
 	public static boolean saveCurrent(Path indexPath) {
-		FrontUtil.LOGGER.info("Saving loadout data to disk...");
+		AddonConstants.LOGGER.info("Saving loadout data to disk...");
 		long startNs = Util.getNanos();
 		
 		CompoundTag encodeResult = (CompoundTag) AddonCodecs.LOADOUT_INDEX.encodeStart(NbtOps.INSTANCE, currentFlat())
-			.resultOrPartial(FrontUtil.LOGGER::error)
+			.resultOrPartial(AddonConstants.LOGGER::error)
 			.orElseThrow();
 		
 		try {
 			NbtIo.write(encodeResult, new DataOutputStream(Files.newOutputStream(indexPath)));
 		} catch (Exception e) {
-			FrontUtil.LOGGER.error("Error while writing loadout data to disk!", e);
+			AddonConstants.LOGGER.error("Error while writing loadout data to disk!", e);
 			return false;
 		}
 		
 		long endNs = Util.getNanos();
-		FrontUtil.LOGGER.info("Loadout data saved in {} ms.", String.format("%.3f", (endNs - startNs) / 1.0E6));
+		AddonConstants.LOGGER.info("Loadout data saved in {} ms.", String.format("%.3f", (endNs - startNs) / 1.0E6));
 		return true;
 	}
 	

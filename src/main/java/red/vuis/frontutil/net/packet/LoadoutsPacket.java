@@ -23,13 +23,13 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
-import red.vuis.frontutil.FrontUtil;
+import red.vuis.frontutil.AddonConstants;
 import red.vuis.frontutil.client.data.AddonClientData;
 import red.vuis.frontutil.data.AddonStreamCodecs;
 import red.vuis.frontutil.setup.LoadoutIndex;
 
 public record LoadoutsPacket(Map<LoadoutIndex.Identifier, List<Loadout>> loadouts) implements CustomPacketPayload {
-	public static final CustomPacketPayload.Type<LoadoutsPacket> TYPE = new CustomPacketPayload.Type<>(FrontUtil.res("loadouts"));
+	public static final CustomPacketPayload.Type<LoadoutsPacket> TYPE = new CustomPacketPayload.Type<>(AddonConstants.res("loadouts"));
 	public static final StreamCodec<RegistryFriendlyByteBuf, LoadoutsPacket> STREAM_CODEC = StreamCodec.composite(
 		ByteBufCodecs.map(
 			Object2ObjectOpenHashMap::new,
@@ -57,7 +57,7 @@ public record LoadoutsPacket(Map<LoadoutIndex.Identifier, List<Loadout>> loadout
 	}
 	
 	public static void handleClient(LoadoutsPacket packet, IPayloadContext context) {
-		FrontUtil.LOGGER.info("Applying loadouts from server.");
+		AddonConstants.LOGGER.info("Applying loadouts from server.");
 		
 		LoadoutIndex.apply(packet.loadouts);
 		AddonClientData.getInstance().reloadLoadouts();

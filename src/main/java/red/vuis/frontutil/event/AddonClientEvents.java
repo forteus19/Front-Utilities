@@ -5,11 +5,11 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 
-import red.vuis.frontutil.FrontUtil;
+import red.vuis.frontutil.AddonConstants;
 import red.vuis.frontutil.client.command.FrontUtilClientCommand;
 
 @EventBusSubscriber(
-	modid = FrontUtil.MOD_ID,
+	modid = AddonConstants.MOD_ID,
 	value = Dist.CLIENT
 )
 public final class AddonClientEvents {
@@ -18,7 +18,7 @@ public final class AddonClientEvents {
 	
 	@SubscribeEvent
 	public static void onRegisterClientCommands(RegisterClientCommandsEvent event) {
-		FrontUtil.LOGGER.info("Registering client-only commands...");
+		AddonConstants.LOGGER.info("Registering client-only commands...");
 		
 		var dispatcher = event.getDispatcher();
 		FrontUtilClientCommand.register(dispatcher);

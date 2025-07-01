@@ -20,7 +20,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import red.vuis.frontutil.FrontUtil;
+import red.vuis.frontutil.AddonConstants;
 
 public record GunModifierTarget(
 	List<ResourceLocation> targets,
@@ -41,7 +41,7 @@ public record GunModifierTarget(
 	}
 	
 	public static void parseAndApply(ResourceManager resourceManager) {
-		List<Resource> targetResources = resourceManager.getResourceStack(FrontUtil.res(GUN_MODIFIER_TARGETS_FILENAME));
+		List<Resource> targetResources = resourceManager.getResourceStack(AddonConstants.res(GUN_MODIFIER_TARGETS_FILENAME));
 		
 		for (Resource targetResource : targetResources) {
 			try (BufferedReader targetReader = targetResource.openAsReader()) {
@@ -54,7 +54,7 @@ public record GunModifierTarget(
 				for (GunModifierTarget target : targets) {
 					Optional<Resource> modifierResource = resourceManager.getResource(target.modifier());
 					if (modifierResource.isEmpty()) {
-						FrontUtil.LOGGER.error("Modifier '{}' does not exist!", target.modifier());
+						AddonConstants.LOGGER.error("Modifier '{}' does not exist!", target.modifier());
 						continue;
 					}
 					try (BufferedReader modifierReader = modifierResource.get().openAsReader()) {
@@ -79,7 +79,7 @@ public record GunModifierTarget(
 	private static @Nullable List<GunModifierTarget> parseGunModifierTargets(Resource targetResource, Reader targetReader) {
 		DataResult<List<GunModifierTarget>> targetResult = GunModifierTarget.CODEC.listOf().parse(JsonOps.INSTANCE, JsonParser.parseReader(targetReader));
 		if (targetResult.isError()) {
-			FrontUtil.LOGGER.error("Failed to parse gun modifier targets for pack id '{}'!", targetResource.sourcePackId());
+			AddonConstants.LOGGER.error("Failed to parse gun modifier targets for pack id '{}'!", targetResource.sourcePackId());
 			return null;
 		}
 		return targetResult.getOrThrow();
@@ -88,7 +88,7 @@ public record GunModifierTarget(
 	private static boolean checkGunModifierTarget(GunModifierTarget target) {
 		for (ResourceLocation itemRes : target.targets()) {
 			if (!BuiltInRegistries.ITEM.containsKey(itemRes) || !(BuiltInRegistries.ITEM.get(itemRes) instanceof GunItem)) {
-				FrontUtil.LOGGER.error("Modifier target '{}' is not a modifiable item!", itemRes);
+				AddonConstants.LOGGER.error("Modifier target '{}' is not a modifiable item!", itemRes);
 				return false;
 			}
 		}
@@ -98,7 +98,7 @@ public record GunModifierTarget(
 	private static @Nullable GunModifier parseGunModifier(ResourceLocation name, Reader reader) {
 		DataResult<GunModifier> result = GunModifier.CODEC.parse(JsonOps.INSTANCE, JsonParser.parseReader(reader));
 		if (result.isError()) {
-			FrontUtil.LOGGER.error("Failed to parse gun modifier '{}'!", name);
+			AddonConstants.LOGGER.error("Failed to parse gun modifier '{}'!", name);
 		}
 		return result.getOrThrow();
 	}

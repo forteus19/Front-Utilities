@@ -12,7 +12,7 @@ import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
-import red.vuis.frontutil.FrontUtil;
+import red.vuis.frontutil.AddonConstants;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
 import red.vuis.frontutil.setup.LoadoutIndex;
 
@@ -90,7 +90,7 @@ public final class AddonClientData {
 		reloadLoadouts();
 		
 		if (!Minecraft.getInstance().isLocalServer()) {
-			FrontUtil.LOGGER.info("Syncing edited loadouts with the server...");
+			AddonConstants.LOGGER.info("Syncing edited loadouts with the server...");
 			PacketDistributor.sendToServer(new LoadoutsPacket(tempLoadouts));
 		}
 	}

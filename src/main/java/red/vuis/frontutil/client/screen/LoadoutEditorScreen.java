@@ -18,7 +18,7 @@ import net.minecraft.world.item.ItemStack;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
-import red.vuis.frontutil.FrontUtil;
+import red.vuis.frontutil.AddonConstants;
 import red.vuis.frontutil.client.data.AddonClientData;
 import red.vuis.frontutil.client.widget.IntegerEditBox;
 import red.vuis.frontutil.client.widget.WeaponEditContainer;
@@ -378,7 +378,7 @@ public class LoadoutEditorScreen extends AddonScreen {
 		
 		List<ItemStack> extra = loadout.getExtra();
 		if (extra.size() > EXTRA_MAX) {
-			FrontUtil.LOGGER.warn("Loadout has more than {} extra items!", EXTRA_MAX);
+			AddonConstants.LOGGER.warn("Loadout has more than {} extra items!", EXTRA_MAX);
 		}
 		
 		numExtra = 0;

@@ -14,12 +14,12 @@ import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
-import red.vuis.frontutil.FrontUtil;
+import red.vuis.frontutil.AddonConstants;
 import red.vuis.frontutil.data.GunModifier;
 import red.vuis.frontutil.setup.GunModifierIndex;
 
 public record GunModifiersPacket(Map<Holder<Item>, GunModifier> modifiers) implements CustomPacketPayload {
-	public static final Type<GunModifiersPacket> TYPE = new Type<>(FrontUtil.res("gun_modifiers"));
+	public static final Type<GunModifiersPacket> TYPE = new Type<>(AddonConstants.res("gun_modifiers"));
 	public static final StreamCodec<RegistryFriendlyByteBuf, GunModifiersPacket> STREAM_CODEC = StreamCodec.composite(
 		ByteBufCodecs.map(
 			Object2ObjectOpenHashMap::new,
