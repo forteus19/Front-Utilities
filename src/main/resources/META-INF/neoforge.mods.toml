@@ -7,7 +7,7 @@ config = "frontutil.mixins.json"
 
 [[mods]]
 modId = "frontutil"
-version = "0.1.1-0.7.0.13b"
+version = "0.1.2-0.7.0.13b"
 displayName = "Front-Utilities"
 description = '''Helper stuff for BlockFront'''
 
