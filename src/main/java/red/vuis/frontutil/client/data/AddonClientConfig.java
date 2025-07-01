@@ -7,10 +7,14 @@ public final class AddonClientConfig {
 	public static final AddonClientConfig INSTANCE;
 	public static final ModConfigSpec SPEC;
 	
-	public final ModConfigSpec.ConfigValue<Boolean> nostalgiaMode;
+	public final ModConfigSpec.BooleanValue nostalgiaMode;
 	
 	private AddonClientConfig(ModConfigSpec.Builder builder) {
 		nostalgiaMode = builder.define("nostalgia_mode", false);
+	}
+	
+	public static boolean isNostalgiaMode() {
+		return INSTANCE.nostalgiaMode.getAsBoolean();
 	}
 	
 	static {

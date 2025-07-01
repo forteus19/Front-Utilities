@@ -13,13 +13,26 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import red.vuis.frontutil.client.data.AddonClientConfig;
 import red.vuis.frontutil.client.render.AddonRendering;
 
 @Mixin(MatchGuiLayer.class)
 public abstract class MatchGuiLayerMixin extends BFAbstractGuiLayer {
+	@ModifyConstant(
+		method = "method_495",
+		constant = @Constant(
+			intValue = 16
+		)
+	)
+	private int lessKillFeedSpacing(int constant) {
+		return 12;
+	}
+	
 	@Inject(
 		method = "render",
 		at = @At(
@@ -28,7 +41,7 @@ public abstract class MatchGuiLayerMixin extends BFAbstractGuiLayer {
 		)
 	)
 	private void addOldCapturePointRendering(GuiGraphics graphics, DeltaTracker delta, BFClientManager manager, CallbackInfo ci, @Local AbstractGame<?, ?, ?> game, @Local PoseStack poseStack, @Local Font font) {
-		if (game instanceof IHasCapturePoints<?, ?>) {
+		if (AddonClientConfig.isNostalgiaMode() && game instanceof IHasCapturePoints<?, ?>) {
 			AddonRendering.oldCapturePoints(poseStack, graphics, font, (AbstractGame<?, ?, ?> & IHasCapturePoints<?, ?>) game, graphics.guiWidth() / 2, BFRendering.getRenderTime());
 		}
 	}
