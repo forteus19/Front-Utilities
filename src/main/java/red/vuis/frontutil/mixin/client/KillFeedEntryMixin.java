@@ -12,20 +12,22 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import red.vuis.frontutil.client.data.AddonClientConfig;
+import red.vuis.frontutil.client.data.config.AddonClientConfig;
+import red.vuis.frontutil.client.data.config.MatchHudStyle;
 
 @Mixin(KillFeedEntry.class)
 public abstract class KillFeedEntryMixin {
 	@Shadow
 	private @NotNull KillType type;
 	
+	@SuppressWarnings("deprecation")
 	@Inject(
 		method = "method_3214",
 		at = @At("HEAD"),
 		cancellable = true
 	)
 	private void renderOldBackground(GuiGraphics graphics, PoseStack poseStack, float width, CallbackInfo ci) {
-		if (!AddonClientConfig.isNostalgiaMode()) {
+		if (AddonClientConfig.getMatchHudStyle() == MatchHudStyle.MODERN) {
 			return;
 		}
 		

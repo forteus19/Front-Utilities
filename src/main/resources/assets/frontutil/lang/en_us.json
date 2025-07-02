@@ -1,6 +1,6 @@
 {
-  "frontutil.configuration.nostalgia_mode": "Nostalgia Mode",
-  "frontutil.configuration.nostalgia_mode.tooltip": "Brings back the old match GUI",
+  "frontutil.configuration.match_hud_style": "Match HUD Style",
+  "frontutil.configuration.match_hud_style.tooltip": "Change the match info style",
   "frontutil.menu.button.mods.tip": "Access the mods menu",
   "frontutil.message.command.error.args.count": "Missing arguments! Arguments must be one of the following:",
   "frontutil.message.command.error.index.bounds": "Index %s is out of bounds!",

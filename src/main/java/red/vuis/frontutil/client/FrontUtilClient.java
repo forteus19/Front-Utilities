@@ -8,7 +8,7 @@ import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 
 import red.vuis.frontutil.AddonConstants;
-import red.vuis.frontutil.client.data.AddonClientConfig;
+import red.vuis.frontutil.client.data.config.AddonClientConfig;
 
 @Mod(
 	value = AddonConstants.MOD_ID,

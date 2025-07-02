@@ -1,4 +1,4 @@
-package red.vuis.frontutil.client.data;
+package red.vuis.frontutil.client.data.config;
 
 import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
@@ -7,14 +7,14 @@ public final class AddonClientConfig {
 	public static final AddonClientConfig INSTANCE;
 	public static final ModConfigSpec SPEC;
 	
-	public final ModConfigSpec.BooleanValue nostalgiaMode;
+	public final ModConfigSpec.EnumValue<MatchHudStyle> matchHudStyle;
 	
 	private AddonClientConfig(ModConfigSpec.Builder builder) {
-		nostalgiaMode = builder.define("nostalgia_mode", false);
+		matchHudStyle = builder.defineEnum("match_hud_style", MatchHudStyle.MODERN);
 	}
 	
-	public static boolean isNostalgiaMode() {
-		return INSTANCE.nostalgiaMode.getAsBoolean();
+	public static MatchHudStyle getMatchHudStyle() {
+		return INSTANCE.matchHudStyle.get();
 	}
 	
 	static {

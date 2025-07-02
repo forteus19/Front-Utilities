@@ -26,7 +26,8 @@ import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 
-import red.vuis.frontutil.client.data.AddonClientConfig;
+import red.vuis.frontutil.client.data.config.AddonClientConfig;
+import red.vuis.frontutil.client.data.config.MatchHudStyle;
 import red.vuis.frontutil.client.render.AddonRendering;
 
 @Mixin(DominationGameClient.class)
@@ -57,7 +58,7 @@ public abstract class DominationGameClientMixin extends CapturePointGameClient<D
 	) {
 		super.method_2722(minecraft, manager, player, level, playerData, graphics, font, poseStack, buffer, players, width, height, midX, midY, renderTime, delta);
 		
-		if (!AddonClientConfig.isNostalgiaMode()) {
+		if (AddonClientConfig.getMatchHudStyle() == MatchHudStyle.MODERN) {
 			return;
 		}
 		

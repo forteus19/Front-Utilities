@@ -10,7 +10,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import red.vuis.frontutil.client.data.AddonClientConfig;
+import red.vuis.frontutil.client.data.config.AddonClientConfig;
+import red.vuis.frontutil.client.data.config.MatchHudStyle;
 
 @Mixin(AbstractGameClient.class)
 public abstract class AbstractGameClientMixin {
@@ -20,7 +21,7 @@ public abstract class AbstractGameClientMixin {
 		cancellable = true
 	)
 	private void disableGameElementRendering(GuiGraphics graphics, Font font, PoseStack poseStack, int width, float renderTime, CallbackInfo ci) {
-		if ((AbstractGameClient<?, ?>) (Object) this instanceof DominationGameClient && AddonClientConfig.isNostalgiaMode()) {
+		if ((AbstractGameClient<?, ?>) (Object) this instanceof DominationGameClient && AddonClientConfig.getMatchHudStyle() != MatchHudStyle.MODERN) {
 			ci.cancel();
 		}
 	}
