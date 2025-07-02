@@ -6,8 +6,10 @@ import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
+import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.network.PacketDistributor;
 
+import red.vuis.frontutil.client.FrontUtilClient;
 import red.vuis.frontutil.client.screen.LoadoutEditorScreen;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
 import red.vuis.frontutil.setup.LoadoutIndex;
@@ -22,6 +24,8 @@ public final class FrontUtilClientCommand {
 		var root = literal("frontutil").requires(stack -> stack.hasPermission(2));
 		
 		root.then(
+			literal("config").executes(FrontUtilClientCommand::config)
+		).then(
 			literal("loadout").then(
 				literal("openEditor").executes(FrontUtilClientCommand::loadoutOpenEditor)
 			).then(
@@ -30,6 +34,14 @@ public final class FrontUtilClientCommand {
 		);
 		
 		dispatcher.register(root);
+	}
+	
+	@SuppressWarnings("DataFlowIssue")
+	private static int config(CommandContext<CommandSourceStack> context) {
+		// shut up intellij it can be null >:(
+		Minecraft.getInstance().setScreen(new ConfigurationScreen(FrontUtilClient.getInstance().container, null));
+		
+		return 1;
 	}
 	
 	private static int loadoutOpenEditor(CommandContext<CommandSourceStack> context) {

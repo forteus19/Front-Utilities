@@ -1,4 +1,6 @@
 {
+  "bf.menu.button.modsettings": "BlockFront Settings",
+  "bf.message.ingame.settings.mod": "BlockFront Settings...",
   "frontutil.configuration.match_hud_style": "Match HUD Style",
   "frontutil.configuration.match_hud_style.tooltip": "Change the match info style",
   "frontutil.menu.button.mods.tip": "Access the mods menu",

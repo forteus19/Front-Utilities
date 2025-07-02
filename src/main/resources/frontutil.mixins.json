@@ -21,6 +21,7 @@
     "client.KillSectionDistanceMixin",
     "client.KillSectionPlayerMixin",
     "client.MatchGuiLayerMixin",
+    "client.MatchPauseScreenMixin",
     "client.TitleSidebarScreenMixin"
   ]
 }
