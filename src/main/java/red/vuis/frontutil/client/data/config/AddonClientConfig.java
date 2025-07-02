@@ -8,13 +8,19 @@ public final class AddonClientConfig {
 	public static final ModConfigSpec SPEC;
 	
 	public final ModConfigSpec.EnumValue<MatchHudStyle> matchHudStyle;
+	public final ModConfigSpec.BooleanValue renderCorpses;
 	
 	private AddonClientConfig(ModConfigSpec.Builder builder) {
 		matchHudStyle = builder.defineEnum("match_hud_style", MatchHudStyle.MODERN);
+		renderCorpses = builder.define("render_corpses", true);
 	}
 	
 	public static MatchHudStyle getMatchHudStyle() {
 		return INSTANCE.matchHudStyle.get();
+	}
+	
+	public static boolean getRenderCorpses() {
+		return INSTANCE.renderCorpses.getAsBoolean();
 	}
 	
 	static {
