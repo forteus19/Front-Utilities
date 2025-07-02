@@ -29,8 +29,8 @@ public abstract class MatchGuiLayerMixin extends BFAbstractGuiLayer {
 			intValue = 16
 		)
 	)
-	private int lessKillFeedSpacing(int constant) {
-		return 12;
+	private int killFeedSpacing(int constant) {
+		return AddonClientConfig.isNostalgiaMode() ? 12 : constant;
 	}
 	
 	@Inject(
@@ -41,8 +41,8 @@ public abstract class MatchGuiLayerMixin extends BFAbstractGuiLayer {
 		)
 	)
 	private void addOldCapturePointRendering(GuiGraphics graphics, DeltaTracker delta, BFClientManager manager, CallbackInfo ci, @Local AbstractGame<?, ?, ?> game, @Local PoseStack poseStack, @Local Font font) {
-		if (AddonClientConfig.isNostalgiaMode() && game instanceof IHasCapturePoints<?, ?>) {
-			AddonRendering.oldCapturePoints(poseStack, graphics, font, (AbstractGame<?, ?, ?> & IHasCapturePoints<?, ?>) game, graphics.guiWidth() / 2, BFRendering.getRenderTime());
+		if (AddonClientConfig.isNostalgiaMode() && game instanceof IHasCapturePoints<?, ?> cpGame) {
+			AddonRendering.oldCapturePoints(poseStack, graphics, font, game, cpGame.getCapturePoints(), graphics.guiWidth() / 2, BFRendering.getRenderTime());
 		}
 	}
 }

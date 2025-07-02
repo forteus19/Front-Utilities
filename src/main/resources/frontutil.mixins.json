@@ -7,13 +7,16 @@
     "DivisionDataAccessor",
     "DominationGameMixin",
     "FallingArtilleryMapEffectAccessor",
+    "GameStageTimerAccessor",
     "GunItemAccessor",
     "MapAssetMixin",
     "ParticleEmitterMapEffectAccessor",
     "ParticleEmitterMapEffectMixin"
   ],
   "client": [
+    "client.AbstractGameClientMixin",
     "client.ClientCorpseManagerMixin",
+    "client.DominationGameClientMixin",
     "client.KillFeedEntryMixin",
     "client.KillSectionDistanceMixin",
     "client.KillSectionPlayerMixin",

@@ -7,6 +7,7 @@ import java.util.function.Function;
 
 import com.boehmod.blockfront.common.item.GunItem;
 import com.boehmod.blockfront.common.match.DivisionData;
+import com.boehmod.blockfront.game.GameStageTimer;
 import com.boehmod.blockfront.map.effect.BulletTracerSpawnerMapEffect;
 import com.boehmod.blockfront.map.effect.FallingArtilleryMapEffect;
 import com.boehmod.blockfront.map.effect.ParticleEmitterMapEffect;
@@ -15,6 +16,7 @@ import red.vuis.frontutil.inject.ParticleEmitterMapEffectInject;
 import red.vuis.frontutil.mixin.BulletTracerSpawnerMapEffectAccessor;
 import red.vuis.frontutil.mixin.DivisionDataAccessor;
 import red.vuis.frontutil.mixin.FallingArtilleryMapEffectAccessor;
+import red.vuis.frontutil.mixin.GameStageTimerAccessor;
 import red.vuis.frontutil.mixin.GunItemAccessor;
 import red.vuis.frontutil.mixin.ParticleEmitterMapEffectAccessor;
 
@@ -50,6 +52,15 @@ public final class AddonAccessors {
 	
 	public static <R> R applyFallingArtillery(FallingArtilleryMapEffect mapEffect, Function<FallingArtilleryMapEffectAccessor, R> function) {
 		return function.apply((FallingArtilleryMapEffectAccessor) mapEffect);
+	}
+	
+	public static GameStageTimer accessGameStageTimer(GameStageTimer timer, Consumer<GameStageTimerAccessor> consumer) {
+		consumer.accept((GameStageTimerAccessor) (Object) timer);
+		return timer;
+	}
+	
+	public static <R> R applyGameStageTimer(GameStageTimer timer, Function<GameStageTimerAccessor, R> function) {
+		return function.apply((GameStageTimerAccessor) (Object) timer);
 	}
 	
 	public static GunItem accessGunItem(GunItem mapEffect, Consumer<GunItemAccessor> consumer) {
