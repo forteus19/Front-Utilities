@@ -9,10 +9,12 @@ public final class AddonClientConfig {
 	
 	public final ModConfigSpec.EnumValue<MatchHudStyle> matchHudStyle;
 	public final ModConfigSpec.BooleanValue renderCorpses;
+	public final ModConfigSpec.IntValue killFeedLines;
 	
 	private AddonClientConfig(ModConfigSpec.Builder builder) {
 		matchHudStyle = builder.defineEnum("match_hud_style", MatchHudStyle.MODERN);
 		renderCorpses = builder.define("render_corpses", true);
+		killFeedLines = builder.defineInRange("kill_feed_lines", 5, 0, Integer.MAX_VALUE);
 	}
 	
 	public static MatchHudStyle getMatchHudStyle() {
@@ -21,6 +23,10 @@ public final class AddonClientConfig {
 	
 	public static boolean getRenderCorpses() {
 		return INSTANCE.renderCorpses.getAsBoolean();
+	}
+	
+	public static int getKillFeedLines() {
+		return INSTANCE.killFeedLines.getAsInt();
 	}
 	
 	static {
