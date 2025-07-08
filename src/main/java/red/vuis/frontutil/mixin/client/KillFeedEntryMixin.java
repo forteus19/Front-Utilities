@@ -1,8 +1,8 @@
 package red.vuis.frontutil.mixin.client;
 
 import com.boehmod.blockfront.client.render.BFRendering;
+import com.boehmod.blockfront.common.match.kill.KillEntryType;
 import com.boehmod.blockfront.common.match.kill.KillFeedEntry;
-import com.boehmod.blockfront.common.match.kill.KillType;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +18,7 @@ import red.vuis.frontutil.client.data.config.MatchHudStyle;
 @Mixin(KillFeedEntry.class)
 public abstract class KillFeedEntryMixin {
 	@Shadow
-	private @NotNull KillType type;
+	private @NotNull KillEntryType type;
 	
 	@SuppressWarnings("deprecation")
 	@Inject(
@@ -31,11 +31,11 @@ public abstract class KillFeedEntryMixin {
 			return;
 		}
 		
-		int color = BFRendering.translucentBlack() - (type == KillType.DEFAULT ? 0 : 0x22000000);
+		int color = BFRendering.translucentBlack() - (type == KillEntryType.DEFAULT ? 0 : 0x22000000);
 		
 		BFRendering.rectangle(poseStack, graphics, 0f, 0f, width, 11f, color);
-		BFRendering.rectangle(poseStack, width, 0f, 2f, 11f, color, 1);
-		BFRendering.rectangle(poseStack, -2f, 0f, 2f, 11f, color, 3);
+		BFRendering.orderedRectangle(poseStack, width, 0f, 2f, 11f, color, 1);
+		BFRendering.orderedRectangle(poseStack, -2f, 0f, 2f, 11f, color, 3);
 		
 		ci.cancel();
 	}

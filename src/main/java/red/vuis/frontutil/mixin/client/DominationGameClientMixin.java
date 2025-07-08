@@ -62,7 +62,7 @@ public abstract class DominationGameClientMixin extends CapturePointGameClient<D
 			return;
 		}
 		
-		DominationPlayerManager playerManager = game.getGameManager();
+		DominationPlayerManager playerManager = game.getPlayerManager();
 		
 		AddonRendering.oldTimer(poseStack, font, graphics, midX, method_2678());
 		

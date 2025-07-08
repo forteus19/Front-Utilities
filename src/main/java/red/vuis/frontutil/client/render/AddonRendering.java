@@ -39,7 +39,7 @@ public final class AddonRendering {
 			AbstractCapturePoint<?> capturePoint = capturePoints.get(i);
 			
 			int cpX = startX + i * 18 + 1;
-			float alpha = Math.max(capturePoint.field_3222 ? 0.5f * flicker : 0.5f, 0.01f);
+			float alpha = Math.max(capturePoint.isBeingCaptured ? 0.5f * flicker : 0.5f, 0.01f);
 			
 			BFRendering.tintedTexture(poseStack, graphics, BFRenderFrameSubscriber.NEUTRAL_ICON_TEXTURE, cpX, 27f, 14f, 14f, 0f, alpha, capturePoint.method_3143(game));
 			
