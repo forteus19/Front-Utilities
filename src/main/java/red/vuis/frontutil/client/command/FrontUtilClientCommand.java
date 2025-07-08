@@ -21,7 +21,7 @@ public final class FrontUtilClientCommand {
 	}
 	
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-		var root = literal("frontutil").requires(stack -> stack.hasPermission(2));
+		var root = literal("frontutil").requires(stack -> stack.hasPermission(3));
 		
 		root.then(
 			literal("config").executes(FrontUtilClientCommand::config)

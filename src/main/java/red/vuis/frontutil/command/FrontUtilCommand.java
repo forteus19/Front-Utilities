@@ -1,7 +1,10 @@
 package red.vuis.frontutil.command;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 import com.boehmod.blockfront.registry.BFDataComponents;
 import com.mojang.brigadier.CommandDispatcher;
@@ -9,7 +12,6 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -21,8 +23,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import red.vuis.frontutil.data.GunModifierTarget;
+import red.vuis.frontutil.net.packet.LoadoutsPacket;
 import red.vuis.frontutil.setup.GunSkinIndex;
 import red.vuis.frontutil.setup.LoadoutIndex;
 import red.vuis.frontutil.util.AddonCommandUtils;
@@ -36,7 +40,7 @@ public final class FrontUtilCommand {
 	}
 	
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-		var root = literal("frontutil").requires(stack -> stack.hasPermission(2));
+		var root = literal("frontutil").requires(stack -> stack.hasPermission(3));
 		
 		root.then(
 			literal("gun").then(
@@ -52,7 +56,15 @@ public final class FrontUtilCommand {
 			)
 		).then(
 			literal("loadout").then(
-				literal("write").executes(FrontUtilCommand::loadoutWrite)
+				literal("list").executes(FrontUtilCommand::loadoutList)
+			).then(
+				literal("read").then(
+					argument("filename", StringArgumentType.word()).executes(FrontUtilCommand::loadoutRead)
+				)
+			).then(
+				literal("write").then(
+					argument("filename", StringArgumentType.word()).executes(FrontUtilCommand::loadoutWrite)
+				)
 			)
 		);
 		
@@ -105,12 +117,71 @@ public final class FrontUtilCommand {
 		return 1;
 	}
 	
+	private static int loadoutList(CommandContext<CommandSourceStack> context) {
+		CommandSourceStack sourceStack = context.getSource();
+		
+		Path loadoutsPath = AddonUtils.getServerDataPath(sourceStack.getServer()).resolve("loadouts");
+		if (!Files.isDirectory(loadoutsPath)) {
+			sourceStack.sendFailure(Component.translatable("frontutil.message.command.loadout.list.none"));
+			return 0;
+		}
+		
+		String filenameList;
+		try (Stream<Path> filesList = Files.list(loadoutsPath)) {
+			filenameList = AddonUtils.listify(
+				filesList
+					.map(path -> path.getFileName().toString())
+					.iterator()
+			);
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		
+		sourceStack.sendSuccess(() -> Component.translatable("frontutil.message.command.loadout.list.success", filenameList), false);
+		return 1;
+	}
+	
+	private static int loadoutRead(CommandContext<CommandSourceStack> context) {
+		CommandSourceStack sourceStack = context.getSource();
+		
+		if (AddonUtils.anyGamesActive()) {
+			sourceStack.sendFailure(Component.translatable("frontutil.message.command.loadout.read.game"));
+			return -1;
+		}
+		
+		String filename = StringArgumentType.getString(context, "filename") + ".dat";
+		Path indexPath = AddonUtils.getServerDataPath(sourceStack.getServer()).resolve("loadouts").resolve(filename);
+		
+		if (!LoadoutIndex.parseAndApply(indexPath)) {
+			sourceStack.sendFailure(Component.translatable("frontutil.message.command.loadout.read.error"));
+			return -1;
+		}
+		
+		PacketDistributor.sendToAllPlayers(new LoadoutsPacket(LoadoutIndex.currentFlat()));
+		
+		sourceStack.sendSuccess(() -> Component.translatable("frontutil.message.command.loadout.read.success", filename), true);
+		return 1;
+	}
+	
 	private static int loadoutWrite(CommandContext<CommandSourceStack> context) {
 		CommandSourceStack sourceStack = context.getSource();
 		
-		Path indexPath = AddonUtils.getServerDataPath(sourceStack.getServer()).resolve(LoadoutIndex.DEFAULT_LOADOUTS_PATH_NAME);
+		String filename = StringArgumentType.getString(context, "filename") + ".dat";
+		
+		Path loadoutsPath = AddonUtils.getServerDataPath(sourceStack.getServer()).resolve("loadouts");
+		if (!Files.isDirectory(loadoutsPath)) {
+			try {
+				Files.createDirectory(loadoutsPath);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		
+		Path indexPath = loadoutsPath.resolve(filename);
+
 		if (!LoadoutIndex.saveCurrent(indexPath)) {
-			sourceStack.sendFailure(Component.translatable("frontutil.message.command.loadout.write.error").withStyle(ChatFormatting.RED));
+			sourceStack.sendFailure(Component.translatable("frontutil.message.command.loadout.write.error"));
 			return -1;
 		}
 		

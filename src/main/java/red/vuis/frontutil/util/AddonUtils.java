@@ -4,13 +4,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import com.boehmod.blockfront.BlockFront;
+import com.boehmod.blockfront.assets.impl.GameAsset;
+import com.boehmod.blockfront.game.GameStatus;
 import com.boehmod.blockfront.util.BFUtils;
 import com.boehmod.blockfront.util.math.FDSPose;
 import net.minecraft.server.MinecraftServer;
@@ -73,14 +77,18 @@ public final class AddonUtils {
 		return String.format("%.2f, %.2f, %.2f", vec.x, vec.y, vec.z);
 	}
 	
-	public static String listify(Iterable<String> strings) {
+	public static String listify(Iterator<String> strings) {
 		StringBuilder builder = new StringBuilder();
-		for (String str : strings) {
+		strings.forEachRemaining(str -> {
 			builder.append(str);
 			builder.append(", ");
-		}
+		});
 		builder.setLength(builder.length() - 2);
 		return builder.toString();
+	}
+	
+	public static String listify(Iterable<String> strings) {
+		return listify(strings.iterator());
 	}
 	
 	public static void setPoseFromEntity(FDSPose pose, Entity entity) {
@@ -105,5 +113,13 @@ public final class AddonUtils {
 			}
 		}
 		return basePath;
+	}
+	
+	public static boolean anyGamesActive() {
+		return Objects.requireNonNull(BlockFront.getInstance().getManager())
+			.getGames().values().stream()
+			.map(GameAsset::getGame)
+			.filter(Objects::nonNull)
+			.anyMatch(game -> game.getStatus() != GameStatus.IDLE);
 	}
 }

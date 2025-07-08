@@ -2,13 +2,8 @@ package red.vuis.frontutil.net.packet;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
-import com.boehmod.blockfront.BlockFront;
-import com.boehmod.blockfront.assets.impl.GameAsset;
 import com.boehmod.blockfront.common.match.Loadout;
-import com.boehmod.blockfront.game.GameStatus;
-import com.boehmod.blockfront.server.BFServerManager;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.ChatFormatting;
@@ -27,6 +22,7 @@ import red.vuis.frontutil.AddonConstants;
 import red.vuis.frontutil.client.data.AddonClientData;
 import red.vuis.frontutil.data.AddonStreamCodecs;
 import red.vuis.frontutil.setup.LoadoutIndex;
+import red.vuis.frontutil.util.AddonUtils;
 
 public record LoadoutsPacket(Map<LoadoutIndex.Identifier, List<Loadout>> loadouts) implements CustomPacketPayload {
 	public static final CustomPacketPayload.Type<LoadoutsPacket> TYPE = new CustomPacketPayload.Type<>(AddonConstants.res("loadouts"));
@@ -69,24 +65,19 @@ public record LoadoutsPacket(Map<LoadoutIndex.Identifier, List<Loadout>> loadout
 			return;
 		}
 		
-		BFServerManager manager = Objects.requireNonNull((BFServerManager) BlockFront.getInstance().getManager());
-		
-		if (manager.getGames().values().stream()
-			.map(GameAsset::getGame)
-			.filter(Objects::nonNull)
-			.anyMatch(game -> game.getStatus() != GameStatus.IDLE)
-		) {
+		if (AddonUtils.anyGamesActive()) {
 			context.player().sendSystemMessage(Component.translatable(
 				"frontutil.message.packet.loadouts.game",
 				Component.literal("/frontutil loadout sync").withStyle(ChatFormatting.DARK_GREEN)
 			).withStyle(ChatFormatting.GOLD));
-		} else {
-			LoadoutIndex.apply(packet.loadouts);
-			PacketDistributor.sendToAllPlayers(packet);
-			
-			context.player().sendSystemMessage(Component.translatable(
-				"frontutil.message.packet.loadouts.success"
-			));
+			return;
 		}
+		
+		LoadoutIndex.apply(packet.loadouts);
+		PacketDistributor.sendToAllPlayers(packet);
+		
+		context.player().sendSystemMessage(Component.translatable(
+			"frontutil.message.packet.loadouts.success"
+		));
 	}
 }

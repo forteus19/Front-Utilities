@@ -42,8 +42,6 @@ public final class LoadoutIndex {
 		Loadout::getHead, Loadout::getChest, Loadout::getLegs, Loadout::getFeet
 	);
 	
-	public static final String DEFAULT_LOADOUTS_PATH_NAME = "loadouts.dat";
-	
 	private LoadoutIndex() {
 	}
 	
@@ -177,16 +175,19 @@ public final class LoadoutIndex {
 		try {
 			indexTag = NbtIo.read(new DataInputStream(Files.newInputStream(indexPath)));
 		} catch (NoSuchFileException e) {
-			AddonConstants.LOGGER.info("No loadout file.");
-			return true;
+			AddonConstants.LOGGER.error("Loadout file does not exist!");
+			return false;
 		} catch (Exception e) {
 			AddonConstants.LOGGER.error("Error while reading loadout data from disk!", e);
 			return false;
 		}
 		
-		AddonCodecs.LOADOUT_INDEX.parse(NbtOps.INSTANCE, indexTag)
-			.resultOrPartial(AddonConstants.LOGGER::error)
-			.ifPresent(LoadoutIndex::apply);
+		var result = AddonCodecs.LOADOUT_INDEX.parse(NbtOps.INSTANCE, indexTag);
+		if (result.isError()) {
+			AddonConstants.LOGGER.error(result.error().orElseThrow());
+			return false;
+		}
+		apply(result.getOrThrow());
 		
 		long endNs = Util.getNanos();
 		AddonConstants.LOGGER.info("Loadout data loaded in {} ms.", String.format("%.3f", (endNs - startNs) / 1.0E6));
