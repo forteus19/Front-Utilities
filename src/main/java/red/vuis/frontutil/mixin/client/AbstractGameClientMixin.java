@@ -18,7 +18,7 @@ import red.vuis.frontutil.client.data.config.MatchHudStyle;
 @Mixin(AbstractGameClient.class)
 public abstract class AbstractGameClientMixin {
 	@Inject(
-		method = "method_2712",
+		method = "renderGameElements",
 		at = @At("HEAD"),
 		cancellable = true
 	)

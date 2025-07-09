@@ -25,7 +25,7 @@ import red.vuis.frontutil.client.render.AddonRendering;
 @Mixin(MatchGuiLayer.class)
 public abstract class MatchGuiLayerMixin extends BFAbstractGuiLayer {
 	@ModifyConstant(
-		method = "method_495",
+		method = "renderKillFeed",
 		constant = @Constant(
 			intValue = 16
 		)
