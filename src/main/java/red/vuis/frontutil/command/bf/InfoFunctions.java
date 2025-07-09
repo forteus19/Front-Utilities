@@ -74,16 +74,13 @@ public final class InfoFunctions {
 				effect.pitch,
 				effect.activationDistance
 			);
-			case ParticleEmitterMapEffect effect -> applyParticleEmitter(effect, (accessor, inject) -> String.format(
-				" (particle: %s, maxTick: %d, x: %.2f, y: %.2f, z: %.2f, velX: %.03f, velY: %.03f, velZ: %.03f, sound: %s, soundVolume: %.2f)",
+			case ParticleEmitterMapEffect effect -> applyParticleEmitter(effect, accessor -> String.format(
+				" (particle: %s, maxTick: %d, x: %.2f, y: %.2f, z: %.2f, sound: %s, soundVolume: %.2f)",
 				accessor.getParticle() != null ? RegistryUtils.getParticleTypeId(accessor.getParticle()) : "null",
 				accessor.getMaxTick(),
 				effect.getPosition().x,
 				effect.getPosition().y,
 				effect.getPosition().z,
-				inject.frontutil$getVelocity().x,
-				inject.frontutil$getVelocity().y,
-				inject.frontutil$getVelocity().z,
 				accessor.getSound() != null ? RegistryUtils.getSoundEventId(accessor.getSound().get()) : "null",
 				accessor.getSoundVolume()
 			));

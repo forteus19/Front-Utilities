@@ -53,10 +53,7 @@ public final class MapCommands {
 			"maxTick", new PropertyEntry<>(Integer::parseUnsignedInt, (m, v) -> accessParticleEmitter(m, a -> a.setMaxTick(v))),
 			"particle", new PropertyEntry<>(AddonRegUtils::getSimpleParticle, (m, v) -> accessParticleEmitter(m, a -> a.setParticle(v))),
 			"sound", new PropertyEntry<>(RegistryUtils::retrieveSoundEvent, (m, v) -> accessParticleEmitter(m, a -> a.setSound(v))),
-			"soundVolume", new PropertyEntry<>(Float::parseFloat, (m, v) -> accessParticleEmitter(m, a -> a.setSoundVolume(v))),
-			"velX", new PropertyEntry<>(Double::parseDouble, (m, v) -> accessParticleEmitter(m, (a, i) -> i.frontutil$setVelocity(AddonUtils.vec3WithX(i.frontutil$getVelocity(), v)))),
-			"velY", new PropertyEntry<>(Double::parseDouble, (m, v) -> accessParticleEmitter(m, (a, i) -> i.frontutil$setVelocity(AddonUtils.vec3WithY(i.frontutil$getVelocity(), v)))),
-			"velZ", new PropertyEntry<>(Double::parseDouble, (m, v) -> accessParticleEmitter(m, (a, i) -> i.frontutil$setVelocity(AddonUtils.vec3WithZ(i.frontutil$getVelocity(), v))))
+			"soundVolume", new PropertyEntry<>(Float::parseFloat, (m, v) -> accessParticleEmitter(m, a -> a.setSoundVolume(v)))
 		)),
 		new PropertyHandler<>(PositionedMapEffect.class, Map.of(
 			"x", new PropertyEntry<>(Double::parseDouble, (m, v) -> m.position = AddonUtils.vec3WithX(m.position, v)),
@@ -129,7 +126,7 @@ public final class MapCommands {
 	
 	@Nullable
 	public static ParticleEmitterMapEffect parseParticleEmitter(@UnmodifiableView List<String> args) {
-		if (!(args.size() == 5 || args.size() == 7 || args.size() == 8 || args.size() == 10)) {
+		if (!(args.size() == 5 || args.size() == 7)) {
 			return null;
 		}
 		
@@ -145,42 +142,15 @@ public final class MapCommands {
 		
 		var mapEffect = new ParticleEmitterMapEffect(particle.get(), new Vec3(x.get(), y.get(), z.get()), maxTick.get());
 		
-		switch (args.size()) {
-			case 7 -> {
-				var sound = AddonUtils.parse(RegistryUtils::retrieveSoundEvent, args.get(5));
-				var soundVolume = AddonUtils.parse(Float::parseFloat, args.get(6));
-				
-				if (AddonUtils.anyEmpty(sound, soundVolume)) {
-					return null;
-				}
-				
-				mapEffect.method_3111(sound.get(), soundVolume.get());
+		if (args.size() == 7) {
+			var sound = AddonUtils.parse(RegistryUtils::retrieveSoundEvent, args.get(5));
+			var soundVolume = AddonUtils.parse(Float::parseFloat, args.get(6));
+			
+			if (AddonUtils.anyEmpty(sound, soundVolume)) {
+				return null;
 			}
-			case 8 -> {
-				var velX = AddonUtils.parse(Double::parseDouble, args.get(5));
-				var velY = AddonUtils.parse(Double::parseDouble, args.get(6));
-				var velZ = AddonUtils.parse(Double::parseDouble, args.get(7));
-				
-				if (AddonUtils.anyEmpty(velX, velY, velZ)) {
-					return null;
-				}
-				
-				accessParticleEmitter(mapEffect, (accessor, inject) -> inject.frontutil$setVelocity(new Vec3(x.get(), y.get(), z.get())));
-			}
-			case 10 -> {
-				var velX = AddonUtils.parse(Double::parseDouble, args.get(5));
-				var velY = AddonUtils.parse(Double::parseDouble, args.get(6));
-				var velZ = AddonUtils.parse(Double::parseDouble, args.get(7));
-				var sound = AddonUtils.parse(RegistryUtils::retrieveSoundEvent, args.get(8));
-				var soundVolume = AddonUtils.parse(Float::parseFloat, args.get(9));
-				
-				if (AddonUtils.anyEmpty(sound, soundVolume, velX, velY, velZ)) {
-					return null;
-				}
-				
-				accessParticleEmitter(mapEffect, (accessor, inject) -> inject.frontutil$setVelocity(new Vec3(x.get(), y.get(), z.get())));
-				mapEffect.method_3111(sound.get(), soundVolume.get());
-			}
+			
+			mapEffect.method_3111(sound.get(), soundVolume.get());
 		}
 		
 		return mapEffect;

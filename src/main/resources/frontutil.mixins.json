@@ -10,8 +10,7 @@
     "GameStageTimerAccessor",
     "GunItemAccessor",
     "MapAssetMixin",
-    "ParticleEmitterMapEffectAccessor",
-    "ParticleEmitterMapEffectMixin"
+    "ParticleEmitterMapEffectAccessor"
   ],
   "client": [
     "client.AbstractGameClientMixin",

@@ -1,7 +1,5 @@
 package red.vuis.frontutil.util;
 
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -12,7 +10,6 @@ import com.boehmod.blockfront.map.effect.BulletTracerSpawnerMapEffect;
 import com.boehmod.blockfront.map.effect.FallingArtilleryMapEffect;
 import com.boehmod.blockfront.map.effect.ParticleEmitterMapEffect;
 
-import red.vuis.frontutil.inject.ParticleEmitterMapEffectInject;
 import red.vuis.frontutil.mixin.BulletTracerSpawnerMapEffectAccessor;
 import red.vuis.frontutil.mixin.DivisionDataAccessor;
 import red.vuis.frontutil.mixin.FallingArtilleryMapEffectAccessor;
@@ -77,16 +74,7 @@ public final class AddonAccessors {
 		return mapEffect;
 	}
 	
-	public static ParticleEmitterMapEffect accessParticleEmitter(ParticleEmitterMapEffect mapEffect, BiConsumer<ParticleEmitterMapEffectAccessor, ParticleEmitterMapEffectInject> consumer) {
-		consumer.accept((ParticleEmitterMapEffectAccessor) mapEffect, (ParticleEmitterMapEffectInject) mapEffect);
-		return mapEffect;
-	}
-	
 	public static <R> R applyParticleEmitter(ParticleEmitterMapEffect mapEffect, Function<ParticleEmitterMapEffectAccessor, R> function) {
 		return function.apply((ParticleEmitterMapEffectAccessor) mapEffect);
-	}
-	
-	public static <R> R applyParticleEmitter(ParticleEmitterMapEffect mapEffect, BiFunction<ParticleEmitterMapEffectAccessor, ParticleEmitterMapEffectInject, R> function) {
-		return function.apply((ParticleEmitterMapEffectAccessor) mapEffect, (ParticleEmitterMapEffectInject) mapEffect);
 	}
 }
