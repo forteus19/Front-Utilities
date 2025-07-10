@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class ImmediateScreen extends Screen {
@@ -14,13 +15,11 @@ public abstract class ImmediateScreen extends Screen {
 	}
 	
 	@Override
+	@MustBeInvokedByOverriders
 	public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 		super.render(guiGraphics, mouseX, mouseY, partialTick);
 		this.guiGraphics = guiGraphics;
-		render(mouseX, mouseY, partialTick);
 	}
-	
-	protected abstract void render(int mouseX, int mouseY, float partialTick);
 	
 	protected void drawText(Component text, int x, int y, float scale, boolean centeredX, boolean centeredY) {
 		PoseStack pose = guiGraphics.pose();

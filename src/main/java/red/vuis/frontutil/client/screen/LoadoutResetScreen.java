@@ -4,13 +4,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import com.boehmod.blockfront.common.match.Loadout;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
+import org.jetbrains.annotations.NotNull;
 
 import red.vuis.frontutil.client.data.AddonClientData;
 import red.vuis.frontutil.client.widget.Widgets;
@@ -19,16 +19,16 @@ import red.vuis.frontutil.setup.LoadoutIndex;
 import static red.vuis.frontutil.client.widget.WidgetDim.centeredDim;
 
 public class LoadoutResetScreen extends AddonScreen {
-	private static final Supplier<MutableComponent> C_BUTTON_APPLY = () -> Component.translatable("frontutil.screen.generic.button.apply");
-	private static final Supplier<MutableComponent> C_BUTTON_BACK = () -> Component.translatable("frontutil.screen.generic.button.back");
-	private static final Function<Object, MutableComponent> C_BUTTON_MODE = i -> Component.translatable("frontutil.screen.loadout.reset.button.mode", i);
-	private static final Supplier<MutableComponent> C_HEADER = () -> Component.translatable("frontutil.screen.loadout.reset.header");
+	private static final Component C_BUTTON_APPLY = Component.translatable("frontutil.screen.generic.button.apply");
+	private static final Component C_BUTTON_BACK = Component.translatable("frontutil.screen.generic.button.back");
+	private static final Function<Object, Component> C_BUTTON_MODE = i -> Component.translatable("frontutil.screen.loadout.reset.button.mode", i);
+	private static final Component C_HEADER = Component.translatable("frontutil.screen.loadout.reset.header");
 	
 	private final LoadoutEditorScreen editor;
 	private Mode selectedMode = Mode.LEVEL;
 	
 	public LoadoutResetScreen(LoadoutEditorScreen editor) {
-		super(C_HEADER.get());
+		super(C_HEADER);
 		this.editor = editor;
 	}
 	
@@ -47,12 +47,12 @@ public class LoadoutResetScreen extends AddonScreen {
 		));
 		
 		addRenderableWidget(Widgets.button(
-			C_BUTTON_BACK.get(),
+			C_BUTTON_BACK,
 			centeredDim(width / 2 - 50, height - 20, 90, 20),
 			button -> Minecraft.getInstance().setScreen(editor)
 		));
 		addRenderableWidget(Widgets.button(
-			C_BUTTON_APPLY.get(),
+			C_BUTTON_APPLY,
 			centeredDim(width / 2 + 50, height - 20, 90, 20),
 			button -> {
 				selectedMode.action.accept(editor.selection);
@@ -62,8 +62,10 @@ public class LoadoutResetScreen extends AddonScreen {
 	}
 	
 	@Override
-	protected void render(int mouseX, int mouseY, float partialTick) {
-		drawText(C_HEADER.get(), width / 2, 20, true);
+	public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+		super.render(graphics, mouseX, mouseY, partialTick);
+		
+		drawText(C_HEADER, width / 2, 20, true);
 	}
 	
 	private enum Mode {

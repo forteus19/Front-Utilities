@@ -7,10 +7,10 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import red.vuis.frontutil.client.screen.WeaponExtraScreen;
+import red.vuis.frontutil.data.WeaponExtraSettings;
 import red.vuis.frontutil.util.AddonUtils;
 
 import static red.vuis.frontutil.client.widget.WidgetDim.dim;
@@ -20,17 +20,20 @@ public class WeaponEditContainer extends ItemEditContainer {
 	
 	protected final Button extraButton;
 	
-	public boolean scope = false;
-	public String magType = "default";
+	public WeaponExtraSettings extra = new WeaponExtraSettings();
 	
 	public WeaponEditContainer(Screen screen, Font font, int x, int y, int width, int height) {
 		super(font, x + 10, y, width - 10, height);
 		extraButton = Widgets.button(
 			Component.literal("*"),
 			dim(x, y, 10, height),
-			button -> Minecraft.getInstance().setScreen(
-				new WeaponExtraScreen(screen, this)
-			)
+			button -> {
+				if (getItem() instanceof GunItem gunItem) {
+					Minecraft.getInstance().setScreen(
+						new WeaponExtraScreen(screen, gunItem, extra, this)
+					);
+				}
+			}
 		);
 	}
 	
@@ -51,13 +54,13 @@ public class WeaponEditContainer extends ItemEditContainer {
 	}
 	
 	@Override
-	protected ItemStack getPreviewItemStack(String strId) {
-		return setItemStackComponents(super.getPreviewItemStack(strId));
+	protected @Nullable ItemStack getPreviewItemStack(String strId) {
+		return extra.setItemStackComponents(super.getPreviewItemStack(strId));
 	}
 	
 	@Override
 	public ItemStack getValue() {
-		return setItemStackComponents(super.getValue());
+		return extra.setItemStackComponents(super.getValue());
 	}
 	
 	@Override
@@ -87,31 +90,20 @@ public class WeaponEditContainer extends ItemEditContainer {
 	@Override
 	public WeaponEditContainer clear() {
 		super.clear();
-		scope = false;
-		magType = "default";
+		extra = new WeaponExtraSettings();
 		return this;
 	}
 	
 	public void refresh() {
-		preview.setItemStack(setItemStackComponents(super.getPreviewItemStack(itemIdBox.getValue())));
+		preview.setItemStack(extra.setItemStackComponents(super.getPreviewItemStack(itemIdBox.getValue())));
 	}
 	
 	protected void retrieveItemStackComponents(@Nullable ItemStack itemStack) {
 		if (itemStack != null && itemStack.getItem() instanceof GunItem) {
-			scope = GunItem.getScope(itemStack);
-			magType = GunItem.getMagType(itemStack);
+			extra.scope = GunItem.getScope(itemStack);
+			extra.magType = GunItem.getMagType(itemStack);
 		} else {
-			scope = false;
-			magType = "default";
+			extra = new WeaponExtraSettings();
 		}
-	}
-	
-	@Contract("null -> null")
-	protected @Nullable ItemStack setItemStackComponents(@Nullable ItemStack itemStack) {
-		if (itemStack != null && itemStack.getItem() instanceof GunItem) {
-			GunItem.setScope(itemStack, scope);
-			GunItem.setMagType(itemStack, magType);
-		}
-		return itemStack;
 	}
 }

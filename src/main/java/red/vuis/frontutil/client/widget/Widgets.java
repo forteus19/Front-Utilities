@@ -22,8 +22,16 @@ public final class Widgets {
 		return Checkbox.builder(Component.empty(), font).pos(x, y).maxWidth(size).selected(selected).build();
 	}
 	
+	public static Checkbox checkbox(Font font, int x, int y, int size, boolean selected, Checkbox.OnValueChange onValueChange) {
+		return Checkbox.builder(Component.empty(), font).pos(x, y).maxWidth(size).selected(selected).onValueChange(onValueChange).build();
+	}
+	
 	public static Checkbox checkbox(Font font, WidgetDim dim, boolean selected) {
 		return checkbox(font, dim.x(), dim.y(), dim.width(), selected);
+	}
+	
+	public static Checkbox checkbox(Font font, WidgetDim dim, boolean selected, Checkbox.OnValueChange onValueChange) {
+		return checkbox(font, dim.x(), dim.y(), dim.width(), selected, onValueChange);
 	}
 	
 	public static EditBox editBox(Font font, WidgetDim dim) {

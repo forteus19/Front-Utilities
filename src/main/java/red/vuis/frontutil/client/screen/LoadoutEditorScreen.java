@@ -2,7 +2,6 @@ package red.vuis.frontutil.client.screen;
 
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import com.boehmod.blockfront.common.match.BFCountry;
 import com.boehmod.blockfront.common.match.Loadout;
@@ -10,12 +9,12 @@ import com.boehmod.blockfront.common.match.MatchClass;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.ItemStack;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import red.vuis.frontutil.AddonConstants;
@@ -30,12 +29,13 @@ import static red.vuis.frontutil.client.widget.WidgetDim.dim;
 import static red.vuis.frontutil.client.widget.WidgetDim.sqrCenteredDim;
 
 public class LoadoutEditorScreen extends AddonScreen {
-	private static final Supplier<MutableComponent> C_BUTTON_COPY = () -> Component.translatable("frontutil.screen.generic.button.copy");
-	private static final Supplier<MutableComponent> C_BUTTON_RESET = () -> Component.translatable("frontutil.screen.generic.button.reset");
-	private static final Supplier<MutableComponent> C_BUTTON_CLOSE_AND_SYNC = () -> Component.translatable("frontutil.screen.loadout.editor.button.closeAndSync");
-	private static final Function<Object, MutableComponent> C_BUTTON_LEVEL = i -> Component.translatable("frontutil.screen.loadout.editor.button.level", i);
-	private static final Supplier<MutableComponent> C_FOOTER_MULTIPLAYER = () -> Component.translatable("frontutil.screen.loadout.editor.footer.multiplayer");
-	private static final Supplier<MutableComponent> C_HEADER = () -> Component.translatable("frontutil.screen.loadout.editor.header");
+	private static final Component C_BUTTON_COPY = Component.translatable("frontutil.screen.generic.button.copy");
+	private static final Component C_BUTTON_RESET = Component.translatable("frontutil.screen.generic.button.reset");
+	private static final Component C_BUTTON_CLOSE_AND_SYNC = Component.translatable("frontutil.screen.loadout.editor.button.closeAndSync");
+	private static final Function<Object, Component> C_BUTTON_LEVEL = i -> Component.translatable("frontutil.screen.loadout.editor.button.level", i);
+	private static final Component C_FOOTER_MULTIPLAYER = Component.translatable("frontutil.screen.loadout.editor.footer.multiplayer")
+		.withStyle(ChatFormatting.GOLD);
+	private static final Component C_HEADER = Component.translatable("frontutil.screen.loadout.editor.header");
 	
 	private static final String[] SLOT_LABELS = new String[]{
 		"primary", "secondary", "melee", "offHand", "head", "chest", "legs", "feet"
@@ -63,7 +63,7 @@ public class LoadoutEditorScreen extends AddonScreen {
 	Selection selection;
 	
 	LoadoutEditorScreen(Selection selection) {
-		super(C_HEADER.get());
+		super(C_HEADER);
 		this.selection = selection;
 	}
 	
@@ -89,10 +89,12 @@ public class LoadoutEditorScreen extends AddonScreen {
 	}
 	
 	@Override
-	protected void render(int mouseX, int mouseY, float partialTick) {
-		drawText(C_HEADER.get(), width / 2, 20, true);
+	public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+		super.render(graphics, mouseX, mouseY, partialTick);
+		
+		drawText(C_HEADER, width / 2, 20, true);
 		if (Minecraft.getInstance().isLocalServer()) {
-			drawText(C_FOOTER_MULTIPLAYER.get().setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD)), width / 2, height - 40, true);
+			drawText(C_FOOTER_MULTIPLAYER, width / 2, height - 40, true);
 		}
 		
 		for (int i = 0; i < SLOT_LABELS.length; i++) {
@@ -253,19 +255,19 @@ public class LoadoutEditorScreen extends AddonScreen {
 	
 	private void addFooterButtons() {
 		addRenderableWidget(Widgets.button(
-			C_BUTTON_RESET.get(),
+			C_BUTTON_RESET,
 			centeredDim(width / 2 - 100, height - 20, 90, 20),
 			button -> Minecraft.getInstance().setScreen(new LoadoutResetScreen(this))
 		));
 		
 		addRenderableWidget(Widgets.button(
-			C_BUTTON_COPY.get(),
+			C_BUTTON_COPY,
 			centeredDim(width / 2, height - 20, 90, 20),
 			button -> Minecraft.getInstance().setScreen(new LoadoutCopyScreen(this))
 		));
 		
 		addRenderableWidget(Widgets.button(
-			C_BUTTON_CLOSE_AND_SYNC.get(),
+			C_BUTTON_CLOSE_AND_SYNC,
 			centeredDim(width / 2 + 100, height - 20, 90, 20),
 			button -> {
 				saveLoadoutInfo();

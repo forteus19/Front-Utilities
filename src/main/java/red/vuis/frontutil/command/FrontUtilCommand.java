@@ -133,8 +133,7 @@ public final class FrontUtilCommand {
 					.map(path -> path.getFileName().toString())
 					.iterator()
 			);
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 		
@@ -179,7 +178,7 @@ public final class FrontUtilCommand {
 		}
 		
 		Path indexPath = loadoutsPath.resolve(filename);
-
+		
 		if (!LoadoutIndex.saveCurrent(indexPath)) {
 			sourceStack.sendFailure(Component.translatable("frontutil.message.command.loadout.write.error"));
 			return -1;

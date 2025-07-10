@@ -2,21 +2,20 @@ package red.vuis.frontutil.client.widget;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.Nullable;
 
 public class ItemEditContainer implements CompoundWidget {
-	private static final Supplier<MutableComponent> C_ITEM_ID_HINT = () -> Component.translatable("frontutil.widget.itemStack.itemId.hint");
+	private static final Component C_ITEM_ID_HINT = Component.translatable("frontutil.widget.itemStack.itemId.hint");
 	
 	protected final EditBox itemIdBox;
 	protected final IntegerEditBox countBox;
@@ -29,7 +28,7 @@ public class ItemEditContainer implements CompoundWidget {
 		
 		itemIdBox.setResponder(this::onItemIdChanged);
 		itemIdBox.setMaxLength(128);
-		itemIdBox.setHint(C_ITEM_ID_HINT.get());
+		itemIdBox.setHint(C_ITEM_ID_HINT);
 		
 		countBox.setMaxLength(2);
 		countBox.setHint(Component.literal("#"));
@@ -48,7 +47,13 @@ public class ItemEditContainer implements CompoundWidget {
 		preview.setItemStack(getPreviewItemStack(strId));
 	}
 	
-	protected ItemStack getPreviewItemStack(String strId) {
+	public @Nullable Item getItem() {
+		return Optional.ofNullable(ResourceLocation.tryParse(itemIdBox.getValue()))
+			.map(BuiltInRegistries.ITEM::get)
+			.orElse(null);
+	}
+	
+	protected @Nullable ItemStack getPreviewItemStack(String strId) {
 		ResourceLocation rl = ResourceLocation.tryParse(strId);
 		if (rl == null) {
 			preview.setItemStack(null);
