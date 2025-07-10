@@ -100,7 +100,9 @@
   "frontutil.screen.loadout.reset.mode.nation": "Nation",
   "frontutil.screen.loadout.reset.mode.skin": "Skin",
   "frontutil.screen.weapon.extra.header": "Weapon Extra Settings",
+  "frontutil.screen.weapon.label.barrelType": "Barrel Type",
   "frontutil.screen.weapon.label.magType": "Magazine Type",
   "frontutil.screen.weapon.label.scope": "Scope",
+  "frontutil.screen.weapon.label.skin": "Skin",
   "frontutil.widget.itemStack.itemId.hint": "Item ID"
 }

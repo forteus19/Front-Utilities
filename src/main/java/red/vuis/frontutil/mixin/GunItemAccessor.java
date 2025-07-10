@@ -2,6 +2,7 @@ package red.vuis.frontutil.mixin;
 
 import java.util.Map;
 
+import com.boehmod.blockfront.common.gun.GunBarrelType;
 import com.boehmod.blockfront.common.gun.GunMagType;
 import com.boehmod.blockfront.common.item.GunItem;
 import org.jetbrains.annotations.NotNull;
@@ -12,4 +13,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface GunItemAccessor {
 	@Accessor("magIdMap")
 	@NotNull Map<String, GunMagType> getMagIdMap();
+	
+	@Accessor("barrelIdMap")
+	@NotNull Map<String, GunBarrelType> getBarrelIdMap();
 }

@@ -55,12 +55,12 @@ public class WeaponEditContainer extends ItemEditContainer {
 	
 	@Override
 	protected @Nullable ItemStack getPreviewItemStack(String strId) {
-		return extra.setItemStackComponents(super.getPreviewItemStack(strId));
+		return extra.setComponents(super.getPreviewItemStack(strId));
 	}
 	
 	@Override
 	public ItemStack getValue() {
-		return extra.setItemStackComponents(super.getValue());
+		return extra.setComponents(super.getValue());
 	}
 	
 	@Override
@@ -95,13 +95,12 @@ public class WeaponEditContainer extends ItemEditContainer {
 	}
 	
 	public void refresh() {
-		preview.setItemStack(extra.setItemStackComponents(super.getPreviewItemStack(itemIdBox.getValue())));
+		preview.setItemStack(extra.setComponents(super.getPreviewItemStack(itemIdBox.getValue())));
 	}
 	
 	protected void retrieveItemStackComponents(@Nullable ItemStack itemStack) {
 		if (itemStack != null && itemStack.getItem() instanceof GunItem) {
-			extra.scope = GunItem.getScope(itemStack);
-			extra.magType = GunItem.getMagType(itemStack);
+			extra.getComponents(itemStack);
 		} else {
 			extra = new WeaponExtraSettings();
 		}

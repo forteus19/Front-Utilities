@@ -101,7 +101,7 @@ public final class FrontUtilCommand {
 		}
 		
 		ItemStack itemStack = new ItemStack(item);
-		itemStack.set(BFDataComponents.SKIN_ID.get(), GunSkinIndex.SKINS.get(id).getFloat(skin));
+		itemStack.set(BFDataComponents.SKIN_ID, GunSkinIndex.SKINS.get(id).get(skin));
 		
 		player.addItem(itemStack);
 		return 1;
