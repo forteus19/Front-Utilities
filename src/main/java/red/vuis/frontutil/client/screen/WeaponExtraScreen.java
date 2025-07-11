@@ -10,6 +10,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,6 +18,7 @@ import red.vuis.frontutil.client.widget.ItemPreview;
 import red.vuis.frontutil.client.widget.WeaponEditContainer;
 import red.vuis.frontutil.client.widget.Widgets;
 import red.vuis.frontutil.data.WeaponExtraSettings;
+import red.vuis.frontutil.net.packet.GiveGunPacket;
 import red.vuis.frontutil.setup.GunSkinIndex;
 
 import static red.vuis.frontutil.client.widget.WidgetDim.centeredDim;
@@ -27,6 +29,7 @@ import static red.vuis.frontutil.util.AddonAccessors.accessGunItem;
 
 public class WeaponExtraScreen extends AddonScreen {
 	private static final Component C_BUTTON_BACK = Component.translatable("frontutil.screen.generic.button.back");
+	private static final Component C_BUTTON_GIVE = Component.translatable("frontutil.screen.generic.button.give");
 	private static final Component C_HEADER = Component.translatable("frontutil.screen.weapon.extra.header");
 	private static final Component C_LABEL_BARRELTYPE = Component.translatable("frontutil.screen.weapon.label.barrelType");
 	private static final Component C_LABEL_MAGTYPE = Component.translatable("frontutil.screen.weapon.label.magType");
@@ -42,7 +45,12 @@ public class WeaponExtraScreen extends AddonScreen {
 	private final List<String> barrelTypeNames = new ArrayList<>();
 	private final List<String> skinNames = new ArrayList<>();
 	
+	private boolean give = false;
 	private ItemPreview preview;
+	
+	public WeaponExtraScreen(@Nullable Screen parent, GunItem item) {
+		this(parent, item, new WeaponExtraSettings());
+	}
 	
 	public WeaponExtraScreen(@Nullable Screen parent, GunItem item, WeaponExtraSettings settings) {
 		this(parent, item, settings, null);
@@ -166,11 +174,14 @@ public class WeaponExtraScreen extends AddonScreen {
 			.setItemStack(settings.getItemStack(item));
 		
 		addRenderableWidget(Widgets.button(
-			C_BUTTON_BACK,
+			give ? C_BUTTON_GIVE : C_BUTTON_BACK,
 			centeredDim(width / 2, height - 20, 120, 20),
 			button -> {
 				if (container != null) {
 					container.refresh();
+				}
+				if (give) {
+					PacketDistributor.sendToServer(new GiveGunPacket(item, settings));
 				}
 				Minecraft.getInstance().setScreen(parent);
 			}
@@ -188,5 +199,10 @@ public class WeaponExtraScreen extends AddonScreen {
 		drawText(C_LABEL_MAGTYPE, width / 2 - 70, 100, true);
 		drawText(C_LABEL_BARRELTYPE, width / 2 - 70, 140, true);
 		drawText(C_LABEL_SKIN, width / 2 - 70, 180, true);
+	}
+	
+	public WeaponExtraScreen sendGivePacket() {
+		give = true;
+		return this;
 	}
 }

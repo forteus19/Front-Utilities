@@ -14,8 +14,10 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import red.vuis.frontutil.AddonConstants;
 import red.vuis.frontutil.command.FrontUtilCommand;
 import red.vuis.frontutil.data.GunModifierTarget;
+import red.vuis.frontutil.net.packet.GiveGunPacket;
 import red.vuis.frontutil.net.packet.GunModifiersPacket;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
+import red.vuis.frontutil.setup.GunItemIndex;
 import red.vuis.frontutil.setup.GunModifierIndex;
 import red.vuis.frontutil.setup.GunSkinIndex;
 import red.vuis.frontutil.setup.LoadoutIndex;
@@ -34,6 +36,9 @@ public final class AddonCommonEvents {
 		
 		AddonConstants.LOGGER.info("Indexing default loadouts...");
 		LoadoutIndex.init();
+		
+		AddonConstants.LOGGER.info("Indexing gun items...");
+		GunItemIndex.init();
 		
 		var manager = BlockFront.getInstance().getManager();
 		if (manager == null) {
@@ -55,6 +60,7 @@ public final class AddonCommonEvents {
 	@SubscribeEvent
 	public static void onRegisterPayloadHandlers(RegisterPayloadHandlersEvent event) {
 		PayloadRegistrar registrar = event.registrar("1");
+		registrar.playToServer(GiveGunPacket.TYPE, GiveGunPacket.STREAM_CODEC, GiveGunPacket::handle);
 		registrar.playToClient(GunModifiersPacket.TYPE, GunModifiersPacket.STREAM_CODEC, GunModifiersPacket::handle);
 		registrar.playBidirectional(LoadoutsPacket.TYPE, LoadoutsPacket.STREAM_CODEC, new DirectionalPayloadHandler<>(
 			LoadoutsPacket::handleClient, LoadoutsPacket::handleServer

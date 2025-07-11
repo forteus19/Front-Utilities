@@ -27,6 +27,7 @@ import org.jetbrains.annotations.UnmodifiableView;
 import red.vuis.frontutil.AddonConstants;
 import red.vuis.frontutil.data.AddonCodecs;
 import red.vuis.frontutil.mixin.DivisionDataAccessor;
+import red.vuis.frontutil.util.AddonGunUtils;
 
 import static red.vuis.frontutil.util.AddonAccessors.accessDivisionData;
 import static red.vuis.frontutil.util.AddonAccessors.applyDivisionData;
@@ -68,16 +69,16 @@ public final class LoadoutIndex {
 	
 	public static Loadout cloneLoadout(Loadout original) {
 		return new Loadout(
-			original.getPrimary().copy(),
-			original.getSecondary().copy(),
-			original.getMelee().copy(),
-			original.getOffHand().copy(),
-			original.getHead().copy(),
-			original.getChest().copy(),
-			original.getLegs().copy(),
-			original.getFeet().copy()
+			AddonGunUtils.optimizeComponents(original.getPrimary().copy()),
+			AddonGunUtils.optimizeComponents(original.getSecondary().copy()),
+			AddonGunUtils.optimizeComponents(original.getMelee().copy()),
+			AddonGunUtils.optimizeComponents(original.getOffHand().copy()),
+			AddonGunUtils.optimizeComponents(original.getHead().copy()),
+			AddonGunUtils.optimizeComponents(original.getChest().copy()),
+			AddonGunUtils.optimizeComponents(original.getLegs().copy()),
+			AddonGunUtils.optimizeComponents(original.getFeet().copy())
 		)
-			.addExtra(original.getExtra().stream().map(ItemStack::copy).toList())
+			.addExtra(original.getExtra().stream().map(ItemStack::copy).map(AddonGunUtils::optimizeComponents).toList())
 			.method_3154(original.method_3160())
 			.setMinimumXp(original.getMinimumXp());
 	}
