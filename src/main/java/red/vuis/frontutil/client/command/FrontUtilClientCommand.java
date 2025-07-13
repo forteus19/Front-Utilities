@@ -10,15 +10,15 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.minecraft.client.Minecraft;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.argument.IdentifierArgumentType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.registry.Registries;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -31,15 +31,15 @@ import red.vuis.frontutil.net.packet.LoadoutsPacket;
 import red.vuis.frontutil.setup.GunItemIndex;
 import red.vuis.frontutil.setup.LoadoutIndex;
 
-import static net.minecraft.commands.Commands.argument;
-import static net.minecraft.commands.Commands.literal;
+import static net.minecraft.server.command.CommandManager.argument;
+import static net.minecraft.server.command.CommandManager.literal;
 
 public final class FrontUtilClientCommand {
 	private FrontUtilClientCommand() {
 	}
 	
-	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-		var root = literal("frontutil").requires(stack -> stack.hasPermission(3));
+	public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
+		var root = literal("frontutil").requires(stack -> stack.hasPermissionLevel(3));
 		
 		root.then(
 			literal("config").executes(FrontUtilClientCommand::config)
@@ -56,7 +56,7 @@ public final class FrontUtilClientCommand {
 		).then(
 			literal("gun").then(
 				literal("giveMenu").then(
-					argument("item", ResourceLocationArgument.id()).suggests(FrontUtilClientCommand::suggestGunItems).executes(FrontUtilClientCommand::gunGiveMenu)
+					argument("item", IdentifierArgumentType.identifier()).suggests(FrontUtilClientCommand::suggestGunItems).executes(FrontUtilClientCommand::gunGiveMenu)
 				)
 			)
 		).then(
@@ -71,30 +71,30 @@ public final class FrontUtilClientCommand {
 	}
 	
 	@SuppressWarnings("DataFlowIssue")
-	private static int config(CommandContext<CommandSourceStack> context) {
+	private static int config(CommandContext<ServerCommandSource> context) {
 		// shut up intellij it can be null >:(
-		Minecraft.getInstance().setScreen(new ConfigurationScreen(FrontUtilClient.getInstance().container, null));
+		MinecraftClient.getInstance().setScreen(new ConfigurationScreen(FrontUtilClient.getInstance().container, null));
 		
 		return 1;
 	}
 	
-	private static int editorModeOff(CommandContext<CommandSourceStack> context) {
+	private static int editorModeOff(CommandContext<ServerCommandSource> context) {
 		AddonClientData.getInstance().editing = null;
 		
 		return 1;
 	}
 	
-	private static CompletableFuture<Suggestions> suggestMapEnvironments(CommandContext<CommandSourceStack> context, SuggestionsBuilder suggestions) {
+	private static CompletableFuture<Suggestions> suggestMapEnvironments(CommandContext<ServerCommandSource> context, SuggestionsBuilder suggestions) {
 		MapAsset asset = AssetArgument.getAsset(context, "mapAsset", MapAsset.class);
-		return SharedSuggestionProvider.suggest(asset.getEnvironments().keySet(), suggestions);
+		return CommandSource.suggestMatching(asset.getEnvironments().keySet(), suggestions);
 	}
 	
-	private static int editorModeOn(CommandContext<CommandSourceStack> context) {
-		Player player = Minecraft.getInstance().player;
+	private static int editorModeOn(CommandContext<ServerCommandSource> context) {
+		PlayerEntity player = MinecraftClient.getInstance().player;
 		assert player != null;
 		
 		if (!(player.isCreative() || player.isSpectator())) {
-			context.getSource().sendFailure(Component.translatable("frontutil.message.command.editorMode.error.mode"));
+			context.getSource().sendError(Text.translatable("frontutil.message.command.editorMode.error.mode"));
 			return -1;
 		}
 		
@@ -102,7 +102,7 @@ public final class FrontUtilClientCommand {
 		String envStr = StringArgumentType.getString(context, "environment");
 		
 		if (!asset.environments.containsKey(envStr)) {
-			context.getSource().sendFailure(Component.translatable("frontutil.message.command.editorMode.error.environment"));
+			context.getSource().sendError(Text.translatable("frontutil.message.command.editorMode.error.environment"));
 			return -1;
 		}
 		
@@ -111,43 +111,43 @@ public final class FrontUtilClientCommand {
 		return 1;
 	}
 	
-	private static CompletableFuture<Suggestions> suggestGunItems(CommandContext<CommandSourceStack> context, SuggestionsBuilder suggestions) {
-		return SharedSuggestionProvider.suggest(GunItemIndex.GUN_ITEMS.stream().map(ResourceLocation::toString), suggestions);
+	private static CompletableFuture<Suggestions> suggestGunItems(CommandContext<ServerCommandSource> context, SuggestionsBuilder suggestions) {
+		return CommandSource.suggestMatching(GunItemIndex.GUN_ITEMS.stream().map(Identifier::toString), suggestions);
 	}
 	
-	private static int gunGiveMenu(CommandContext<CommandSourceStack> context) {
-		Item item = BuiltInRegistries.ITEM.get(ResourceLocationArgument.getId(context, "item"));
+	private static int gunGiveMenu(CommandContext<ServerCommandSource> context) {
+		Item item = Registries.ITEM.get(IdentifierArgumentType.getIdentifier(context, "item"));
 		if (!(item instanceof GunItem gunItem)) {
-			context.getSource().sendFailure(Component.translatable("frontutil.message.command.gun.giveMenu.error.item"));
+			context.getSource().sendError(Text.translatable("frontutil.message.command.gun.giveMenu.error.item"));
 			return -1;
 		}
 		
-		Minecraft.getInstance().setScreen(new WeaponExtraScreen(null, gunItem).sendGivePacket());
+		MinecraftClient.getInstance().setScreen(new WeaponExtraScreen(null, gunItem).sendGivePacket());
 		
 		return 1;
 	}
 	
-	private static int loadoutOpenEditor(CommandContext<CommandSourceStack> context) {
+	private static int loadoutOpenEditor(CommandContext<ServerCommandSource> context) {
 		BFClientManager manager = BFClientManager.getInstance();
 		if (manager == null) {
 			return 0;
 		}
 		if (manager.getGame() != null) {
-			context.getSource().sendFailure(Component.translatable("frontutil.message.command.loadout.openEditor.error.client.match"));
+			context.getSource().sendError(Text.translatable("frontutil.message.command.loadout.openEditor.error.client.match"));
 			return -1;
 		}
 		
-		Minecraft.getInstance().setScreen(new LoadoutEditorScreen());
+		MinecraftClient.getInstance().setScreen(new LoadoutEditorScreen());
 		return 1;
 	}
 	
-	private static int loadoutSync(CommandContext<CommandSourceStack> context) {
+	private static int loadoutSync(CommandContext<ServerCommandSource> context) {
 		BFClientManager manager = BFClientManager.getInstance();
 		if (manager == null) {
 			return 0;
 		}
 		if (manager.getGame() != null) {
-			context.getSource().sendFailure(Component.translatable("frontutil.message.command.loadout.sync.error.client.match"));
+			context.getSource().sendError(Text.translatable("frontutil.message.command.loadout.sync.error.client.match"));
 			return -1;
 		}
 		

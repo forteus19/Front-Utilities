@@ -12,17 +12,17 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.minecraft.commands.CommandSource;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.argument.IdentifierArgumentType;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.registry.Registries;
+import net.minecraft.server.command.CommandOutput;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import red.vuis.frontutil.data.GunModifierTarget;
@@ -32,20 +32,20 @@ import red.vuis.frontutil.setup.LoadoutIndex;
 import red.vuis.frontutil.util.AddonCommandUtils;
 import red.vuis.frontutil.util.AddonUtils;
 
-import static net.minecraft.commands.Commands.argument;
-import static net.minecraft.commands.Commands.literal;
+import static net.minecraft.server.command.CommandManager.argument;
+import static net.minecraft.server.command.CommandManager.literal;
 
 public final class FrontUtilCommand {
 	private FrontUtilCommand() {
 	}
 	
-	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-		var root = literal("frontutil").requires(stack -> stack.hasPermission(3));
+	public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
+		var root = literal("frontutil").requires(stack -> stack.hasPermissionLevel(3));
 		
 		root.then(
 			literal("gun").then(
 				literal("giveWithSkin").then(
-					argument("id", ResourceLocationArgument.id()).suggests(FrontUtilCommand::suggestGunGiveId).then(
+					argument("id", IdentifierArgumentType.identifier()).suggests(FrontUtilCommand::suggestGunGiveId).then(
 						argument("skin", StringArgumentType.word()).suggests(FrontUtilCommand::suggestGunGiveSkin).executes(FrontUtilCommand::gunGiveWithSkin)
 					)
 				)
@@ -71,28 +71,28 @@ public final class FrontUtilCommand {
 		dispatcher.register(root);
 	}
 	
-	private static CompletableFuture<Suggestions> suggestGunGiveId(CommandContext<CommandSourceStack> context, SuggestionsBuilder suggestions) {
-		return SharedSuggestionProvider.suggest(GunSkinIndex.SKINS.keySet().stream().map(ResourceLocation::toString), suggestions);
+	private static CompletableFuture<Suggestions> suggestGunGiveId(CommandContext<ServerCommandSource> context, SuggestionsBuilder suggestions) {
+		return CommandSource.suggestMatching(GunSkinIndex.SKINS.keySet().stream().map(Identifier::toString), suggestions);
 	}
 	
-	private static CompletableFuture<Suggestions> suggestGunGiveSkin(CommandContext<CommandSourceStack> context, SuggestionsBuilder suggestions) {
-		ResourceLocation id = ResourceLocationArgument.getId(context, "id");
+	private static CompletableFuture<Suggestions> suggestGunGiveSkin(CommandContext<ServerCommandSource> context, SuggestionsBuilder suggestions) {
+		Identifier id = IdentifierArgumentType.getIdentifier(context, "id");
 		if (!GunSkinIndex.SKINS.containsKey(id)) {
 			return Suggestions.empty();
 		}
-		return SharedSuggestionProvider.suggest(GunSkinIndex.SKINS.get(id).keySet(), suggestions);
+		return CommandSource.suggestMatching(GunSkinIndex.SKINS.get(id).keySet(), suggestions);
 	}
 	
-	private static int gunGiveWithSkin(CommandContext<CommandSourceStack> context) {
-		ServerPlayer player = AddonCommandUtils.getContextPlayer(context);
+	private static int gunGiveWithSkin(CommandContext<ServerCommandSource> context) {
+		ServerPlayerEntity player = AddonCommandUtils.getContextPlayer(context);
 		if (player == null) {
 			return -1;
 		}
 		
-		ResourceLocation id = ResourceLocationArgument.getId(context, "id");
+		Identifier id = IdentifierArgumentType.getIdentifier(context, "id");
 		String skin = StringArgumentType.getString(context, "skin");
 		
-		Item item = BuiltInRegistries.ITEM.get(id);
+		Item item = Registries.ITEM.get(id);
 		if (item == Items.AIR) {
 			return -1;
 		}
@@ -103,26 +103,26 @@ public final class FrontUtilCommand {
 		ItemStack itemStack = new ItemStack(item);
 		itemStack.set(BFDataComponents.SKIN_ID, GunSkinIndex.SKINS.get(id).get(skin));
 		
-		player.addItem(itemStack);
+		player.giveItemStack(itemStack);
 		return 1;
 	}
 	
-	private static int gunModifierListAll(CommandContext<CommandSourceStack> context) {
-		CommandSource source = context.getSource().source;
+	private static int gunModifierListAll(CommandContext<ServerCommandSource> context) {
+		CommandOutput output = context.getSource().output;
 		
 		for (GunModifierTarget target : GunModifierTarget.ACTIVE) {
-			source.sendSystemMessage(Component.literal(target.toString()));
+			output.sendMessage(Text.literal(target.toString()));
 		}
 		
 		return 1;
 	}
 	
-	private static int loadoutList(CommandContext<CommandSourceStack> context) {
-		CommandSourceStack sourceStack = context.getSource();
+	private static int loadoutList(CommandContext<ServerCommandSource> context) {
+		ServerCommandSource sourceStack = context.getSource();
 		
 		Path loadoutsPath = AddonUtils.getServerDataPath(sourceStack.getServer()).resolve("loadouts");
 		if (!Files.isDirectory(loadoutsPath)) {
-			sourceStack.sendFailure(Component.translatable("frontutil.message.command.loadout.list.none"));
+			sourceStack.sendError(Text.translatable("frontutil.message.command.loadout.list.none"));
 			return 0;
 		}
 		
@@ -137,38 +137,38 @@ public final class FrontUtilCommand {
 			throw new RuntimeException(e);
 		}
 		
-		sourceStack.sendSuccess(() -> Component.translatable("frontutil.message.command.loadout.list.success", filenameList), false);
+		sourceStack.sendFeedback(() -> Text.translatable("frontutil.message.command.loadout.list.success", filenameList), false);
 		return 1;
 	}
 	
-	private static int loadoutRead(CommandContext<CommandSourceStack> context) {
-		CommandSourceStack sourceStack = context.getSource();
+	private static int loadoutRead(CommandContext<ServerCommandSource> context) {
+		ServerCommandSource source = context.getSource();
 		
 		if (AddonUtils.anyGamesActive()) {
-			sourceStack.sendFailure(Component.translatable("frontutil.message.command.loadout.read.game"));
+			source.sendError(Text.translatable("frontutil.message.command.loadout.read.game"));
 			return -1;
 		}
 		
 		String filename = StringArgumentType.getString(context, "filename") + ".dat";
-		Path indexPath = AddonUtils.getServerDataPath(sourceStack.getServer()).resolve("loadouts").resolve(filename);
+		Path indexPath = AddonUtils.getServerDataPath(source.getServer()).resolve("loadouts").resolve(filename);
 		
 		if (!LoadoutIndex.parseAndApply(indexPath)) {
-			sourceStack.sendFailure(Component.translatable("frontutil.message.command.loadout.read.error"));
+			source.sendError(Text.translatable("frontutil.message.command.loadout.read.error"));
 			return -1;
 		}
 		
 		PacketDistributor.sendToAllPlayers(new LoadoutsPacket(LoadoutIndex.currentFlat()));
 		
-		sourceStack.sendSuccess(() -> Component.translatable("frontutil.message.command.loadout.read.success", filename), true);
+		source.sendFeedback(() -> Text.translatable("frontutil.message.command.loadout.read.success", filename), true);
 		return 1;
 	}
 	
-	private static int loadoutWrite(CommandContext<CommandSourceStack> context) {
-		CommandSourceStack sourceStack = context.getSource();
+	private static int loadoutWrite(CommandContext<ServerCommandSource> context) {
+		ServerCommandSource source = context.getSource();
 		
 		String filename = StringArgumentType.getString(context, "filename") + ".dat";
 		
-		Path loadoutsPath = AddonUtils.getServerDataPath(sourceStack.getServer()).resolve("loadouts");
+		Path loadoutsPath = AddonUtils.getServerDataPath(source.getServer()).resolve("loadouts");
 		if (!Files.isDirectory(loadoutsPath)) {
 			try {
 				Files.createDirectory(loadoutsPath);
@@ -180,7 +180,7 @@ public final class FrontUtilCommand {
 		Path indexPath = loadoutsPath.resolve(filename);
 		
 		if (!LoadoutIndex.saveCurrent(indexPath)) {
-			sourceStack.sendFailure(Component.translatable("frontutil.message.command.loadout.write.error"));
+			source.sendError(Text.translatable("frontutil.message.command.loadout.write.error"));
 			return -1;
 		}
 		

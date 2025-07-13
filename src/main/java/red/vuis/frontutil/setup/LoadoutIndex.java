@@ -17,11 +17,11 @@ import com.boehmod.blockfront.common.match.Loadout;
 import com.boehmod.blockfront.common.match.MatchClass;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.Util;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.Util;
 import org.jetbrains.annotations.UnmodifiableView;
 
 import red.vuis.frontutil.AddonConstants;
@@ -170,11 +170,11 @@ public final class LoadoutIndex {
 	
 	public static boolean parseAndApply(Path indexPath) {
 		AddonConstants.LOGGER.info("Parsing and applying loadout data from disk...");
-		long startNs = Util.getNanos();
+		long startNs = Util.getMeasuringTimeNano();
 		
-		CompoundTag indexTag;
+		NbtCompound indexTag;
 		try {
-			indexTag = NbtIo.read(new DataInputStream(Files.newInputStream(indexPath)));
+			indexTag = NbtIo.readCompound(new DataInputStream(Files.newInputStream(indexPath)));
 		} catch (NoSuchFileException e) {
 			AddonConstants.LOGGER.error("Loadout file does not exist!");
 			return false;
@@ -190,27 +190,27 @@ public final class LoadoutIndex {
 		}
 		apply(result.getOrThrow());
 		
-		long endNs = Util.getNanos();
+		long endNs = Util.getMeasuringTimeNano();
 		AddonConstants.LOGGER.info("Loadout data loaded in {} ms.", String.format("%.3f", (endNs - startNs) / 1.0E6));
 		return true;
 	}
 	
 	public static boolean saveCurrent(Path indexPath) {
 		AddonConstants.LOGGER.info("Saving loadout data to disk...");
-		long startNs = Util.getNanos();
+		long startNs = Util.getMeasuringTimeNano();
 		
-		CompoundTag encodeResult = (CompoundTag) AddonCodecs.LOADOUT_INDEX.encodeStart(NbtOps.INSTANCE, currentFlat())
+		NbtCompound encodeResult = (NbtCompound) AddonCodecs.LOADOUT_INDEX.encodeStart(NbtOps.INSTANCE, currentFlat())
 			.resultOrPartial(AddonConstants.LOGGER::error)
 			.orElseThrow();
 		
 		try {
-			NbtIo.write(encodeResult, new DataOutputStream(Files.newOutputStream(indexPath)));
+			NbtIo.writeCompound(encodeResult, new DataOutputStream(Files.newOutputStream(indexPath)));
 		} catch (Exception e) {
 			AddonConstants.LOGGER.error("Error while writing loadout data to disk!", e);
 			return false;
 		}
 		
-		long endNs = Util.getNanos();
+		long endNs = Util.getMeasuringTimeNano();
 		AddonConstants.LOGGER.info("Loadout data saved in {} ms.", String.format("%.3f", (endNs - startNs) / 1.0E6));
 		return true;
 	}

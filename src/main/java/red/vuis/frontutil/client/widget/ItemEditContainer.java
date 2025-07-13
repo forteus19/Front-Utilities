@@ -3,44 +3,44 @@ package red.vuis.frontutil.client.widget;
 import java.util.List;
 import java.util.Optional;
 
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.core.Holder;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 public class ItemEditContainer implements CompoundWidget {
-	private static final Component C_ITEM_ID_HINT = Component.translatable("frontutil.widget.itemStack.itemId.hint");
+	private static final Text C_ITEM_ID_HINT = Text.translatable("frontutil.widget.itemStack.itemId.hint");
 	
-	protected final EditBox itemIdBox;
-	protected final IntegerEditBox countBox;
+	protected final TextFieldWidget itemIdField;
+	protected final IntegerFieldWidget countField;
 	protected final ItemPreview preview;
 	
-	public ItemEditContainer(Font font, int x, int y, int width, int height) {
-		itemIdBox = new EditBox(font, x, y, width - 40, height, Component.empty());
-		countBox = new IntegerEditBox(font, x + width - 40, y, 20, height, Component.empty());
+	public ItemEditContainer(TextRenderer font, int x, int y, int width, int height) {
+		itemIdField = new TextFieldWidget(font, x, y, width - 40, height, Text.empty());
+		countField = new IntegerFieldWidget(font, x + width - 40, y, 20, height, Text.empty());
 		preview = new ItemPreview(x + width - 20, y, 20);
 		
-		itemIdBox.setResponder(this::onItemIdChanged);
-		itemIdBox.setMaxLength(128);
-		itemIdBox.setHint(C_ITEM_ID_HINT);
+		itemIdField.setChangedListener(this::onItemIdChanged);
+		itemIdField.setMaxLength(128);
+		itemIdField.setPlaceholder(C_ITEM_ID_HINT);
 		
-		countBox.setMaxLength(2);
-		countBox.setHint(Component.literal("#"));
+		countField.setMaxLength(2);
+		countField.setPlaceholder(Text.literal("#"));
 	}
 	
-	public ItemEditContainer(Font font, WidgetDim dim) {
+	public ItemEditContainer(TextRenderer font, WidgetDim dim) {
 		this(font, dim.x(), dim.y(), dim.width(), dim.height());
 	}
 	
 	@Override
 	public Iterable<Object> getWidgets() {
-		return List.of(itemIdBox, countBox, preview);
+		return List.of(itemIdField, countField, preview);
 	}
 	
 	protected void onItemIdChanged(String strId) {
@@ -48,18 +48,18 @@ public class ItemEditContainer implements CompoundWidget {
 	}
 	
 	public @Nullable Item getItem() {
-		return Optional.ofNullable(ResourceLocation.tryParse(itemIdBox.getValue()))
-			.map(BuiltInRegistries.ITEM::get)
+		return Optional.ofNullable(Identifier.tryParse(itemIdField.getText()))
+			.map(Registries.ITEM::get)
 			.orElse(null);
 	}
 	
 	protected @Nullable ItemStack getPreviewItemStack(String strId) {
-		ResourceLocation rl = ResourceLocation.tryParse(strId);
+		Identifier rl = Identifier.tryParse(strId);
 		if (rl == null) {
 			preview.setItemStack(null);
 			return null;
 		}
-		Optional<Holder.Reference<Item>> itemHolder = BuiltInRegistries.ITEM.getHolder(rl);
+		Optional<RegistryEntry.Reference<Item>> itemHolder = Registries.ITEM.getEntry(rl);
 		if (itemHolder.isEmpty()) {
 			preview.setItemStack(null);
 			return null;
@@ -68,8 +68,8 @@ public class ItemEditContainer implements CompoundWidget {
 	}
 	
 	public ItemStack getValue() {
-		Item item = BuiltInRegistries.ITEM.get(ResourceLocation.tryParse(itemIdBox.getValue()));
-		return item == Items.AIR ? ItemStack.EMPTY : new ItemStack(item, countBox.getIntValue().orElse(1));
+		Item item = Registries.ITEM.get(Identifier.tryParse(itemIdField.getText()));
+		return item == Items.AIR ? ItemStack.EMPTY : new ItemStack(item, countField.getInt().orElse(1));
 	}
 	
 	public void setValue(ItemStack itemStack) {
@@ -82,28 +82,28 @@ public class ItemEditContainer implements CompoundWidget {
 			clear();
 			return;
 		}
-		itemIdBox.setValue(BuiltInRegistries.ITEM.getKey(item).toString());
-		itemIdBox.moveCursorToStart(false);
-		countBox.setIntValue(itemStack.getCount());
-		countBox.moveCursorToStart(false);
+		itemIdField.setText(Registries.ITEM.getId(item).toString());
+		itemIdField.setCursorToStart(false);
+		countField.setInt(itemStack.getCount());
+		countField.setCursorToStart(false);
 	}
 	
 	public ItemEditContainer setActive(boolean active) {
-		itemIdBox.active = active;
-		countBox.active = active;
+		itemIdField.active = active;
+		countField.active = active;
 		return this;
 	}
 	
 	public ItemEditContainer setVisible(boolean visible) {
-		itemIdBox.visible = visible;
-		countBox.visible = visible;
+		itemIdField.visible = visible;
+		countField.visible = visible;
 		preview.visible = visible;
 		return this;
 	}
 	
 	public ItemEditContainer clear() {
-		itemIdBox.setValue("");
-		countBox.setValue("");
+		itemIdField.setText("");
+		countField.setText("");
 		return this;
 	}
 }

@@ -5,23 +5,23 @@ import java.util.Optional;
 import com.boehmod.blockfront.common.item.GunItem;
 import com.boehmod.blockfront.registry.BFDataComponents;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import red.vuis.frontutil.setup.GunSkinIndex;
 
 public class WeaponExtraSettings {
-	public static final StreamCodec<ByteBuf, WeaponExtraSettings> STREAM_CODEC = StreamCodec.composite(
-		ByteBufCodecs.BOOL,
+	public static final PacketCodec<ByteBuf, WeaponExtraSettings> PACKET_CODEC = PacketCodec.tuple(
+		PacketCodecs.BOOL,
 		e -> e.scope,
-		ByteBufCodecs.STRING_UTF8,
+		PacketCodecs.STRING,
 		e -> e.magType,
-		ByteBufCodecs.STRING_UTF8,
+		PacketCodecs.STRING,
 		e -> e.barrelType,
-		ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs::optional),
+		PacketCodecs.STRING.collect(PacketCodecs::optional),
 		e -> Optional.ofNullable(e.skin),
 		(scope, magType, barrelType, skin) -> new WeaponExtraSettings(scope, magType, barrelType, skin.orElse(null))
 	);

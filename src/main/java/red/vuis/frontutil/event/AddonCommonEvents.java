@@ -60,9 +60,9 @@ public final class AddonCommonEvents {
 	@SubscribeEvent
 	public static void onRegisterPayloadHandlers(RegisterPayloadHandlersEvent event) {
 		PayloadRegistrar registrar = event.registrar("1");
-		registrar.playToServer(GiveGunPacket.TYPE, GiveGunPacket.STREAM_CODEC, GiveGunPacket::handle);
-		registrar.playToClient(GunModifiersPacket.TYPE, GunModifiersPacket.STREAM_CODEC, GunModifiersPacket::handle);
-		registrar.playBidirectional(LoadoutsPacket.TYPE, LoadoutsPacket.STREAM_CODEC, new DirectionalPayloadHandler<>(
+		registrar.playToServer(GiveGunPacket.ID, GiveGunPacket.PACKET_CODEC, GiveGunPacket::handle);
+		registrar.playToClient(GunModifiersPacket.ID, GunModifiersPacket.PACKET_CODEC, GunModifiersPacket::handle);
+		registrar.playBidirectional(LoadoutsPacket.ID, LoadoutsPacket.PACKET_CODEC, new DirectionalPayloadHandler<>(
 			LoadoutsPacket::handleClient, LoadoutsPacket::handleServer
 		));
 	}

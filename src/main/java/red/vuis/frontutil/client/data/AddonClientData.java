@@ -7,7 +7,7 @@ import com.boehmod.blockfront.common.match.BFCountry;
 import com.boehmod.blockfront.common.match.Loadout;
 import com.boehmod.blockfront.common.match.MatchClass;
 import com.boehmod.blockfront.map.MapEnvironment;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
@@ -90,7 +90,7 @@ public final class AddonClientData {
 		LoadoutIndex.apply(tempLoadouts);
 		reloadLoadouts();
 		
-		if (!Minecraft.getInstance().isLocalServer()) {
+		if (!MinecraftClient.getInstance().isInSingleplayer()) {
 			AddonConstants.LOGGER.info("Syncing edited loadouts with the server...");
 			PacketDistributor.sendToServer(new LoadoutsPacket(tempLoadouts));
 		}

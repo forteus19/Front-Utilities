@@ -13,12 +13,11 @@ import com.boehmod.blockfront.util.math.FDSPose;
 import com.mojang.brigadier.context.CommandContext;
 import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
 import it.unimi.dsi.fastutil.ints.IntObjectPair;
-import net.minecraft.commands.CommandSource;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.command.CommandOutput;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnmodifiableView;
 
 import red.vuis.frontutil.util.AddonCommandUtils;
 import red.vuis.frontutil.util.AddonUtils;
@@ -27,57 +26,57 @@ public final class AddonAssetCommands {
 	private AddonAssetCommands() {
 	}
 	
-	public static @Nullable IntObjectPair<Component> parseIndex(CommandSource source, String arg, Collection<?> items, boolean includeEnd) {
+	public static @Nullable IntObjectPair<Text> parseIndex(CommandOutput output, String arg, Collection<?> items, boolean includeEnd) {
 		var index = AddonUtils.parse(Integer::parseInt, arg);
 		if (index.isEmpty()) {
-			CommandUtils.sendBfa(source, Component.translatable("frontutil.message.command.error.index.number"));
+			CommandUtils.sendBfa(output, Text.translatable("frontutil.message.command.error.index.number"));
 			return null;
 		}
 		
-		Component indexComponent = Component.literal(Integer.toString(index.get())).withStyle(BFStyles.LIME);
+		Text indexComponent = Text.literal(Integer.toString(index.get())).fillStyle(BFStyles.LIME);
 		if (index.get() < 0 || index.get() >= items.size() + (includeEnd ? 1 : 0)) {
-			CommandUtils.sendBfa(source, Component.translatable("frontutil.message.command.error.index.bounds", indexComponent));
+			CommandUtils.sendBfa(output, Text.translatable("frontutil.message.command.error.index.bounds", indexComponent));
 			return null;
 		}
 		
 		return new IntObjectImmutablePair<>(index.get(), indexComponent);
 	}
 	
-	public static <T> void genericList(CommandContext<CommandSourceStack> context, Supplier<Component> noneMessage, Supplier<Component> headerMessage, List<T> items, Function<? super T, String> infoFunc) {
-		CommandSource source = context.getSource().source;
+	public static <T> void genericList(CommandContext<ServerCommandSource> context, Supplier<Text> noneMessage, Supplier<Text> headerMessage, List<T> items, Function<? super T, String> infoFunc) {
+		CommandOutput output = context.getSource().output;
 		
 		if (items.isEmpty()) {
-			CommandUtils.sendBfa(source, noneMessage.get());
+			CommandUtils.sendBfa(output, noneMessage.get());
 			return;
 		}
 		
-		CommandUtils.sendBfa(source, headerMessage.get());
+		CommandUtils.sendBfa(output, headerMessage.get());
 		for (int i = 0; i < items.size(); i++) {
 			T item = items.get(i);
-			CommandUtils.sendBfa(source, Component.literal(String.format("%d: %s", i, infoFunc.apply(item))));
+			CommandUtils.sendBfa(output, Text.literal(String.format("%d: %s", i, infoFunc.apply(item))));
 		}
 	}
 	
-	public static <T> void genericList(CommandContext<CommandSourceStack> context, @Nullable Supplier<String> name, String noneMessage, String headerMessage, List<T> items, Function<? super T, String> infoFunc) {
+	public static <T> void genericList(CommandContext<ServerCommandSource> context, @Nullable Supplier<String> name, String noneMessage, String headerMessage, List<T> items, Function<? super T, String> infoFunc) {
 		if (name != null) {
-			Supplier<Component> nameComponent = () -> Component.literal(name.get()).withStyle(BFStyles.LIME);
+			Supplier<Text> nameText = () -> Text.literal(name.get()).fillStyle(BFStyles.LIME);
 			genericList(
 				context,
-				() -> Component.translatable(noneMessage, nameComponent.get()),
-				() -> Component.translatable(headerMessage, nameComponent.get()),
+				() -> Text.translatable(noneMessage, nameText.get()),
+				() -> Text.translatable(headerMessage, nameText.get()),
 				items, infoFunc
 			);
 		} else {
 			genericList(
 				context,
-				() -> Component.translatable(noneMessage),
-				() -> Component.translatable(headerMessage),
+				() -> Text.translatable(noneMessage),
+				() -> Text.translatable(headerMessage),
 				items, infoFunc
 			);
 		}
 	}
 	
-	public static <T> void genericList(CommandContext<CommandSourceStack> context, String noneMessage, String headerMessage, List<T> items, Function<? super T, String> infoFunc) {
+	public static <T> void genericList(CommandContext<ServerCommandSource> context, String noneMessage, String headerMessage, List<T> items, Function<? super T, String> infoFunc) {
 		genericList(context, null, noneMessage, headerMessage, items, infoFunc);
 	}
 	
@@ -87,38 +86,38 @@ public final class AddonAssetCommands {
 		);
 	}
 	
-	public static void genericRemove(CommandContext<CommandSourceStack> context, @UnmodifiableView List<String> args, Function<Component, Component> successMessage, List<?> items) {
-		CommandSource source = context.getSource().source;
+	public static void genericRemove(CommandContext<ServerCommandSource> context, List<String> args, Function<Text, Text> successMessage, List<?> items) {
+		CommandOutput output = context.getSource().output;
 		
-		var indexParse = parseIndex(source, args.getFirst(), items, false);
+		var indexParse = parseIndex(output, args.getFirst(), items, false);
 		if (indexParse == null) {
 			return;
 		}
 		int index = indexParse.leftInt();
-		Component indexComponent = indexParse.right();
+		Text indexComponent = indexParse.right();
 		
 		items.remove(index);
-		CommandUtils.sendBfa(source, successMessage.apply(indexComponent));
+		CommandUtils.sendBfa(output, successMessage.apply(indexComponent));
 	}
 	
-	public static void genericRemove(CommandContext<CommandSourceStack> context, @UnmodifiableView List<String> args, @Nullable Supplier<String> name, String successMessage, List<?> items) {
+	public static void genericRemove(CommandContext<ServerCommandSource> context, List<String> args, @Nullable Supplier<String> name, String successMessage, List<?> items) {
 		if (name != null) {
-			Supplier<Component> nameComponent = () -> Component.literal(name.get()).withStyle(BFStyles.LIME);
+			Supplier<Text> nameText = () -> Text.literal(name.get()).fillStyle(BFStyles.LIME);
 			genericRemove(
 				context, args,
-				indexComponent -> Component.translatable(successMessage, indexComponent, nameComponent.get()),
+				indexComponent -> Text.translatable(successMessage, indexComponent, nameText.get()),
 				items
 			);
 		} else {
 			genericRemove(
 				context, args,
-				indexComponent -> Component.translatable(successMessage, indexComponent),
+				indexComponent -> Text.translatable(successMessage, indexComponent),
 				items
 			);
 		}
 	}
 	
-	public static void genericRemove(CommandContext<CommandSourceStack> context, @UnmodifiableView List<String> args, String successMessage, List<?> items) {
+	public static void genericRemove(CommandContext<ServerCommandSource> context, List<String> args, String successMessage, List<?> items) {
 		genericRemove(context, args, null, successMessage, items);
 	}
 	
@@ -128,8 +127,8 @@ public final class AddonAssetCommands {
 		).validator(AssetCommandValidatorsEx.count("index"));
 	}
 	
-	public static <T extends FDSPose> void genericTeleport(CommandContext<CommandSourceStack> context, @UnmodifiableView List<String> args, BiFunction<? super T, Component, Component> successMessage, List<T> items) {
-		ServerPlayer player = AddonCommandUtils.getContextPlayer(context);
+	public static <T extends FDSPose> void genericTeleport(CommandContext<ServerCommandSource> context, List<String> args, BiFunction<? super T, Text, Text> successMessage, List<T> items) {
+		ServerPlayerEntity player = AddonCommandUtils.getContextPlayer(context);
 		if (player == null) {
 			return;
 		}
@@ -139,14 +138,14 @@ public final class AddonAssetCommands {
 			return;
 		}
 		int index = indexParse.leftInt();
-		Component indexComponent = indexParse.right();
+		Text indexComponent = indexParse.right();
 		T item = items.get(index);
 		
 		AddonUtils.teleportBf(player, items.get(index));
 		CommandUtils.sendBfa(player, successMessage.apply(item, indexComponent));
 	}
 	
-	public static <T extends FDSPose> AssetCommandBuilder genericTeleport(BiFunction<? super T, Component, Component> successMessage, List<T> items) {
+	public static <T extends FDSPose> AssetCommandBuilder genericTeleport(BiFunction<? super T, Text, Text> successMessage, List<T> items) {
 		return new AssetCommandBuilder(
 			(context, args) -> genericTeleport(context, List.of(args), successMessage, items)
 		).validator(AssetCommandValidatorsEx.count("index"));

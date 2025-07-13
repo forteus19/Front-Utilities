@@ -1,24 +1,24 @@
 package red.vuis.frontutil.util;
 
-import net.minecraft.util.FastColor;
+import net.minecraft.util.math.ColorHelper;
 
 public final class ColorUtils {
 	private ColorUtils() {
 	}
 	
 	public static float redFloat(int color) {
-		return FastColor.ARGB32.red(color) / 255f;
+		return ColorHelper.Argb.getRed(color) / 255f;
 	}
 	
 	public static float greenFloat(int color) {
-		return FastColor.ARGB32.green(color) / 255f;
+		return ColorHelper.Argb.getGreen(color) / 255f;
 	}
 	
 	public static float blueFloat(int color) {
-		return FastColor.ARGB32.blue(color) / 255f;
+		return ColorHelper.Argb.getBlue(color) / 255f;
 	}
 	
 	public static float alphaFloat(int color) {
-		return FastColor.ARGB32.alpha(color) / 255f;
+		return ColorHelper.Argb.getAlpha(color) / 255f;
 	}
 }

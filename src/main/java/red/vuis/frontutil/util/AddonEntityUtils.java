@@ -4,7 +4,7 @@ import java.util.Set;
 
 import com.boehmod.blockfront.common.entity.base.IProducedProjectileEntity;
 import com.boehmod.blockfront.registry.BFEntityTypes;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.entity.EntityType;
 
 public final class AddonEntityUtils {
 	public static Set<EntityType<? extends IProducedProjectileEntity>> PRODUCED_PROJECTILES = Set.of(

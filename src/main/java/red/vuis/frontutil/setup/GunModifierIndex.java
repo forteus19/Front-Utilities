@@ -4,9 +4,9 @@ import java.util.Map;
 
 import com.boehmod.blockfront.common.item.GunItem;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.core.Holder;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.item.Item;
+import net.minecraft.item.Item;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.entry.RegistryEntry;
 
 import red.vuis.frontutil.data.GunModifier;
 import red.vuis.frontutil.mixin.GunItemAccessor;
@@ -14,18 +14,18 @@ import red.vuis.frontutil.mixin.GunItemAccessor;
 import static red.vuis.frontutil.util.AddonAccessors.applyGunItem;
 
 public final class GunModifierIndex {
-	public static final Map<Holder<Item>, GunModifier> DEFAULT = new Object2ObjectOpenHashMap<>();
+	public static final Map<RegistryEntry<Item>, GunModifier> DEFAULT = new Object2ObjectOpenHashMap<>();
 	
 	private GunModifierIndex() {
 	}
 	
 	public static void init() {
-		for (Item item : BuiltInRegistries.ITEM) {
+		for (Item item : Registries.ITEM) {
 			if (!(item instanceof GunItem gunItem)) {
 				continue;
 			}
 			DEFAULT.put(
-				BuiltInRegistries.ITEM.wrapAsHolder(gunItem),
+				Registries.ITEM.getEntry(gunItem),
 				new GunModifier(
 					GunModifier.Ammo.of(applyGunItem(gunItem, GunItemAccessor::getMagIdMap).get("default")),
 					GunModifier.Damage.of(gunItem.getDamageConfig()),
@@ -37,7 +37,7 @@ public final class GunModifierIndex {
 	}
 	
 	public static void applyDefaults() {
-		for (Map.Entry<Holder<Item>, GunModifier> entry : DEFAULT.entrySet()) {
+		for (Map.Entry<RegistryEntry<Item>, GunModifier> entry : DEFAULT.entrySet()) {
 			if (entry.getKey().value() instanceof GunItem gunItem) {
 				entry.getValue().apply(gunItem);
 			}

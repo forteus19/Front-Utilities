@@ -1,40 +1,40 @@
 package red.vuis.frontutil.client.widget;
 
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Checkbox;
-import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.network.chat.Component;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.CheckboxWidget;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.text.Text;
 
 public final class Widgets {
 	private Widgets() {
 	}
 	
-	public static Button button(Component label, int x, int y, int width, int height, Button.OnPress onPress) {
-		return Button.builder(label, onPress).bounds(x, y, width, height).build();
+	public static ButtonWidget button(Text label, int x, int y, int width, int height, ButtonWidget.PressAction action) {
+		return ButtonWidget.builder(label, action).dimensions(x, y, width, height).build();
 	}
 	
-	public static Button button(Component label, WidgetDim dim, Button.OnPress onPress) {
-		return button(label, dim.x(), dim.y(), dim.width(), dim.height(), onPress);
+	public static ButtonWidget button(Text label, WidgetDim dim, ButtonWidget.PressAction action) {
+		return button(label, dim.x(), dim.y(), dim.width(), dim.height(), action);
 	}
 	
-	public static Checkbox checkbox(Font font, int x, int y, int size, boolean selected) {
-		return Checkbox.builder(Component.empty(), font).pos(x, y).maxWidth(size).selected(selected).build();
+	public static CheckboxWidget checkbox(TextRenderer textRenderer, int x, int y, int size, boolean selected) {
+		return CheckboxWidget.builder(Text.empty(), textRenderer).pos(x, y).maxWidth(size).checked(selected).build();
 	}
 	
-	public static Checkbox checkbox(Font font, int x, int y, int size, boolean selected, Checkbox.OnValueChange onValueChange) {
-		return Checkbox.builder(Component.empty(), font).pos(x, y).maxWidth(size).selected(selected).onValueChange(onValueChange).build();
+	public static CheckboxWidget checkbox(TextRenderer textRenderer, int x, int y, int size, boolean selected, CheckboxWidget.Callback callback) {
+		return CheckboxWidget.builder(Text.empty(), textRenderer).pos(x, y).maxWidth(size).checked(selected).callback(callback).build();
 	}
 	
-	public static Checkbox checkbox(Font font, WidgetDim dim, boolean selected) {
-		return checkbox(font, dim.x(), dim.y(), dim.width(), selected);
+	public static CheckboxWidget checkbox(TextRenderer textRenderer, WidgetDim dim, boolean selected) {
+		return checkbox(textRenderer, dim.x(), dim.y(), dim.width(), selected);
 	}
 	
-	public static Checkbox checkbox(Font font, WidgetDim dim, boolean selected, Checkbox.OnValueChange onValueChange) {
-		return checkbox(font, dim.x(), dim.y(), dim.width(), selected, onValueChange);
+	public static CheckboxWidget checkbox(TextRenderer textRenderer, WidgetDim dim, boolean selected, CheckboxWidget.Callback callback) {
+		return checkbox(textRenderer, dim.x(), dim.y(), dim.width(), selected, callback);
 	}
 	
-	public static EditBox editBox(Font font, WidgetDim dim) {
-		return new EditBox(font, dim.x(), dim.y(), dim.width(), dim.height(), Component.empty());
+	public static TextFieldWidget textField(TextRenderer textRenderer, WidgetDim dim) {
+		return new TextFieldWidget(textRenderer, dim.x(), dim.y(), dim.width(), dim.height(), Text.empty());
 	}
 }

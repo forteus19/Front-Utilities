@@ -5,12 +5,12 @@ import com.boehmod.blockfront.client.gui.layer.BFAbstractGuiLayer;
 import com.boehmod.blockfront.client.gui.layer.MatchGuiLayer;
 import com.boehmod.blockfront.client.render.BFRendering;
 import com.boehmod.blockfront.game.AbstractGame;
-import com.boehmod.blockfront.game.base.IHasCapturePoints;
+import com.boehmod.blockfront.game.tag.IHasCapturePoints;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.client.util.math.MatrixStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
@@ -41,9 +41,9 @@ public abstract class MatchGuiLayerMixin extends BFAbstractGuiLayer {
 			target = "Lcom/boehmod/blockfront/game/AbstractGamePlayerManager;getPlayerUUIDs()Ljava/util/Set;"
 		)
 	)
-	private void addOldCapturePointRendering(GuiGraphics graphics, DeltaTracker delta, BFClientManager manager, CallbackInfo ci, @Local AbstractGame<?, ?, ?> game, @Local PoseStack poseStack, @Local Font font) {
+	private void addOldCapturePointRendering(DrawContext context, RenderTickCounter tick, BFClientManager manager, CallbackInfo ci, @Local AbstractGame<?, ?, ?> game, @Local MatrixStack matrices, @Local TextRenderer textRenderer) {
 		if (AddonClientConfig.getMatchHudStyle() == MatchHudStyle.OLD && game instanceof IHasCapturePoints<?, ?> cpGame) {
-			AddonRendering.oldCapturePoints(poseStack, graphics, font, game, cpGame.getCapturePoints(), graphics.guiWidth() / 2, BFRendering.getRenderTime());
+			AddonRendering.oldCapturePoints(matrices, context, textRenderer, game, cpGame.getCapturePoints(), context.getScaledWindowWidth() / 2, BFRendering.getRenderTime());
 		}
 	}
 }

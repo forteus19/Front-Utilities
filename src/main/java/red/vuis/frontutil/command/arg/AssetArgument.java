@@ -12,13 +12,13 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.network.chat.Component;
+import net.minecraft.command.CommandSource;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.text.Text;
 
 public class AssetArgument<T extends IAsset> implements ArgumentType<T> {
 	private static final Dynamic2CommandExceptionType ERROR_NOT_FOUND = new Dynamic2CommandExceptionType(
-		(assetName, registryName) -> Component.translatableEscape("frontutil.message.argument.asset.error.not_found", assetName, registryName)
+		(assetName, registryName) -> Text.stringifiedTranslatable("frontutil.message.argument.asset.error.not_found", assetName, registryName)
 	);
 	
 	private final AssetRegistry<T> registry;
@@ -35,7 +35,7 @@ public class AssetArgument<T extends IAsset> implements ArgumentType<T> {
 		return asset(AssetStore.getInstance().getRegistry(assetClass));
 	}
 	
-	public static <T extends IAsset> T getAsset(CommandContext<CommandSourceStack> context, String argument, Class<T> assetClass) {
+	public static <T extends IAsset> T getAsset(CommandContext<ServerCommandSource> context, String argument, Class<T> assetClass) {
 		return context.getArgument(argument, assetClass);
 	}
 	
@@ -52,6 +52,6 @@ public class AssetArgument<T extends IAsset> implements ArgumentType<T> {
 	
 	@Override
 	public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-		return SharedSuggestionProvider.suggest(registry.getEntries().keySet(), builder);
+		return CommandSource.suggestMatching(registry.getEntries().keySet(), builder);
 	}
 }

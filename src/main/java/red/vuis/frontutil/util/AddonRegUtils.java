@@ -1,9 +1,9 @@
 package red.vuis.frontutil.util;
 
-import net.minecraft.core.particles.ParticleType;
-import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.particle.ParticleType;
+import net.minecraft.particle.SimpleParticleType;
+import net.minecraft.registry.Registries;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 public final class AddonRegUtils {
@@ -11,7 +11,7 @@ public final class AddonRegUtils {
 	}
 	
 	public static @Nullable SimpleParticleType getSimpleParticle(String id) {
-		ParticleType<?> particle = BuiltInRegistries.PARTICLE_TYPE.get(ResourceLocation.tryParse(id));
+		ParticleType<?> particle = Registries.PARTICLE_TYPE.get(Identifier.tryParse(id));
 		return particle instanceof SimpleParticleType simpleParticle ? simpleParticle : null;
 	}
 }

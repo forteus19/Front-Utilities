@@ -9,9 +9,8 @@ import com.boehmod.blockfront.map.effect.LoopingSoundPointMapEffect;
 import com.boehmod.blockfront.map.effect.ParticleEmitterMapEffect;
 import com.boehmod.blockfront.map.effect.PositionedMapEffect;
 import com.boehmod.blockfront.util.RegistryUtils;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.UnmodifiableView;
 
 import red.vuis.frontutil.util.AddonRegUtils;
 import red.vuis.frontutil.util.AddonUtils;
@@ -65,8 +64,7 @@ public final class MapCommands {
 	private MapCommands() {
 	}
 	
-	@Nullable
-	public static BulletTracerSpawnerMapEffect parseBulletTracerSpawner(@UnmodifiableView List<String> args) {
+	public static @Nullable BulletTracerSpawnerMapEffect parseBulletTracerSpawner(List<String> args) {
 		if (!(args.size() == 6 || args.size() == 11)) {
 			return null;
 		}
@@ -82,7 +80,7 @@ public final class MapCommands {
 			return null;
 		}
 		
-		var mapEffect = new BulletTracerSpawnerMapEffect(new Vec3(x.get(), y.get(), z.get()), new Vec3(endPosX.get(), endPosY.get(), endPosZ.get()));
+		var mapEffect = new BulletTracerSpawnerMapEffect(new Vec3d(x.get(), y.get(), z.get()), new Vec3d(endPosX.get(), endPosY.get(), endPosZ.get()));
 		
 		if (args.size() == 11) {
 			var chance = AddonUtils.parse(Float::parseFloat, args.get(6));
@@ -99,14 +97,13 @@ public final class MapCommands {
 				accessor.setChance(chance.get());
 				accessor.setPlaySound(playSound.get());
 			});
-			mapEffect.method_3105(new Vec3(spreadX.get(), spreadY.get(), spreadZ.get()));
+			mapEffect.method_3105(new Vec3d(spreadX.get(), spreadY.get(), spreadZ.get()));
 		}
 		
 		return mapEffect;
 	}
 	
-	@Nullable
-	public static LoopingSoundPointMapEffect parseLoopingSoundPoint(@UnmodifiableView List<String> args) {
+	public static @Nullable LoopingSoundPointMapEffect parseLoopingSoundPoint(List<String> args) {
 		if (args.size() != 5) {
 			return null;
 		}
@@ -121,11 +118,10 @@ public final class MapCommands {
 			return null;
 		}
 		
-		return new LoopingSoundPointMapEffect(sound.get(), new Vec3(x.get(), y.get(), z.get()), maxTime.get());
+		return new LoopingSoundPointMapEffect(sound.get(), new Vec3d(x.get(), y.get(), z.get()), maxTime.get());
 	}
 	
-	@Nullable
-	public static ParticleEmitterMapEffect parseParticleEmitter(@UnmodifiableView List<String> args) {
+	public static @Nullable ParticleEmitterMapEffect parseParticleEmitter(List<String> args) {
 		if (!(args.size() == 5 || args.size() == 7)) {
 			return null;
 		}
@@ -140,7 +136,7 @@ public final class MapCommands {
 			return null;
 		}
 		
-		var mapEffect = new ParticleEmitterMapEffect(particle.get(), new Vec3(x.get(), y.get(), z.get()), maxTick.get());
+		var mapEffect = new ParticleEmitterMapEffect(particle.get(), new Vec3d(x.get(), y.get(), z.get()), maxTick.get());
 		
 		if (args.size() == 7) {
 			var sound = AddonUtils.parse(RegistryUtils::retrieveSoundEvent, args.get(5));

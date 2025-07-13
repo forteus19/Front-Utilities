@@ -8,10 +8,10 @@ import com.boehmod.blockfront.common.match.BFCountry;
 import com.boehmod.blockfront.common.match.Loadout;
 import com.boehmod.blockfront.common.match.MatchClass;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Checkbox;
-import net.minecraft.network.chat.Component;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.widget.CheckboxWidget;
+import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 
 import red.vuis.frontutil.client.data.AddonClientData;
@@ -22,14 +22,14 @@ import static red.vuis.frontutil.client.widget.WidgetDim.centeredDim;
 import static red.vuis.frontutil.client.widget.WidgetDim.sqrCenteredDim;
 
 public class LoadoutCopyScreen extends AddonScreen {
-	private static final Component C_BUTTON_APPLY = Component.translatable("frontutil.screen.generic.button.apply");
-	private static final Component C_BUTTON_BACK = Component.translatable("frontutil.screen.generic.button.back");
-	private static final Component C_CHECKBOX_EXCLUDE = Component.translatable("frontutil.screen.loadout.copy.checkbox.exclude");
-	private static final Component C_HEADER = Component.translatable("frontutil.screen.loadout.copy.header");
-	private static final Component C_MESSAGE = Component.translatable("frontutil.screen.loadout.copy.message");
+	private static final Text C_BUTTON_APPLY = Text.translatable("frontutil.screen.generic.button.apply");
+	private static final Text C_BUTTON_BACK = Text.translatable("frontutil.screen.generic.button.back");
+	private static final Text C_CHECKBOX_EXCLUDE = Text.translatable("frontutil.screen.loadout.copy.checkbox.exclude");
+	private static final Text C_HEADER = Text.translatable("frontutil.screen.loadout.copy.header");
+	private static final Text C_MESSAGE = Text.translatable("frontutil.screen.loadout.copy.message");
 	
 	private final LoadoutEditorScreen editor;
-	private Checkbox excludeCheckbox;
+	private CheckboxWidget excludeCheckbox;
 	
 	public LoadoutCopyScreen(LoadoutEditorScreen editor) {
 		super(C_HEADER);
@@ -40,16 +40,16 @@ public class LoadoutCopyScreen extends AddonScreen {
 	protected void init() {
 		super.init();
 		
-		excludeCheckbox = addRenderableOnly(Widgets.checkbox(
-			font, sqrCenteredDim(width / 2, 100, 20), true
+		excludeCheckbox = addDrawableChild(Widgets.checkbox(
+			textRenderer, sqrCenteredDim(width / 2, 100, 20), true
 		));
 		
-		addRenderableWidget(Widgets.button(
+		addDrawableChild(Widgets.button(
 			C_BUTTON_BACK,
 			centeredDim(width / 2 - 50, height - 20, 90, 20),
-			button -> Minecraft.getInstance().setScreen(editor)
+			button -> MinecraftClient.getInstance().setScreen(editor)
 		));
-		addRenderableWidget(Widgets.button(
+		addDrawableChild(Widgets.button(
 			C_BUTTON_APPLY,
 			centeredDim(width / 2 + 50, height - 20, 90, 20),
 			button -> {
@@ -66,7 +66,7 @@ public class LoadoutCopyScreen extends AddonScreen {
 						if (skin.equals(editor.selection.getSkin())) {
 							loadoutsToCopy.put(id.matchClass(), entry.getValue());
 						} else if (
-							!(excludeCheckbox.selected() &&
+							!(excludeCheckbox.isChecked() &&
 								((country == BFCountry.UNITED_STATES && skin.equals("continental")) ||
 									(country == BFCountry.GREAT_BRITAIN && skin.equals("regulars"))))
 						) {
@@ -86,14 +86,14 @@ public class LoadoutCopyScreen extends AddonScreen {
 					}
 				});
 				
-				Minecraft.getInstance().setScreen(new LoadoutEditorScreen());
+				MinecraftClient.getInstance().setScreen(new LoadoutEditorScreen());
 			}
 		));
 	}
 	
 	@Override
-	public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-		super.render(graphics, mouseX, mouseY, partialTick);
+	public void render(@NotNull DrawContext context, int mouseX, int mouseY, float delta) {
+		super.render(context, mouseX, mouseY, delta);
 		
 		drawText(C_HEADER, width / 2, 20, true);
 		drawText(C_MESSAGE, width / 2, 40, true);

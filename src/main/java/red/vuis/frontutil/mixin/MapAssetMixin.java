@@ -20,9 +20,9 @@ import com.boehmod.blockfront.util.CommandUtils;
 import com.mojang.brigadier.context.CommandContext;
 import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
-import net.minecraft.commands.CommandSource;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
+import net.minecraft.server.command.CommandOutput;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -94,8 +94,8 @@ public abstract class MapAssetMixin {
 	private AssetCommandBuilder frontutil$addColorCommands(AssetCommandBuilder baseCommand) {
 		BiFunction<BiConsumer<MapEnvironment, Integer>, String, AssetCommandBuilder> commonSetter = (setter, message) ->
 			new AssetCommandBuilder((context, fixedArgs) -> {
-				Component nameComponent = Component.literal(name).withStyle(BFStyles.LIME);
-				CommandSource source = context.getSource().source;
+				Text nameText = Text.literal(name).fillStyle(BFStyles.LIME);
+				CommandOutput output = context.getSource().output;
 				
 				List<String> args = new ArrayList<>(Arrays.asList(fixedArgs));
 				
@@ -104,26 +104,26 @@ public abstract class MapAssetMixin {
 				MapEnvironment env = environments.get(envResult.first());
 				
 				String colorArg = args.getFirst();
-				Component colorArgComponent = Component.literal(colorArg).withStyle(BFStyles.LIME);
+				Text colorArgText = Text.literal(colorArg).fillStyle(BFStyles.LIME);
 				
 				try {
 					int color = Color.decode(colorArg).getRGB();
 					setter.accept(env, color);
 				} catch (NumberFormatException e) {
-					CommandUtils.sendBfa(source, Component.translatable(
+					CommandUtils.sendBfa(output, Text.translatable(
 						"frontutil.message.command.map.color.set.error.format",
-						colorArgComponent
+						colorArgText
 					));
 					return;
 				}
 				
-				CommandUtils.sendBfa(source, Component.translatable(message, colorArgComponent, nameComponent));
+				CommandUtils.sendBfa(output, Text.translatable(message, colorArgText, nameText));
 			});
 		
 		BiFunction<Consumer<MapEnvironment>, String, AssetCommandBuilder> commonClearer = (clearer, message) ->
 			new AssetCommandBuilder((context, fixedArgs) -> {
-				Component nameComponent = Component.literal(name).withStyle(BFStyles.LIME);
-				CommandSource source = context.getSource().source;
+				Text nameText = Text.literal(name).fillStyle(BFStyles.LIME);
+				CommandOutput output = context.getSource().output;
 				
 				List<String> args = new ArrayList<>(Arrays.asList(fixedArgs));
 				
@@ -133,7 +133,7 @@ public abstract class MapAssetMixin {
 				
 				clearer.accept(env);
 				
-				CommandUtils.sendBfa(source, Component.translatable(message, nameComponent));
+				CommandUtils.sendBfa(output, Text.translatable(message, nameText));
 			});
 		
 		AssetCommandBuilder setCommand = new AssetCommandBuilder();
@@ -168,49 +168,49 @@ public abstract class MapAssetMixin {
 	@Unique
 	private AssetCommandBuilder frontutil$addEnvironmentCommands(AssetCommandBuilder baseCommand) {
 		baseCommand.subCommand("list", new AssetCommandBuilder((context, args) -> {
-			CommandUtils.sendBfa(context.getSource().source, Component.translatable(
+			CommandUtils.sendBfa(context.getSource().output, Text.translatable(
 				"frontutil.message.command.map.env.list.success",
-				Component.literal(name).withStyle(BFStyles.LIME),
+				Text.literal(name).fillStyle(BFStyles.LIME),
 				AddonUtils.listify(environments.keySet())
 			));
 		}));
 		
 		baseCommand.subCommand("new", new AssetCommandBuilder((context, args) -> {
-			Component nameComponent = Component.literal(name).withStyle(BFStyles.LIME);
-			CommandSource source = context.getSource().source;
+			Text nameText = Text.literal(name).fillStyle(BFStyles.LIME);
+			CommandOutput output = context.getSource().output;
 			String envName = args[0];
-			Component envNameComponent = Component.literal(envName).withStyle(BFStyles.LIME);
+			Text envNameText = Text.literal(envName).fillStyle(BFStyles.LIME);
 			
 			if (environments.containsKey(envName)) {
-				CommandUtils.sendBfa(source, Component.translatable(
+				CommandUtils.sendBfa(output, Text.translatable(
 					"frontutil.message.command.map.env.new.error.exists",
-					envNameComponent, nameComponent
+					envNameText, nameText
 				));
 				return;
 			}
 			
 			environments.put(envName, new MapEnvironment(envName));
 			
-			CommandUtils.sendBfa(source, Component.translatable(
+			CommandUtils.sendBfa(output, Text.translatable(
 				"frontutil.message.command.map.env.new.success",
-				envNameComponent, nameComponent
+				envNameText, nameText
 			));
 		}).validator(
 			AssetCommandValidatorsEx.count("name")
 		));
 		
 		baseCommand.subCommand("remove", new AssetCommandBuilder((context, args) -> {
-			Component nameComponent = Component.literal(name).withStyle(BFStyles.LIME);
-			CommandSource source = context.getSource().source;
+			Text nameText = Text.literal(name).fillStyle(BFStyles.LIME);
+			CommandOutput output = context.getSource().output;
 			
 			var envResult = frontutil$getEnvironment(context, args);
 			if (envResult == null) return;
 			
 			String envName = envResult.first();
-			Component envNameComponent = envResult.second();
+			Text envNameText = envResult.second();
 			
 			if (MapEnvironment.DEFAULT_NAME.equals(envName)) {
-				CommandUtils.sendBfa(source, Component.translatable(
+				CommandUtils.sendBfa(output, Text.translatable(
 					"frontutil.message.command.map.env.remove.error.default"
 				));
 				return;
@@ -218,9 +218,9 @@ public abstract class MapAssetMixin {
 			
 			environments.remove(envName);
 			
-			CommandUtils.sendBfa(source, Component.translatable(
+			CommandUtils.sendBfa(output, Text.translatable(
 				"frontutil.message.command.map.env.remove.success",
-				envNameComponent, nameComponent
+				envNameText, nameText
 			));
 		}).validator(
 			AssetCommandValidatorsEx.count("environment")
@@ -232,7 +232,7 @@ public abstract class MapAssetMixin {
 	@Unique
 	private AssetCommandBuilder frontutil$addMapEffectCommands(AssetCommandBuilder baseCommand) {
 		baseCommand.subCommand("edit", new AssetCommandBuilder((context, fixedArgs) -> {
-			CommandSource source = context.getSource().source;
+			CommandOutput output = context.getSource().output;
 			
 			List<String> args = new ArrayList<>(Arrays.asList(fixedArgs));
 			
@@ -240,12 +240,12 @@ public abstract class MapAssetMixin {
 			if (envResult == null) return;
 			MapEnvironment env = environments.get(envResult.first());
 			
-			var indexParse = AddonAssetCommands.parseIndex(source, args.getFirst(), env.getMapEffects(), false);
+			var indexParse = AddonAssetCommands.parseIndex(output, args.getFirst(), env.getMapEffects(), false);
 			if (indexParse == null) {
 				return;
 			}
 			int index = indexParse.leftInt();
-			Component indexComponent = indexParse.right();
+			Text indexText = indexParse.right();
 			AbstractMapEffect mapEffect = env.getMapEffects().get(index);
 			
 			String property = args.get(1);
@@ -253,26 +253,26 @@ public abstract class MapAssetMixin {
 			
 			PropertyHandleResult result = MapCommands.MAP_EFFECT_PROPERTIES.handle(mapEffect, property, value);
 			switch (result) {
-				case SUCCESS -> CommandUtils.sendBfa(source, Component.translatable(
+				case SUCCESS -> CommandUtils.sendBfa(output, Text.translatable(
 					"frontutil.message.command.map.mapEffect.edit.success",
-					Component.literal(property).withStyle(BFStyles.LIME),
-					Component.literal(value).withStyle(BFStyles.LIME),
-					indexComponent
+					Text.literal(property).fillStyle(BFStyles.LIME),
+					Text.literal(value).fillStyle(BFStyles.LIME),
+					indexText
 				));
-				case ERROR_PROPERTY -> CommandUtils.sendBfa(source, Component.translatable(
+				case ERROR_PROPERTY -> CommandUtils.sendBfa(output, Text.translatable(
 					"frontutil.message.command.map.mapEffect.edit.error.property",
-					Component.literal(property).withStyle(BFStyles.LIME),
-					indexComponent
+					Text.literal(property).fillStyle(BFStyles.LIME),
+					indexText
 				));
-				case ERROR_PARSE -> CommandUtils.sendBfa(source, Component.translatable(
+				case ERROR_PARSE -> CommandUtils.sendBfa(output, Text.translatable(
 					"frontutil.message.command.map.mapEffect.edit.error.parse",
-					Component.literal(value).withStyle(BFStyles.LIME),
-					Component.literal(property).withStyle(BFStyles.LIME),
-					indexComponent
+					Text.literal(value).fillStyle(BFStyles.LIME),
+					Text.literal(property).fillStyle(BFStyles.LIME),
+					indexText
 				));
-				case ERROR_TYPE -> CommandUtils.sendBfa(source, Component.translatable(
+				case ERROR_TYPE -> CommandUtils.sendBfa(output, Text.translatable(
 					"frontutil.message.command.map.mapEffect.edit.error.type",
-					indexComponent
+					indexText
 				));
 			}
 		}).validator(
@@ -299,7 +299,7 @@ public abstract class MapAssetMixin {
 		));
 		
 		baseCommand.subCommand("properties", new AssetCommandBuilder((context, fixedArgs) -> {
-			CommandSource source = context.getSource().source;
+			CommandOutput output = context.getSource().output;
 			
 			List<String> args = new ArrayList<>(Arrays.asList(fixedArgs));
 			
@@ -307,27 +307,27 @@ public abstract class MapAssetMixin {
 			if (envResult == null) return;
 			MapEnvironment env = environments.get(envResult.first());
 			
-			var indexParse = AddonAssetCommands.parseIndex(source, args.getFirst(), env.getMapEffects(), false);
+			var indexParse = AddonAssetCommands.parseIndex(output, args.getFirst(), env.getMapEffects(), false);
 			if (indexParse == null) {
 				return;
 			}
 			int index = indexParse.leftInt();
-			Component indexComponent = indexParse.right();
+			Text indexText = indexParse.right();
 			AbstractMapEffect mapEffect = env.getMapEffects().get(index);
 			
 			List<String> properties = MapCommands.MAP_EFFECT_PROPERTIES.getProperties(mapEffect);
 			
 			if (properties.isEmpty()) {
-				CommandUtils.sendBfa(source, Component.translatable(
+				CommandUtils.sendBfa(output, Text.translatable(
 					"frontutil.message.command.map.mapEffect.properties.none",
-					indexComponent
+					indexText
 				));
 			} else {
-				CommandUtils.sendBfa(source, Component.translatable(
+				CommandUtils.sendBfa(output, Text.translatable(
 					"frontutil.message.command.map.mapEffect.properties.header",
-					indexComponent
+					indexText
 				));
-				CommandUtils.sendBfa(source, Component.literal(AddonUtils.listify(properties)));
+				CommandUtils.sendBfa(output, Text.literal(AddonUtils.listify(properties)));
 			}
 		}).validator(
 			AssetCommandValidatorsEx.count("environment", "index")
@@ -374,8 +374,8 @@ public abstract class MapAssetMixin {
 		addCommand.subCommand(
 			"bulletTracerSpawner",
 			new AssetCommandBuilder((context, fixedArgs) -> {
-				Component nameComponent = Component.literal(name).withStyle(BFStyles.LIME);
-				CommandSource source = context.getSource().source;
+				Text nameText = Text.literal(name).fillStyle(BFStyles.LIME);
+				CommandOutput source = context.getSource().output;
 				
 				List<String> args = new ArrayList<>(Arrays.asList(fixedArgs));
 				
@@ -384,27 +384,27 @@ public abstract class MapAssetMixin {
 				MapEnvironment env = environments.get(envResult.first());
 				
 				if (!(args.size() == 6 || args.size() == 11)) {
-					CommandUtils.sendBfaWarn(source, Component.translatable("frontutil.message.command.error.args.count"));
-					CommandUtils.sendBfaWarn(source, Component.literal("environment, x, y, z, endPosX, endPosY, endPosZ"));
-					CommandUtils.sendBfaWarn(source, Component.literal("environment, x, y, z, endPosX, endPosY, endPosZ, chance, playSound, spreadX, spreadY, spreadZ"));
+					CommandUtils.sendBfaWarn(source, Text.translatable("frontutil.message.command.error.args.count"));
+					CommandUtils.sendBfaWarn(source, Text.literal("environment, x, y, z, endPosX, endPosY, endPosZ"));
+					CommandUtils.sendBfaWarn(source, Text.literal("environment, x, y, z, endPosX, endPosY, endPosZ, chance, playSound, spreadX, spreadY, spreadZ"));
 					return;
 				}
 				
 				var mapEffect = MapCommands.parseBulletTracerSpawner(args);
 				if (mapEffect == null) {
-					CommandUtils.sendBfa(source, Component.translatable("frontutil.message.command.map.mapEffect.add.bulletTracerSpawner.error", nameComponent));
+					CommandUtils.sendBfa(source, Text.translatable("frontutil.message.command.map.mapEffect.add.bulletTracerSpawner.error", nameText));
 					return;
 				}
 				env.addMapEffect(mapEffect);
 				
-				CommandUtils.sendBfa(source, Component.translatable("frontutil.message.command.map.mapEffect.add.bulletTracerSpawner.success", nameComponent));
+				CommandUtils.sendBfa(source, Text.translatable("frontutil.message.command.map.mapEffect.add.bulletTracerSpawner.success", nameText));
 			}));
 		
 		addCommand.subCommand(
 			"loopingSoundPoint",
 			new AssetCommandBuilder((context, fixedArgs) -> {
-				Component nameComponent = Component.literal(name).withStyle(BFStyles.LIME);
-				CommandSource source = context.getSource().source;
+				Text nameText = Text.literal(name).fillStyle(BFStyles.LIME);
+				CommandOutput source = context.getSource().output;
 				
 				List<String> args = new ArrayList<>(Arrays.asList(fixedArgs));
 				
@@ -414,12 +414,12 @@ public abstract class MapAssetMixin {
 				
 				var mapEffect = MapCommands.parseLoopingSoundPoint(args);
 				if (mapEffect == null) {
-					CommandUtils.sendBfa(source, Component.translatable("frontutil.message.command.map.mapEffect.add.loopingSoundPoint.error", nameComponent));
+					CommandUtils.sendBfa(source, Text.translatable("frontutil.message.command.map.mapEffect.add.loopingSoundPoint.error", nameText));
 					return;
 				}
 				env.addMapEffect(mapEffect);
 				
-				CommandUtils.sendBfa(source, Component.translatable("frontutil.message.command.map.mapEffect.add.loopingSoundPoint.success", nameComponent));
+				CommandUtils.sendBfa(source, Text.translatable("frontutil.message.command.map.mapEffect.add.loopingSoundPoint.success", nameText));
 			}).validator(
 				AssetCommandValidatorsEx.count("environment", "sound", "maxTick", "x", "y", "z")
 			));
@@ -427,8 +427,8 @@ public abstract class MapAssetMixin {
 		addCommand.subCommand(
 			"particleEmitter",
 			new AssetCommandBuilder((context, fixedArgs) -> {
-				Component nameComponent = Component.literal(name).withStyle(BFStyles.LIME);
-				CommandSource source = context.getSource().source;
+				Text nameText = Text.literal(name).fillStyle(BFStyles.LIME);
+				CommandOutput source = context.getSource().output;
 				
 				List<String> args = new ArrayList<>(Arrays.asList(fixedArgs));
 				
@@ -437,20 +437,20 @@ public abstract class MapAssetMixin {
 				MapEnvironment env = environments.get(envName.first());
 				
 				if (!(args.size() == 5 || args.size() == 7)) {
-					CommandUtils.sendBfaWarn(source, Component.translatable("frontutil.message.command.error.args.count"));
-					CommandUtils.sendBfaWarn(source, Component.literal("environment, particle, maxTick, x, y, z"));
-					CommandUtils.sendBfaWarn(source, Component.literal("environment, particle, maxTick, x, y, z, sound, soundVolume"));
+					CommandUtils.sendBfaWarn(source, Text.translatable("frontutil.message.command.error.args.count"));
+					CommandUtils.sendBfaWarn(source, Text.literal("environment, particle, maxTick, x, y, z"));
+					CommandUtils.sendBfaWarn(source, Text.literal("environment, particle, maxTick, x, y, z, sound, soundVolume"));
 					return;
 				}
 				
 				var mapEffect = MapCommands.parseParticleEmitter(args);
 				if (mapEffect == null) {
-					CommandUtils.sendBfa(source, Component.translatable("frontutil.message.command.map.mapEffect.add.particleEmitter.error", nameComponent));
+					CommandUtils.sendBfa(source, Text.translatable("frontutil.message.command.map.mapEffect.add.particleEmitter.error", nameText));
 					return;
 				}
 				env.addMapEffect(mapEffect);
 				
-				CommandUtils.sendBfa(source, Component.translatable("frontutil.message.command.map.mapEffect.add.particleEmitter.success", nameComponent));
+				CommandUtils.sendBfa(source, Text.translatable("frontutil.message.command.map.mapEffect.add.particleEmitter.success", nameText));
 			}));
 		
 		baseCommand.subCommand("add", addCommand);
@@ -461,52 +461,52 @@ public abstract class MapAssetMixin {
 	@Unique
 	private AssetCommandBuilder frontutil$addTeamsCommands(AssetCommandBuilder baseCommand) {
 		baseCommand.subCommand("list", new AssetCommandBuilder((context, args) -> {
-			Component nameComponent = Component.literal(name).withStyle(BFStyles.LIME);
-			CommandSource source = context.getSource().source;
+			Text nameText = Text.literal(name).fillStyle(BFStyles.LIME);
+			CommandOutput source = context.getSource().output;
 			
-			CommandUtils.sendBfa(source, Component.translatable(
+			CommandUtils.sendBfa(source, Text.translatable(
 				"frontutil.message.command.map.teams.list.header",
-				nameComponent
+				nameText
 			));
 			
-			CommandUtils.sendBfa(source, Component.literal(String.format("Allies: %s (%s)", alliesDivision.getCountry().getName(), alliesDivision.getSkin())));
-			CommandUtils.sendBfa(source, Component.literal(String.format("Axis: %s (%s)", axisDivision.getCountry().getName(), axisDivision.getSkin())));
+			CommandUtils.sendBfa(source, Text.literal(String.format("Allies: %s (%s)", alliesDivision.getCountry().getName(), alliesDivision.getSkin())));
+			CommandUtils.sendBfa(source, Text.literal(String.format("Axis: %s (%s)", axisDivision.getCountry().getName(), axisDivision.getSkin())));
 		}));
 		
 		return baseCommand;
 	}
 	
 	@Unique
-	private @Nullable Pair<String, Component> frontutil$getEnvironment(CommandContext<CommandSourceStack> context, List<String> args, boolean pop) {
+	private @Nullable Pair<String, Text> frontutil$getEnvironment(CommandContext<ServerCommandSource> context, List<String> args, boolean pop) {
 		if (args.isEmpty()) {
-			CommandUtils.sendBfa(context.getSource().source, Component.translatable(
+			CommandUtils.sendBfa(context.getSource().output, Text.translatable(
 				"frontutil.message.command.map.env.error.none"
 			));
 			return null;
 		}
 		
 		String envName = pop ? args.removeFirst() : args.getFirst();
-		Component envNameComponent = Component.literal(envName).withStyle(BFStyles.LIME);
+		Text envNameText = Text.literal(envName).fillStyle(BFStyles.LIME);
 		
 		if (!environments.containsKey(envName)) {
-			CommandUtils.sendBfaWarn(context.getSource().source, Component.translatable(
+			CommandUtils.sendBfaWarn(context.getSource().output, Text.translatable(
 				"frontutil.message.command.map.env.error.notFound",
-				envNameComponent,
-				Component.literal(name).withStyle(BFStyles.LIME)
+				envNameText,
+				Text.literal(name).fillStyle(BFStyles.LIME)
 			));
 			return null;
 		}
 		
-		return new ObjectObjectImmutablePair<>(envName, envNameComponent);
+		return new ObjectObjectImmutablePair<>(envName, envNameText);
 	}
 	
 	@Unique
-	private @Nullable Pair<String, Component> frontutil$getEnvironment(CommandContext<CommandSourceStack> context, List<String> args) {
+	private @Nullable Pair<String, Text> frontutil$getEnvironment(CommandContext<ServerCommandSource> context, List<String> args) {
 		return frontutil$getEnvironment(context, args, true);
 	}
 	
 	@Unique
-	private @Nullable Pair<String, Component> frontutil$getEnvironment(CommandContext<CommandSourceStack> context, String[] args) {
+	private @Nullable Pair<String, Text> frontutil$getEnvironment(CommandContext<ServerCommandSource> context, String[] args) {
 		return frontutil$getEnvironment(context, List.of(args), false);
 	}
 }

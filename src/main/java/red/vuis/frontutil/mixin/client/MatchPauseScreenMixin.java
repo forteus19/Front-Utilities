@@ -3,7 +3,7 @@ package red.vuis.frontutil.mixin.client;
 import com.boehmod.blockfront.client.gui.widget.BFButton;
 import com.boehmod.blockfront.client.screen.BFMenuScreen;
 import com.boehmod.blockfront.client.screen.match.MatchPauseScreen;
-import net.minecraft.network.chat.Component;
+import net.minecraft.text.Text;
 import net.neoforged.neoforge.client.gui.ModListScreen;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(MatchPauseScreen.class)
 public abstract class MatchPauseScreenMixin extends BFMenuScreen {
-	public MatchPauseScreenMixin(@NotNull Component component) {
+	public MatchPauseScreenMixin(@NotNull Text component) {
 		super(component);
 	}
 	
@@ -48,11 +48,11 @@ public abstract class MatchPauseScreenMixin extends BFMenuScreen {
 		int midY = height / 2;
 		int startY = midY - 60;
 		
-		addRenderableWidget(
+		addDrawableChild(
 			new BFButton(
 				midX - 75, startY + 75, 150, 15,
-				Component.translatable("fml.menu.mods"),
-				button -> minecraft.setScreen(new ModListScreen((MatchPauseScreen) (Object) this))
+				Text.translatable("fml.menu.mods"),
+				button -> client.setScreen(new ModListScreen((MatchPauseScreen) (Object) this))
 			)
 				.alignment(BFButton.Alignment.LEFT)
 				.displayType(BFButton.DisplayType.NONE)

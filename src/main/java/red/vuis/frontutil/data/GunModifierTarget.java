@@ -13,24 +13,24 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.registry.Registries;
+import net.minecraft.resource.Resource;
+import net.minecraft.resource.ResourceManager;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import red.vuis.frontutil.AddonConstants;
 
 public record GunModifierTarget(
-	List<ResourceLocation> targets,
-	ResourceLocation modifier
+	List<Identifier> targets,
+	Identifier modifier
 ) {
 	public static final List<GunModifierTarget> ACTIVE = new ObjectArrayList<>();
 	public static final Codec<GunModifierTarget> CODEC = RecordCodecBuilder.create(instance ->
 		instance.group(
-			ResourceLocation.CODEC.listOf().fieldOf("targets").forGetter(GunModifierTarget::targets),
-			ResourceLocation.CODEC.fieldOf("modifier").forGetter(GunModifierTarget::modifier)
+			Identifier.CODEC.listOf().fieldOf("targets").forGetter(GunModifierTarget::targets),
+			Identifier.CODEC.fieldOf("modifier").forGetter(GunModifierTarget::modifier)
 		).apply(instance, GunModifierTarget::new)
 	);
 	private static final String GUN_MODIFIER_TARGETS_FILENAME = "gun_modifier_targets.json";
@@ -41,10 +41,10 @@ public record GunModifierTarget(
 	}
 	
 	public static void parseAndApply(ResourceManager resourceManager) {
-		List<Resource> targetResources = resourceManager.getResourceStack(AddonConstants.res(GUN_MODIFIER_TARGETS_FILENAME));
+		List<Resource> targetResources = resourceManager.getAllResources(AddonConstants.id(GUN_MODIFIER_TARGETS_FILENAME));
 		
 		for (Resource targetResource : targetResources) {
-			try (BufferedReader targetReader = targetResource.openAsReader()) {
+			try (BufferedReader targetReader = targetResource.getReader()) {
 				List<GunModifierTarget> targets = parseGunModifierTargets(targetResource, targetReader);
 				if (targets == null || !targets.stream().allMatch(GunModifierTarget::checkGunModifierTarget)) {
 					continue;
@@ -57,15 +57,15 @@ public record GunModifierTarget(
 						AddonConstants.LOGGER.error("Modifier '{}' does not exist!", target.modifier());
 						continue;
 					}
-					try (BufferedReader modifierReader = modifierResource.get().openAsReader()) {
+					try (BufferedReader modifierReader = modifierResource.get().getReader()) {
 						GunModifier modifier = parseGunModifier(target.modifier(), modifierReader);
 						if (modifier == null) {
 							continue;
 						}
 						
-						for (ResourceLocation itemRes : target.targets()) {
-							GunItem item = (GunItem) BuiltInRegistries.ITEM.get(itemRes);
-							GunModifier.ACTIVE.put(BuiltInRegistries.ITEM.wrapAsHolder(item), modifier);
+						for (Identifier itemRes : target.targets()) {
+							GunItem item = (GunItem) Registries.ITEM.get(itemRes);
+							GunModifier.ACTIVE.put(Registries.ITEM.getEntry(item), modifier);
 							modifier.apply(item);
 						}
 					}
@@ -79,15 +79,15 @@ public record GunModifierTarget(
 	private static @Nullable List<GunModifierTarget> parseGunModifierTargets(Resource targetResource, Reader targetReader) {
 		DataResult<List<GunModifierTarget>> targetResult = GunModifierTarget.CODEC.listOf().parse(JsonOps.INSTANCE, JsonParser.parseReader(targetReader));
 		if (targetResult.isError()) {
-			AddonConstants.LOGGER.error("Failed to parse gun modifier targets for pack id '{}'!", targetResource.sourcePackId());
+			AddonConstants.LOGGER.error("Failed to parse gun modifier targets for pack id '{}'!", targetResource.getPackId());
 			return null;
 		}
 		return targetResult.getOrThrow();
 	}
 	
 	private static boolean checkGunModifierTarget(GunModifierTarget target) {
-		for (ResourceLocation itemRes : target.targets()) {
-			if (!BuiltInRegistries.ITEM.containsKey(itemRes) || !(BuiltInRegistries.ITEM.get(itemRes) instanceof GunItem)) {
+		for (Identifier itemRes : target.targets()) {
+			if (!Registries.ITEM.containsId(itemRes) || !(Registries.ITEM.get(itemRes) instanceof GunItem)) {
 				AddonConstants.LOGGER.error("Modifier target '{}' is not a modifiable item!", itemRes);
 				return false;
 			}
@@ -95,10 +95,10 @@ public record GunModifierTarget(
 		return true;
 	}
 	
-	private static @Nullable GunModifier parseGunModifier(ResourceLocation name, Reader reader) {
+	private static @Nullable GunModifier parseGunModifier(Identifier id, Reader reader) {
 		DataResult<GunModifier> result = GunModifier.CODEC.parse(JsonOps.INSTANCE, JsonParser.parseReader(reader));
 		if (result.isError()) {
-			AddonConstants.LOGGER.error("Failed to parse gun modifier '{}'!", name);
+			AddonConstants.LOGGER.error("Failed to parse gun modifier '{}'!", id);
 		}
 		return result.getOrThrow();
 	}

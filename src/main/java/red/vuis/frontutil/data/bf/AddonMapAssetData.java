@@ -6,7 +6,7 @@ import com.boehmod.blockfront.map.MapEnvironment;
 import com.boehmod.blockfront.map.effect.AbstractMapEffect;
 import com.boehmod.blockfront.map.effect.MapEffectRegistry;
 import com.boehmod.blockfront.util.RegistryUtils;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Identifier;
 
 public final class AddonMapAssetData {
 	private AddonMapAssetData() {
@@ -34,7 +34,7 @@ public final class AddonMapAssetData {
 		AddonFDS.ifString(root, "soundIndoors", id -> env.setInteriorSound(RegistryUtils.retrieveSoundEvent(id)));
 		AddonFDS.ifBoolean(root, "disableClouds", env::setDisableClouds);
 		AddonFDS.ifBoolean(root, "disableSky", env::setDisableSky);
-		AddonFDS.ifString(root, "clientShader", id -> env.setShader(ResourceLocation.tryParse(id)));
+		AddonFDS.ifString(root, "clientShader", id -> env.setShader(Identifier.tryParse(id)));
 		
 		int weatherEffectsSize = root.getInteger("weatherEffectsSize");
 		for (int i = 0; i < weatherEffectsSize; i++) {

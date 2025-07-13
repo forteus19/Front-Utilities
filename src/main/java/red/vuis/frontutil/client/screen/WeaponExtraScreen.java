@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.boehmod.blockfront.common.item.GunItem;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.text.Text;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,13 +28,13 @@ import static red.vuis.frontutil.client.widget.WidgetDim.sqrDim;
 import static red.vuis.frontutil.util.AddonAccessors.accessGunItem;
 
 public class WeaponExtraScreen extends AddonScreen {
-	private static final Component C_BUTTON_BACK = Component.translatable("frontutil.screen.generic.button.back");
-	private static final Component C_BUTTON_GIVE = Component.translatable("frontutil.screen.generic.button.give");
-	private static final Component C_HEADER = Component.translatable("frontutil.screen.weapon.extra.header");
-	private static final Component C_LABEL_BARRELTYPE = Component.translatable("frontutil.screen.weapon.label.barrelType");
-	private static final Component C_LABEL_MAGTYPE = Component.translatable("frontutil.screen.weapon.label.magType");
-	private static final Component C_LABEL_SCOPE = Component.translatable("frontutil.screen.weapon.label.scope");
-	private static final Component C_LABEL_SKIN = Component.translatable("frontutil.screen.weapon.label.skin");
+	private static final Text C_BUTTON_BACK = Text.translatable("frontutil.screen.generic.button.back");
+	private static final Text C_BUTTON_GIVE = Text.translatable("frontutil.screen.generic.button.give");
+	private static final Text C_HEADER = Text.translatable("frontutil.screen.weapon.extra.header");
+	private static final Text C_LABEL_BARRELTYPE = Text.translatable("frontutil.screen.weapon.label.barrelType");
+	private static final Text C_LABEL_MAGTYPE = Text.translatable("frontutil.screen.weapon.label.magType");
+	private static final Text C_LABEL_SCOPE = Text.translatable("frontutil.screen.weapon.label.scope");
+	private static final Text C_LABEL_SKIN = Text.translatable("frontutil.screen.weapon.label.skin");
 	
 	private final @Nullable Screen parent;
 	private final GunItem item;
@@ -75,8 +75,8 @@ public class WeaponExtraScreen extends AddonScreen {
 	protected void init() {
 		super.init();
 		
-		addRenderableWidget(Widgets.checkbox(
-			font,
+		addDrawableChild(Widgets.checkbox(
+			textRenderer,
 			sqrCenteredDim(width / 2 - 70, 80, 20),
 			settings.scope,
 			(checkbox, b) -> {
@@ -85,74 +85,74 @@ public class WeaponExtraScreen extends AddonScreen {
 			}
 		));
 		
-		EditBox magTypeBox = addRenderableWidget(Widgets.editBox(
-			font,
+		TextFieldWidget magTypeBox = addDrawableChild(Widgets.textField(
+			textRenderer,
 			dim(width / 2 - 110, 110, 90, 20)
 		));
-		magTypeBox.setValue(settings.magType);
-		magTypeBox.setResponder(s -> {
+		magTypeBox.setText(settings.magType);
+		magTypeBox.setChangedListener(s -> {
 			settings.magType = s;
 			preview.setItemStack(settings.getItemStack(item));
 		});
 		
-		addRenderableWidget(Widgets.button(
-			Component.literal("+"),
+		addDrawableChild(Widgets.button(
+			Text.literal("+"),
 			dim(width / 2 - 120, 110, 10, 20),
 			button -> {
-				int currentIndex = magTypeNames.indexOf(magTypeBox.getValue());
+				int currentIndex = magTypeNames.indexOf(magTypeBox.getText());
 				if (currentIndex < 0) {
 					currentIndex = 0;
 				}
-				magTypeBox.setValue(magTypeNames.get((currentIndex + 1) % magTypeNames.size()));
+				magTypeBox.setText(magTypeNames.get((currentIndex + 1) % magTypeNames.size()));
 			}
 		));
 		
-		EditBox barrelTypeBox = addRenderableWidget(Widgets.editBox(
-			font,
+		TextFieldWidget barrelTypeBox = addDrawableChild(Widgets.textField(
+			textRenderer,
 			dim(width / 2 - 110, 150, 90, 20)
 		));
-		barrelTypeBox.setValue(settings.barrelType);
-		barrelTypeBox.setResponder(s -> {
+		barrelTypeBox.setText(settings.barrelType);
+		barrelTypeBox.setChangedListener(s -> {
 			settings.barrelType = s;
 			preview.setItemStack(settings.getItemStack(item));
 		});
 		
-		addRenderableWidget(Widgets.button(
-			Component.literal("+"),
+		addDrawableChild(Widgets.button(
+			Text.literal("+"),
 			dim(width / 2 - 120, 150, 10, 20),
 			button -> {
-				int currentIndex = barrelTypeNames.indexOf(barrelTypeBox.getValue());
+				int currentIndex = barrelTypeNames.indexOf(barrelTypeBox.getText());
 				if (currentIndex < 0) {
 					currentIndex = 0;
 				}
-				barrelTypeBox.setValue(barrelTypeNames.get((currentIndex + 1) % barrelTypeNames.size()));
+				barrelTypeBox.setText(barrelTypeNames.get((currentIndex + 1) % barrelTypeNames.size()));
 			}
 		));
 		
-		EditBox skinBox = addRenderableWidget(Widgets.editBox(
-			font,
+		TextFieldWidget skinBox = addDrawableChild(Widgets.textField(
+			textRenderer,
 			dim(width / 2 - 110, 190, 90, 20)
 		));
-		skinBox.setValue(settings.skin);
-		skinBox.setResponder(s -> {
+		skinBox.setText(settings.skin);
+		skinBox.setChangedListener(s -> {
 			settings.skin = "".equals(s) ? null : s;
 			preview.setItemStack(settings.getItemStack(item));
 		});
 		
-		Button skinNextButton = addRenderableWidget(Widgets.button(
-			Component.literal("+"),
+		ButtonWidget skinNextButton = addDrawableChild(Widgets.button(
+			Text.literal("+"),
 			dim(width / 2 - 120, 190, 10, 20),
 			button -> {
-				int currentIndex = skinNames.indexOf(skinBox.getValue());
+				int currentIndex = skinNames.indexOf(skinBox.getText());
 				if (currentIndex < 0) {
 					currentIndex = 0;
 				}
-				skinBox.setValue(skinNames.get((currentIndex + 1) % skinNames.size()));
+				skinBox.setText(skinNames.get((currentIndex + 1) % skinNames.size()));
 			}
 		));
 		
-		addRenderableWidget(Widgets.checkbox(
-			font,
+		addDrawableChild(Widgets.checkbox(
+			textRenderer,
 			sqrDim(width / 2 - 140, 190, 20),
 			settings.skin != null,
 			(checkbox, b) -> {
@@ -160,12 +160,12 @@ public class WeaponExtraScreen extends AddonScreen {
 					skinBox.active = true;
 					skinNextButton.active = true;
 					if (!skinNames.isEmpty()) {
-						skinBox.setValue(skinNames.getFirst());
+						skinBox.setText(skinNames.getFirst());
 					}
 				} else {
 					skinBox.active = false;
 					skinNextButton.active = false;
-					skinBox.setValue("");
+					skinBox.setText("");
 				}
 			}
 		));
@@ -173,7 +173,7 @@ public class WeaponExtraScreen extends AddonScreen {
 		preview = new ItemPreview(width / 2 + 20, 50, 100)
 			.setItemStack(settings.getItemStack(item));
 		
-		addRenderableWidget(Widgets.button(
+		addDrawableChild(Widgets.button(
 			give ? C_BUTTON_GIVE : C_BUTTON_BACK,
 			centeredDim(width / 2, height - 20, 120, 20),
 			button -> {
@@ -183,15 +183,15 @@ public class WeaponExtraScreen extends AddonScreen {
 				if (give) {
 					PacketDistributor.sendToServer(new GiveGunPacket(item, settings));
 				}
-				Minecraft.getInstance().setScreen(parent);
+				MinecraftClient.getInstance().setScreen(parent);
 			}
 		));
 	}
 	
 	@Override
-	public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-		super.render(graphics, mouseX, mouseY, partialTick);
-		preview.render(graphics, mouseX, mouseY, partialTick);
+	public void render(@NotNull DrawContext context, int mouseX, int mouseY, float delta) {
+		super.render(context, mouseX, mouseY, delta);
+		preview.render(context, mouseX, mouseY, delta);
 		
 		drawText(C_HEADER, width / 2, 20, true);
 		

@@ -1,6 +1,6 @@
 package red.vuis.frontutil.server.event;
 
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -23,7 +23,7 @@ public final class AddonServerEvents {
 	
 	@SubscribeEvent
 	public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-		if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+		if (event.getEntity() instanceof ServerPlayerEntity serverPlayer) {
 			AddonConstants.LOGGER.info("Syncing custom data with player '{}'.", event.getEntity().getName().getString());
 			PacketDistributor.sendToPlayer(serverPlayer, new GunModifiersPacket(GunModifier.ACTIVE));
 			PacketDistributor.sendToPlayer(serverPlayer, new LoadoutsPacket(LoadoutIndex.currentFlat()));

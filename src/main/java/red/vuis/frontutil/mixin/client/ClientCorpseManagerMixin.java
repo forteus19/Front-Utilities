@@ -10,11 +10,11 @@ import com.boehmod.blockfront.client.player.BFClientPlayerData;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.Frustum;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -43,7 +43,7 @@ public abstract class ClientCorpseManagerMixin {
 		at = @At("HEAD"),
 		cancellable = true
 	)
-	private void checkCorpsesEnabled(Minecraft minecraft, BFClientManager manager, BFClientPlayerData playerData, ClientLevel level, LocalPlayer player, PoseStack poseStack, float delta, CallbackInfo ci) {
+	private void checkCorpsesEnabled(MinecraftClient client, BFClientManager manager, BFClientPlayerData playerData, ClientWorld world, ClientPlayerEntity player, MatrixStack matrices, float delta, CallbackInfo ci) {
 		if (!AddonClientConfig.getRenderCorpses()) {
 			ci.cancel();
 		}

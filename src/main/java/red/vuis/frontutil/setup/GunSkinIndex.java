@@ -11,17 +11,17 @@ import com.boehmod.blockfront.registry.BFDataComponents;
 import com.boehmod.blockfront.util.BFRes;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import red.vuis.frontutil.AddonConstants;
 
 public final class GunSkinIndex {
-	public static final Map<ResourceLocation, BiMap<String, Float>> SKINS = HashBiMap.create();
+	public static final Map<Identifier, BiMap<String, Float>> SKINS = HashBiMap.create();
 	
 	private GunSkinIndex() {
 	}
@@ -49,7 +49,7 @@ public final class GunSkinIndex {
 		if (name == null) {
 			return Optional.empty();
 		}
-		ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(item);
+		Identifier itemId = Registries.ITEM.getId(item);
 		if (!SKINS.containsKey(itemId)) {
 			return Optional.empty();
 		}
@@ -57,7 +57,7 @@ public final class GunSkinIndex {
 	}
 	
 	public static Optional<String> getSkinName(@NotNull ItemStack itemStack) {
-		ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(itemStack.getItem());
+		Identifier itemId = Registries.ITEM.getId(itemStack.getItem());
 		if (!SKINS.containsKey(itemId)) {
 			return Optional.empty();
 		}
@@ -65,7 +65,7 @@ public final class GunSkinIndex {
 	}
 	
 	public static Optional<Set<String>> getSkinNames(@NotNull Item item) {
-		ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(item);
+		Identifier itemId = Registries.ITEM.getId(item);
 		if (!SKINS.containsKey(itemId)) {
 			return Optional.empty();
 		}

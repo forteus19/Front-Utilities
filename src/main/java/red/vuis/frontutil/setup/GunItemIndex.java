@@ -4,20 +4,20 @@ import java.util.List;
 
 import com.boehmod.blockfront.common.item.GunItem;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
+import net.minecraft.item.Item;
+import net.minecraft.registry.Registries;
+import net.minecraft.util.Identifier;
 
 public final class GunItemIndex {
-	public static final List<ResourceLocation> GUN_ITEMS = new ObjectArrayList<>();
+	public static final List<Identifier> GUN_ITEMS = new ObjectArrayList<>();
 	
 	private GunItemIndex() {
 	}
 	
 	public static void init() {
-		for (Item item : BuiltInRegistries.ITEM) {
+		for (Item item : Registries.ITEM) {
 			if (item instanceof GunItem) {
-				GUN_ITEMS.add(BuiltInRegistries.ITEM.getKey(item));
+				GUN_ITEMS.add(Registries.ITEM.getId(item));
 			}
 		}
 	}

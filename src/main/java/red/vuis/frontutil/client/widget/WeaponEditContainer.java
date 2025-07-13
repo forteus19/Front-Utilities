@@ -1,12 +1,12 @@
 package red.vuis.frontutil.client.widget;
 
 import com.boehmod.blockfront.common.item.GunItem;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.item.ItemStack;
+import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
 import red.vuis.frontutil.client.screen.WeaponExtraScreen;
@@ -18,18 +18,18 @@ import static red.vuis.frontutil.client.widget.WidgetDim.dim;
 public class WeaponEditContainer extends ItemEditContainer {
 	private boolean active = true;
 	
-	protected final Button extraButton;
+	protected final ButtonWidget extraButton;
 	
 	public WeaponExtraSettings extra = new WeaponExtraSettings();
 	
-	public WeaponEditContainer(Screen screen, Font font, int x, int y, int width, int height) {
+	public WeaponEditContainer(Screen screen, TextRenderer font, int x, int y, int width, int height) {
 		super(font, x + 10, y, width - 10, height);
 		extraButton = Widgets.button(
-			Component.literal("*"),
+			Text.literal("*"),
 			dim(x, y, 10, height),
 			button -> {
 				if (getItem() instanceof GunItem gunItem) {
-					Minecraft.getInstance().setScreen(
+					MinecraftClient.getInstance().setScreen(
 						new WeaponExtraScreen(screen, gunItem, extra, this)
 					);
 				}
@@ -37,7 +37,7 @@ public class WeaponEditContainer extends ItemEditContainer {
 		);
 	}
 	
-	public WeaponEditContainer(Screen screen, Font font, WidgetDim dim) {
+	public WeaponEditContainer(Screen screen, TextRenderer font, WidgetDim dim) {
 		this(screen, font, dim.x(), dim.y(), dim.width(), dim.height());
 	}
 	
@@ -95,7 +95,7 @@ public class WeaponEditContainer extends ItemEditContainer {
 	}
 	
 	public void refresh() {
-		preview.setItemStack(extra.setComponents(super.getPreviewItemStack(itemIdBox.getValue())));
+		preview.setItemStack(extra.setComponents(super.getPreviewItemStack(itemIdField.getText())));
 	}
 	
 	protected void retrieveItemStackComponents(@Nullable ItemStack itemStack) {

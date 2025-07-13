@@ -1,17 +1,17 @@
 package red.vuis.frontutil.mixin;
 
 import com.boehmod.blockfront.map.effect.BulletTracerSpawnerMapEffect;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(BulletTracerSpawnerMapEffect.class)
 public interface BulletTracerSpawnerMapEffectAccessor {
 	@Accessor("field_3152")
-	Vec3 getEndPos();
+	Vec3d getEndPos();
 	
 	@Accessor("field_3152")
-	void setEndPos(Vec3 endPos);
+	void setEndPos(Vec3d endPos);
 	
 	@Accessor("field_3154")
 	float getChance();
@@ -26,8 +26,8 @@ public interface BulletTracerSpawnerMapEffectAccessor {
 	void setPlaySound(boolean value);
 	
 	@Accessor("field_3151")
-	Vec3 getSpread();
+	Vec3d getSpread();
 	
 	@Accessor("field_3151")
-	void setSpread(Vec3 spread);
+	void setSpread(Vec3d spread);
 }

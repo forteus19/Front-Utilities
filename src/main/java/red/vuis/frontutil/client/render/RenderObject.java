@@ -1,50 +1,51 @@
 package red.vuis.frontutil.client.render;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Camera;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.MustBeInvokedByOverriders;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
+
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.Frustum;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
 
 public abstract class RenderObject {
-	protected final Minecraft minecraft;
-	protected MultiBufferSource.BufferSource buffer;
-	protected GuiGraphics graphics;
-	protected PoseStack poseStack;
+	protected final MinecraftClient client;
+	protected VertexConsumerProvider.Immediate vertexConsumers;
+	protected DrawContext context;
+	protected MatrixStack matrices;
 	protected Camera camera;
 	protected Frustum frustum;
 	
-	protected RenderObject(Minecraft minecraft) {
-		this.minecraft = minecraft;
-		buffer = minecraft.renderBuffers().bufferSource();
-		camera = minecraft.gameRenderer.getMainCamera();
-		frustum = minecraft.levelRenderer.getFrustum();
+	protected RenderObject(MinecraftClient client) {
+		this.client = client;
+		vertexConsumers = client.getBufferBuilders().getEntityVertexConsumers();
+		camera = client.gameRenderer.getCamera();
+		frustum = client.worldRenderer.getFrustum();
 	}
 	
-	@MustBeInvokedByOverriders
+	@OverridingMethodsMustInvokeSuper
 	public void render() {
-		graphics = new GuiGraphics(minecraft, buffer);
-		poseStack = graphics.pose();
+		context = new DrawContext(client, vertexConsumers);
+		matrices = context.getMatrices();
 	}
 	
 	protected void cameraAsOrigin() {
-		AddonRendering.cameraAsOrigin(poseStack, camera);
+		AddonRendering.cameraAsOrigin(matrices, camera);
 	}
 	
-	protected void billboardString(String text, Vec3 position, float scale) {
-		AddonRendering.billboardString(poseStack, camera, minecraft.font, buffer, text, position, scale, true);
+	protected void billboardString(String text, Vec3d position, float scale) {
+		AddonRendering.billboardString(matrices, camera, client.textRenderer, vertexConsumers, text, position, scale, true);
 	}
 	
-	protected void billboardTexture(ResourceLocation texture, Vec3 position, float width, float height) {
-		AddonRendering.billboardTexture(poseStack, camera, texture, position, width, height, true);
+	protected void billboardTexture(Identifier texture, Vec3d position, float width, float height) {
+		AddonRendering.billboardTexture(matrices, camera, texture, position, width, height, true);
 	}
 	
-	protected void boxOutline(AABB aabb, int color) {
-		AddonRendering.boxOutline(poseStack, aabb, color, false);
+	protected void boxOutline(Box box, int color) {
+		AddonRendering.boxOutline(matrices, box, color, false);
 	}
 }

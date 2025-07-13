@@ -1,21 +1,21 @@
 package red.vuis.frontutil.mixin;
 
 import com.boehmod.blockfront.map.effect.FallingArtilleryMapEffect;
-import net.minecraft.world.phys.Vec2;
+import net.minecraft.util.math.Vec2f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(FallingArtilleryMapEffect.class)
 public interface FallingArtilleryMapEffectAccessor {
 	@Accessor("field_3050")
-	Vec2 getStart();
+	Vec2f getStart();
 	
 	@Accessor("field_3050")
-	void setStart(Vec2 start);
+	void setStart(Vec2f start);
 	
 	@Accessor("field_3051")
-	Vec2 getEnd();
+	Vec2f getEnd();
 	
 	@Accessor("field_3051")
-	void setEnd(Vec2 start);
+	void setEnd(Vec2f start);
 }

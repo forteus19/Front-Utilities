@@ -1,6 +1,6 @@
 package red.vuis.frontutil;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -11,7 +11,7 @@ public final class AddonConstants {
 	private AddonConstants() {
 	}
 	
-	public static ResourceLocation res(String path) {
-		return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+	public static Identifier id(String path) {
+		return Identifier.of(MOD_ID, path);
 	}
 }

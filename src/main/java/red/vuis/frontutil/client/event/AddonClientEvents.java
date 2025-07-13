@@ -3,7 +3,7 @@ package red.vuis.frontutil.client.event;
 import java.util.function.Supplier;
 
 import com.google.common.base.Suppliers;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -19,7 +19,7 @@ import red.vuis.frontutil.client.render.AssetEditRenderer;
 	value = Dist.CLIENT
 )
 public final class AddonClientEvents {
-	private static final Supplier<AssetEditRenderer> ASSET_EDIT_RENDERER = Suppliers.memoize(() -> new AssetEditRenderer(Minecraft.getInstance()));
+	private static final Supplier<AssetEditRenderer> ASSET_EDIT_RENDERER = Suppliers.memoize(() -> new AssetEditRenderer(MinecraftClient.getInstance()));
 	
 	private AddonClientEvents() {
 	}

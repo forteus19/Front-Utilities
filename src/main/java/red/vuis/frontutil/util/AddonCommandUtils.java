@@ -1,20 +1,20 @@
 package red.vuis.frontutil.util;
 
 import com.mojang.brigadier.context.CommandContext;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
 public final class AddonCommandUtils {
 	private AddonCommandUtils() {
 	}
 	
-	public static @Nullable ServerPlayer getContextPlayer(CommandContext<CommandSourceStack> context) {
-		CommandSourceStack stack = context.getSource();
-		ServerPlayer player = stack.getPlayer();
+	public static @Nullable ServerPlayerEntity getContextPlayer(CommandContext<ServerCommandSource> context) {
+		ServerCommandSource stack = context.getSource();
+		ServerPlayerEntity player = stack.getPlayer();
 		if (player == null) {
-			stack.source.sendSystemMessage(Component.translatable("frontutil.message.command.error.player"));
+			stack.output.sendMessage(Text.translatable("frontutil.message.command.error.player"));
 			return null;
 		}
 		return player;

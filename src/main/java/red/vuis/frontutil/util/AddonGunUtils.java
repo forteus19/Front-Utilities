@@ -2,7 +2,7 @@ package red.vuis.frontutil.util;
 
 import com.boehmod.blockfront.common.item.GunItem;
 import com.boehmod.blockfront.registry.BFDataComponents;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 
 public final class AddonGunUtils {
 	private AddonGunUtils() {

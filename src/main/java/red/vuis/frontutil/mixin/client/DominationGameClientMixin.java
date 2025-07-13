@@ -11,18 +11,18 @@ import com.boehmod.blockfront.common.stat.BFStats;
 import com.boehmod.blockfront.game.AbstractCapturePoint;
 import com.boehmod.blockfront.game.CapturePointGameClient;
 import com.boehmod.blockfront.game.GameTeam;
-import com.boehmod.blockfront.game.dom.DominationGame;
-import com.boehmod.blockfront.game.dom.DominationGameClient;
-import com.boehmod.blockfront.game.dom.DominationPlayerManager;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.network.chat.Component;
-import net.minecraft.util.Mth;
+import com.boehmod.blockfront.game.impl.dom.DominationGame;
+import com.boehmod.blockfront.game.impl.dom.DominationGameClient;
+import com.boehmod.blockfront.game.impl.dom.DominationPlayerManager;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.text.Text;
+import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 
@@ -39,15 +39,15 @@ public abstract class DominationGameClientMixin extends CapturePointGameClient<D
 	@Override
 	@SuppressWarnings("deprecation")
 	public void method_2722(
-		@NotNull Minecraft minecraft,
+		@NotNull MinecraftClient client,
 		@NotNull BFClientManager manager,
-		@NotNull LocalPlayer player,
-		@NotNull ClientLevel level,
+		@NotNull ClientPlayerEntity player,
+		@NotNull ClientWorld world,
 		@NotNull BFClientPlayerData playerData,
-		@NotNull GuiGraphics graphics,
-		@NotNull Font font,
-		@NotNull PoseStack poseStack,
-		@NotNull MultiBufferSource buffer,
+		@NotNull DrawContext context,
+		@NotNull TextRenderer textRenderer,
+		@NotNull MatrixStack matrices,
+		@NotNull VertexConsumerProvider vertexConsumers,
 		@NotNull Set<UUID> players,
 		int width,
 		int height,
@@ -56,7 +56,7 @@ public abstract class DominationGameClientMixin extends CapturePointGameClient<D
 		float renderTime,
 		float delta
 	) {
-		super.method_2722(minecraft, manager, player, level, playerData, graphics, font, poseStack, buffer, players, width, height, midX, midY, renderTime, delta);
+		super.method_2722(client, manager, player, world, playerData, context, textRenderer, matrices, vertexConsumers, players, width, height, midX, midY, renderTime, delta);
 		
 		if (AddonClientConfig.getMatchHudStyle() == MatchHudStyle.MODERN) {
 			return;
@@ -64,7 +64,7 @@ public abstract class DominationGameClientMixin extends CapturePointGameClient<D
 		
 		DominationPlayerManager playerManager = game.getPlayerManager();
 		
-		AddonRendering.oldTimer(poseStack, font, graphics, midX, method_2678());
+		AddonRendering.oldTimer(matrices, textRenderer, context, midX, method_2678());
 		
 		GameTeam axisTeam = playerManager.getTeamByName("Axis");
 		GameTeam alliesTeam = playerManager.getTeamByName("Allies");
@@ -77,8 +77,8 @@ public abstract class DominationGameClientMixin extends CapturePointGameClient<D
 		
 		int axisScore = axisTeam.getObjectInt(BFStats.SCORE);
 		int alliesScore = alliesTeam.getObjectInt(BFStats.SCORE);
-		Component axisScoreComponent = Component.literal(Integer.toString(axisScore)).withColor(axisColor);
-		Component alliesScoreComponent = Component.literal(Integer.toString(alliesScore)).withColor(alliesColor);
+		Text axisScoreComponent = Text.literal(Integer.toString(axisScore)).withColor(axisColor);
+		Text alliesScoreComponent = Text.literal(Integer.toString(alliesScore)).withColor(alliesColor);
 		
 		float axisRectStartX = midX - 99f;
 		float axisScoreStartX = midX - 19f;
@@ -90,24 +90,24 @@ public abstract class DominationGameClientMixin extends CapturePointGameClient<D
 		int alliesScoreRectWidth = (int) (78f * (alliesScore / 500f));
 		
 		// Axis score
-		BFRendering.rectangle(poseStack, graphics, axisScoreStartX, 15f, 18.5f, 10f, BFRendering.translucentBlack());
-		BFRendering.centeredComponent2d(poseStack, font, graphics, axisScoreComponent, axisScoreStartX + 9.75f, 16.5f);
+		BFRendering.rectangle(matrices, context, axisScoreStartX, 15f, 18.5f, 10f, BFRendering.translucentBlack());
+		BFRendering.centeredComponent2d(matrices, textRenderer, context, axisScoreComponent, axisScoreStartX + 9.75f, 16.5f);
 		
 		// Axis rect
-		BFRendering.rectangle(poseStack, graphics, axisRectStartX - 1f, 15f, 80f, 10f, BFRendering.translucentBlack());
-		BFRendering.rectangle(poseStack, graphics, axisRectStartX, 16f, 78f, 8f, 0, 0.35f);
-		BFRendering.rectangle(poseStack, graphics, axisRectStartX, 16f, 78f, 8f, axisColor, 0.35f);
-		BFRendering.rectangle(poseStack, graphics, axisRectStartX, 16f, axisScoreRectWidth, 8f, axisColor, 1f);
+		BFRendering.rectangle(matrices, context, axisRectStartX - 1f, 15f, 80f, 10f, BFRendering.translucentBlack());
+		BFRendering.rectangle(matrices, context, axisRectStartX, 16f, 78f, 8f, 0, 0.35f);
+		BFRendering.rectangle(matrices, context, axisRectStartX, 16f, 78f, 8f, axisColor, 0.35f);
+		BFRendering.rectangle(matrices, context, axisRectStartX, 16f, axisScoreRectWidth, 8f, axisColor, 1f);
 		
 		// Allies score
-		BFRendering.rectangle(poseStack, graphics, alliesScoreStartX, 15f, 18.5f, 10f, BFRendering.translucentBlack());
-		BFRendering.centeredComponent2d(poseStack, font, graphics, alliesScoreComponent, alliesScoreStartX + 9.75f, 16.5f);
+		BFRendering.rectangle(matrices, context, alliesScoreStartX, 15f, 18.5f, 10f, BFRendering.translucentBlack());
+		BFRendering.centeredComponent2d(matrices, textRenderer, context, alliesScoreComponent, alliesScoreStartX + 9.75f, 16.5f);
 		
 		// Allies rect
-		BFRendering.rectangle(poseStack, graphics, alliesRectStartX - 1f, 15f, 80f, 10f, BFRendering.translucentBlack());
-		BFRendering.rectangle(poseStack, graphics, alliesRectStartX, 16f, 78f, 8f, 0, 0.35f);
-		BFRendering.rectangle(poseStack, graphics, alliesRectStartX, 16f, 78f, 8f, alliesColor, 0.35f);
-		BFRendering.rectangle(poseStack, graphics, alliesRectStartX + (78f - alliesScoreRectWidth), 16f, alliesScoreRectWidth, 8f, alliesColor, 1f);
+		BFRendering.rectangle(matrices, context, alliesRectStartX - 1f, 15f, 80f, 10f, BFRendering.translucentBlack());
+		BFRendering.rectangle(matrices, context, alliesRectStartX, 16f, 78f, 8f, 0, 0.35f);
+		BFRendering.rectangle(matrices, context, alliesRectStartX, 16f, 78f, 8f, alliesColor, 0.35f);
+		BFRendering.rectangle(matrices, context, alliesRectStartX + (78f - alliesScoreRectWidth), 16f, alliesScoreRectWidth, 8f, alliesColor, 1f);
 		
 		int axisArrows = 0;
 		int alliesArrows = 0;
@@ -120,13 +120,13 @@ public abstract class DominationGameClientMixin extends CapturePointGameClient<D
 			}
 		}
 		
-		float arrowAlpha = Math.min(0.5f + Mth.sin(renderTime / 15f) / 2f, 0.5f);
+		float arrowAlpha = Math.min(0.5f + MathHelper.sin(renderTime / 15f) / 2f, 0.5f);
 		
 		for (int i = 0; i < axisArrows; i++) {
-			BFRendering.texture(poseStack, graphics, AddonRendering.CPOINT_ARROW_RIGHT_BLACK, midX - 98f + 7f * i, 17f, 6f, 6f, arrowAlpha);
+			BFRendering.texture(matrices, context, AddonRendering.CPOINT_ARROW_RIGHT_BLACK, midX - 98f + 7f * i, 17f, 6f, 6f, arrowAlpha);
 		}
 		for (int i = 0; i < alliesArrows; i++) {
-			BFRendering.texture(poseStack, graphics, AddonRendering.CPOINT_ARROW_LEFT_BLACK, midX + 92f - 7 * i, 17f, 6f, 6f, arrowAlpha);
+			BFRendering.texture(matrices, context, AddonRendering.CPOINT_ARROW_LEFT_BLACK, midX + 92f - 7 * i, 17f, 6f, 6f, arrowAlpha);
 		}
 	}
 }

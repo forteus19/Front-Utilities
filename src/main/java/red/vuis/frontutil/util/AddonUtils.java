@@ -17,14 +17,11 @@ import com.boehmod.blockfront.assets.impl.GameAsset;
 import com.boehmod.blockfront.game.GameStatus;
 import com.boehmod.blockfront.util.BFUtils;
 import com.boehmod.blockfront.util.math.FDSPose;
+import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec2;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.Vec2f;
+import net.minecraft.util.math.Vec3d;
 
 public final class AddonUtils {
 	private AddonUtils() {
@@ -52,31 +49,31 @@ public final class AddonUtils {
 		return Stream.concat(StreamSupport.stream(parent.spliterator(), false), Arrays.stream(other)).toList();
 	}
 	
-	public static Vec2 vec2WithX(Vec2 original, float x) {
-		return new Vec2(x, original.y);
+	public static Vec2f vec2WithX(Vec2f original, float x) {
+		return new Vec2f(x, original.y);
 	}
 	
-	public static Vec2 vec2WithY(Vec2 original, float y) {
-		return new Vec2(original.x, y);
+	public static Vec2f vec2WithY(Vec2f original, float y) {
+		return new Vec2f(original.x, y);
 	}
 	
-	public static Vec3 vec3WithX(Vec3 original, double x) {
-		return new Vec3(x, original.y, original.z);
+	public static Vec3d vec3WithX(Vec3d original, double x) {
+		return new Vec3d(x, original.y, original.z);
 	}
 	
-	public static Vec3 vec3WithY(Vec3 original, double y) {
-		return new Vec3(original.x, y, original.z);
+	public static Vec3d vec3WithY(Vec3d original, double y) {
+		return new Vec3d(original.x, y, original.z);
 	}
 	
-	public static Vec3 vec3WithZ(Vec3 original, double z) {
-		return new Vec3(original.x, original.y, z);
+	public static Vec3d vec3WithZ(Vec3d original, double z) {
+		return new Vec3d(original.x, original.y, z);
 	}
 	
-	public static Vec3 copyVec3(Vec3 other) {
-		return new Vec3(other.x, other.y, other.z);
+	public static Vec3d copyVec3(Vec3d other) {
+		return new Vec3d(other.x, other.y, other.z);
 	}
 	
-	public static String formatVec3(Vec3 vec) {
+	public static String formatVec3(Vec3d vec) {
 		return String.format("%.2f, %.2f, %.2f", vec.x, vec.y, vec.z);
 	}
 	
@@ -95,11 +92,11 @@ public final class AddonUtils {
 	}
 	
 	public static void setPoseFromEntity(FDSPose pose, Entity entity) {
-		pose.position = copyVec3(entity.position());
-		pose.rotation = new Vec2(entity.getYHeadRot(), entity.getXRot());
+		pose.position = copyVec3(entity.getPos());
+		pose.rotation = new Vec2f(entity.getHeadYaw(), entity.getPitch());
 	}
 	
-	public static void teleportBf(ServerPlayer player, FDSPose pose) {
+	public static void teleportBf(ServerPlayerEntity player, FDSPose pose) {
 		var manager = BlockFront.getInstance().getManager();
 		if (manager != null) {
 			BFUtils.teleportPlayer(manager.getPlayerDataHandler(), player, pose);
@@ -107,7 +104,7 @@ public final class AddonUtils {
 	}
 	
 	public static Path getServerDataPath(MinecraftServer server) {
-		Path basePath = server.getFile("frontutil");
+		Path basePath = server.getPath("frontutil");
 		if (!Files.isDirectory(basePath)) {
 			try {
 				Files.createDirectory(basePath);

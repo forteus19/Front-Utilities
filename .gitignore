@@ -43,3 +43,4 @@ bin/
 
 run/
 *.jar
+*.tiny

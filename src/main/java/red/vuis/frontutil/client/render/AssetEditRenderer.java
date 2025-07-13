@@ -10,20 +10,20 @@ import com.boehmod.blockfront.map.effect.AbstractMapEffect;
 import com.boehmod.blockfront.map.effect.LoopingSoundPointMapEffect;
 import com.boehmod.blockfront.map.effect.PositionedMapEffect;
 import com.boehmod.blockfront.util.BFRes;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.registry.Registries;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
 import org.apache.commons.lang3.tuple.Pair;
 
 import red.vuis.frontutil.client.data.AddonClientData;
 
 public final class AssetEditRenderer extends RenderObject {
-	private static final ResourceLocation LOOPING_SOUND_POINT = BFRes.loc("textures/misc/debug/sound_looping.png");
+	private static final Identifier LOOPING_SOUND_POINT = BFRes.loc("textures/misc/debug/sound_looping.png");
 	private static final float ICON_SIZE = 0.75f;
 	
-	public AssetEditRenderer(Minecraft minecraft) {
+	public AssetEditRenderer(MinecraftClient minecraft) {
 		super(minecraft);
 	}
 	
@@ -37,7 +37,7 @@ public final class AssetEditRenderer extends RenderObject {
 			return;
 		}
 		
-		List<Pair<Double, AABB>> highlights = new ArrayList<>();
+		List<Pair<Double, Box>> highlights = new ArrayList<>();
 		
 		for (AbstractMapEffect absMapEffect : clientData.editing.getMapEffects()) {
 			renderInfo(absMapEffect);
@@ -58,8 +58,8 @@ public final class AssetEditRenderer extends RenderObject {
 				billboardTexture(LOOPING_SOUND_POINT, mapEffect.position, ICON_SIZE, ICON_SIZE);
 				Optional.ofNullable(mapEffect.sound)
 					.map(Supplier::get)
-					.map(BuiltInRegistries.SOUND_EVENT::getKeyOrNull)
-					.map(ResourceLocation::toString)
+					.map(Registries.SOUND_EVENT::getKeyOrNull)
+					.map(Identifier::toString)
 					.ifPresent(id -> billboardString(id, mapEffect.position.add(0, 0.6, 0), 0.5f));
 			}
 			default -> {
@@ -67,16 +67,16 @@ public final class AssetEditRenderer extends RenderObject {
 		}
 	}
 	
-	private Optional<Pair<Double, AABB>> getHighlightDist(PositionedMapEffect mapEffect) {
-		Vec3 cameraPos = camera.getPosition();
-		Vec3 lookingPos = cameraPos.add(new Vec3(camera.getLookVector()).scale(4.5f));
-		AABB aabb = getHighlightBox(mapEffect.position);
+	private Optional<Pair<Double, Box>> getHighlightDist(PositionedMapEffect mapEffect) {
+		Vec3d cameraPos = camera.getPos();
+		Vec3d lookingPos = cameraPos.add(new Vec3d(camera.getHorizontalPlane()).multiply(4.5f));
+		Box aabb = getHighlightBox(mapEffect.position);
 		
-		return aabb.clip(cameraPos, lookingPos).isPresent() ? Optional.of(Pair.of(cameraPos.distanceTo(mapEffect.position), aabb)) : Optional.empty();
+		return aabb.raycast(cameraPos, lookingPos).isPresent() ? Optional.of(Pair.of(cameraPos.distanceTo(mapEffect.position), aabb)) : Optional.empty();
 	}
 	
-	private static AABB getHighlightBox(Vec3 position) {
+	private static Box getHighlightBox(Vec3d position) {
 		double s = ICON_SIZE / 2.0;
-		return new AABB(position.subtract(s, s, s), position.add(s, s, s));
+		return new Box(position.subtract(s, s, s), position.add(s, s, s));
 	}
 }

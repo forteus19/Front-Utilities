@@ -18,14 +18,14 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.core.Holder;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.Item;
+import net.minecraft.entity.EntityType;
+import net.minecraft.item.Item;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
 import org.jetbrains.annotations.NotNull;
 
 import red.vuis.frontutil.AddonConstants;
@@ -40,7 +40,7 @@ public record GunModifier(
 	Optional<List<FireMode>> fireModes,
 	Optional<Float> weight
 ) {
-	public static final Map<Holder<Item>, GunModifier> ACTIVE = new Object2ObjectOpenHashMap<>();
+	public static final Map<RegistryEntry<Item>, GunModifier> ACTIVE = new Object2ObjectOpenHashMap<>();
 	public static final Codec<GunModifier> CODEC = RecordCodecBuilder.create(instance ->
 		instance.group(
 			Ammo.CODEC.optionalFieldOf("ammo").forGetter(GunModifier::ammo),
@@ -49,11 +49,11 @@ public record GunModifier(
 			Codec.FLOAT.optionalFieldOf("weight").forGetter(GunModifier::weight)
 		).apply(instance, GunModifier::new)
 	);
-	public static final StreamCodec<RegistryFriendlyByteBuf, GunModifier> STREAM_CODEC = StreamCodec.composite(
-		Ammo.STREAM_CODEC.apply(ByteBufCodecs::optional), GunModifier::ammo,
-		Damage.STREAM_CODEC.apply(ByteBufCodecs.list()).apply(ByteBufCodecs::optional), GunModifier::damage,
-		FireMode.STREAM_CODEC.apply(ByteBufCodecs.list()).apply(ByteBufCodecs::optional), GunModifier::fireModes,
-		ByteBufCodecs.FLOAT.apply(ByteBufCodecs::optional), GunModifier::weight,
+	public static final PacketCodec<RegistryByteBuf, GunModifier> PACKET_CODEC = PacketCodec.tuple(
+		Ammo.PACKET_CODEC.collect(PacketCodecs::optional), GunModifier::ammo,
+		Damage.PACKET_CODEC.collect(PacketCodecs.toList()).collect(PacketCodecs::optional), GunModifier::damage,
+		FireMode.PACKET_CODEC.collect(PacketCodecs.toList()).collect(PacketCodecs::optional), GunModifier::fireModes,
+		PacketCodecs.FLOAT.collect(PacketCodecs::optional), GunModifier::weight,
 		GunModifier::new
 	);
 	
@@ -83,9 +83,9 @@ public record GunModifier(
 				Codec.intRange(0, Integer.MAX_VALUE).fieldOf("reserve").forGetter(Ammo::reserve)
 			).apply(instance, Ammo::new)
 		);
-		public static final StreamCodec<ByteBuf, Ammo> STREAM_CODEC = StreamCodec.composite(
-			ByteBufCodecs.VAR_INT, Ammo::magazine,
-			ByteBufCodecs.VAR_INT, Ammo::reserve,
+		public static final PacketCodec<ByteBuf, Ammo> PACKET_CODEC = PacketCodec.tuple(
+			PacketCodecs.VAR_INT, Ammo::magazine,
+			PacketCodecs.VAR_INT, Ammo::reserve,
 			Ammo::new
 		);
 		
@@ -112,10 +112,10 @@ public record GunModifier(
 				Codec.floatRange(0f, Float.MAX_VALUE).optionalFieldOf("min_dist", 0f).forGetter(Damage::minDist)
 			).apply(instance, Damage::new)
 		);
-		public static final StreamCodec<ByteBuf, Damage> STREAM_CODEC = StreamCodec.composite(
-			ByteBufCodecs.FLOAT, Damage::body,
-			ByteBufCodecs.FLOAT, Damage::head,
-			ByteBufCodecs.FLOAT, Damage::minDist,
+		public static final PacketCodec<ByteBuf, Damage> PACKET_CODEC = PacketCodec.tuple(
+			PacketCodecs.FLOAT, Damage::body,
+			PacketCodecs.FLOAT, Damage::head,
+			PacketCodecs.FLOAT, Damage::minDist,
 			Damage::new
 		);
 		
@@ -142,7 +142,7 @@ public record GunModifier(
 		GunFireMode mode,
 		int ticks,
 		int numInstances,
-		Optional<Holder<EntityType<?>>> entity
+		Optional<RegistryEntry<EntityType<?>>> entity
 	) {
 		public static final Codec<FireMode> CODEC = RecordCodecBuilder.create(instance ->
 			instance.group(
@@ -150,15 +150,15 @@ public record GunModifier(
 				AddonCodecs.GUN_FIRE_MODE.fieldOf("mode").forGetter(FireMode::mode),
 				Codec.intRange(1, Integer.MAX_VALUE).fieldOf("ticks").forGetter(FireMode::ticks),
 				Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("num_instances", 1).forGetter(FireMode::numInstances),
-				BuiltInRegistries.ENTITY_TYPE.holderByNameCodec().optionalFieldOf("entity").forGetter(FireMode::entity)
+				Registries.ENTITY_TYPE.getEntryCodec().optionalFieldOf("entity").forGetter(FireMode::entity)
 			).apply(instance, FireMode::new)
 		);
-		public static final StreamCodec<RegistryFriendlyByteBuf, FireMode> STREAM_CODEC = StreamCodec.composite(
-			AddonStreamCodecs.GUN_FIRE_TYPE, FireMode::type,
-			AddonStreamCodecs.GUN_FIRE_MODE, FireMode::mode,
-			ByteBufCodecs.VAR_INT, FireMode::ticks,
-			ByteBufCodecs.VAR_INT, FireMode::numInstances,
-			ByteBufCodecs.holderRegistry(Registries.ENTITY_TYPE).apply(ByteBufCodecs::optional), FireMode::entity,
+		public static final PacketCodec<RegistryByteBuf, FireMode> PACKET_CODEC = PacketCodec.tuple(
+			AddonPacketCodecs.GUN_FIRE_TYPE, FireMode::type,
+			AddonPacketCodecs.GUN_FIRE_MODE, FireMode::mode,
+			PacketCodecs.VAR_INT, FireMode::ticks,
+			PacketCodecs.VAR_INT, FireMode::numInstances,
+			PacketCodecs.registryEntry(RegistryKeys.ENTITY_TYPE).collect(PacketCodecs::optional), FireMode::entity,
 			FireMode::new
 		);
 		
@@ -171,7 +171,7 @@ public record GunModifier(
 					config.method_4026(),
 					Optional.ofNullable(config.method_4024())
 						.map(Supplier::get)
-						.map(BuiltInRegistries.ENTITY_TYPE::wrapAsHolder)
+						.map(Registries.ENTITY_TYPE::getEntry)
 				))
 				.toList();
 		}
@@ -187,7 +187,7 @@ public record GunModifier(
 					if (!AddonEntityUtils.PRODUCED_PROJECTILES.contains(entityType)) {
 						AddonConstants.LOGGER.error(
 							"Entity type {} is not a valid projectile! Discarding fire mode.",
-							BuiltInRegistries.ENTITY_TYPE.getKey(entityType)
+							Registries.ENTITY_TYPE.getId(entityType)
 						);
 						continue;
 					}
@@ -213,7 +213,7 @@ public record GunModifier(
 			if (fireConfigs.isEmpty()) {
 				AddonConstants.LOGGER.error(
 					"No valid fire modes for item {}! Not applying.",
-					BuiltInRegistries.ITEM.getKey(item)
+					Registries.ITEM.getId(item)
 				);
 			}
 			

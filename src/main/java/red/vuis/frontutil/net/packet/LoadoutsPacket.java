@@ -6,13 +6,12 @@ import java.util.Map;
 import com.boehmod.blockfront.common.match.Loadout;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.neoforged.api.distmarker.Dist;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
+import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -20,25 +19,25 @@ import org.jetbrains.annotations.NotNull;
 
 import red.vuis.frontutil.AddonConstants;
 import red.vuis.frontutil.client.data.AddonClientData;
-import red.vuis.frontutil.data.AddonStreamCodecs;
+import red.vuis.frontutil.data.AddonPacketCodecs;
 import red.vuis.frontutil.setup.LoadoutIndex;
 import red.vuis.frontutil.util.AddonUtils;
 
-public record LoadoutsPacket(Map<LoadoutIndex.Identifier, List<Loadout>> loadouts) implements CustomPacketPayload {
-	public static final CustomPacketPayload.Type<LoadoutsPacket> TYPE = new CustomPacketPayload.Type<>(AddonConstants.res("loadouts"));
-	public static final StreamCodec<RegistryFriendlyByteBuf, LoadoutsPacket> STREAM_CODEC = StreamCodec.composite(
-		ByteBufCodecs.map(
+public record LoadoutsPacket(Map<LoadoutIndex.Identifier, List<Loadout>> loadouts) implements CustomPayload {
+	public static final CustomPayload.Id<LoadoutsPacket> ID = new CustomPayload.Id<>(AddonConstants.id("loadouts"));
+	public static final PacketCodec<RegistryByteBuf, LoadoutsPacket> PACKET_CODEC = PacketCodec.tuple(
+		PacketCodecs.map(
 			Object2ObjectOpenHashMap::new,
-			AddonStreamCodecs.BF_COUNTRY,
-			ByteBufCodecs.map(
+			AddonPacketCodecs.BF_COUNTRY,
+			PacketCodecs.map(
 				Object2ObjectOpenHashMap::new,
-				ByteBufCodecs.STRING_UTF8,
-				ByteBufCodecs.map(
+				PacketCodecs.STRING,
+				PacketCodecs.map(
 					Object2ObjectOpenHashMap::new,
-					AddonStreamCodecs.MATCH_CLASS,
-					ByteBufCodecs.collection(
+					AddonPacketCodecs.MATCH_CLASS,
+					PacketCodecs.collection(
 						ObjectArrayList::new,
-						AddonStreamCodecs.LOADOUT
+						AddonPacketCodecs.LOADOUT
 					)
 				)
 			)
@@ -48,8 +47,8 @@ public record LoadoutsPacket(Map<LoadoutIndex.Identifier, List<Loadout>> loadout
 	);
 	
 	@Override
-	public @NotNull Type<? extends CustomPacketPayload> type() {
-		return TYPE;
+	public @NotNull Id<? extends CustomPayload> getId() {
+		return ID;
 	}
 	
 	public static void handleClient(LoadoutsPacket packet, IPayloadContext context) {
@@ -66,17 +65,17 @@ public record LoadoutsPacket(Map<LoadoutIndex.Identifier, List<Loadout>> loadout
 		}
 		
 		if (AddonUtils.anyGamesActive()) {
-			context.player().sendSystemMessage(Component.translatable(
+			context.player().sendMessage(Text.translatable(
 				"frontutil.message.packet.loadouts.game",
-				Component.literal("/frontutil loadout sync").withStyle(ChatFormatting.DARK_GREEN)
-			).withStyle(ChatFormatting.GOLD));
+				Text.literal("/frontutil loadout sync").formatted(Formatting.DARK_GREEN)
+			).formatted(Formatting.GOLD));
 			return;
 		}
 		
 		LoadoutIndex.apply(packet.loadouts);
 		PacketDistributor.sendToAllPlayers(packet);
 		
-		context.player().sendSystemMessage(Component.translatable(
+		context.player().sendMessage(Text.translatable(
 			"frontutil.message.packet.loadouts.success"
 		));
 	}

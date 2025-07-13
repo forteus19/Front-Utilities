@@ -15,7 +15,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 
 import red.vuis.frontutil.setup.LoadoutIndex;
 

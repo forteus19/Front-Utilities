@@ -7,10 +7,10 @@ import com.boehmod.blockfront.common.BFAbstractManager;
 import com.boehmod.blockfront.game.AbstractGame;
 import com.boehmod.blockfront.game.AmmoPoint;
 import com.boehmod.blockfront.game.GameStageManager;
-import com.boehmod.blockfront.game.dom.DominationCapturePoint;
-import com.boehmod.blockfront.game.dom.DominationGame;
-import com.boehmod.blockfront.game.dom.DominationPlayerManager;
-import net.minecraft.network.chat.Component;
+import com.boehmod.blockfront.game.impl.dom.DominationCapturePoint;
+import com.boehmod.blockfront.game.impl.dom.DominationGame;
+import com.boehmod.blockfront.game.impl.dom.DominationPlayerManager;
+import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -65,7 +65,7 @@ public abstract class DominationGameMixin extends AbstractGame<DominationGame, D
 		));
 		
 		apointCommand.subCommand("tp", AddonAssetCommands.genericTeleport(
-			(ammoPoint, indexComponent) -> Component.translatable("frontutil.message.command.game.apoint.tp.success", indexComponent),
+			(ammoPoint, indexComponent) -> Text.translatable("frontutil.message.command.game.apoint.tp.success", indexComponent),
 			ammoPoints
 		));
 	}

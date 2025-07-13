@@ -1,24 +1,24 @@
 package red.vuis.frontutil.client.screen;
 
-import net.minecraft.client.gui.components.Renderable;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.narration.NarratableEntry;
-import net.minecraft.network.chat.Component;
+import net.minecraft.client.gui.Drawable;
+import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.Selectable;
+import net.minecraft.text.Text;
 
 import red.vuis.frontutil.client.widget.CompoundWidget;
 
 public abstract class AddonScreen extends ImmediateScreen {
-	public AddonScreen(Component title) {
+	public AddonScreen(Text title) {
 		super(title);
 	}
 	
 	protected <T extends CompoundWidget> T addCompoundWidget(T compoundWidget) {
 		for (Object widget : compoundWidget.getWidgets()) {
-			if (widget instanceof GuiEventListener && widget instanceof NarratableEntry) {
-				addWidget((GuiEventListener & NarratableEntry) widget);
+			if (widget instanceof Element && widget instanceof Selectable) {
+				addSelectableChild((Element & Selectable) widget);
 			}
-			if (widget instanceof Renderable) {
-				addRenderableOnly((Renderable) widget);
+			if (widget instanceof Drawable) {
+				addDrawable((Drawable) widget);
 			}
 		}
 		return compoundWidget;
