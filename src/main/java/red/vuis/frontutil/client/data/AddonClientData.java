@@ -6,8 +6,8 @@ import java.util.Map;
 import com.boehmod.blockfront.common.match.BFCountry;
 import com.boehmod.blockfront.common.match.Loadout;
 import com.boehmod.blockfront.common.match.MatchClass;
+import com.boehmod.blockfront.map.MapEnvironment;
 import net.minecraft.client.Minecraft;
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
@@ -20,13 +20,14 @@ public final class AddonClientData {
 	private static AddonClientData instance = null;
 	
 	public Map<LoadoutIndex.Identifier, List<Loadout>> tempLoadouts;
+	public @Nullable MapEnvironment editing = null;
 	
 	private AddonClientData() {
 		reloadLoadouts();
 	}
 	
 	public static AddonClientData getInstance() {
-		if (FMLEnvironment.dist != Dist.CLIENT) {
+		if (!FMLEnvironment.dist.isClient()) {
 			throw new RuntimeException("Tried to get client data when not on the client!");
 		}
 		if (instance == null) {

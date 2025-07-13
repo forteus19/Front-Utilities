@@ -61,7 +61,7 @@ public record LoadoutsPacket(Map<LoadoutIndex.Identifier, List<Loadout>> loadout
 	
 	public static void handleServer(LoadoutsPacket packet, IPayloadContext context) {
 		// Prevent the handler from running on the integrated server
-		if (FMLEnvironment.dist != Dist.DEDICATED_SERVER) {
+		if (!FMLEnvironment.dist.isDedicatedServer()) {
 			return;
 		}
 		

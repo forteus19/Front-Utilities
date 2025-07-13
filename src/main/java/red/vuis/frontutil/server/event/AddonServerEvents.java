@@ -1,4 +1,4 @@
-package red.vuis.frontutil.event;
+package red.vuis.frontutil.server.event;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.api.distmarker.Dist;

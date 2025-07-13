@@ -421,7 +421,7 @@ public abstract class MapAssetMixin {
 				
 				CommandUtils.sendBfa(source, Component.translatable("frontutil.message.command.map.mapEffect.add.loopingSoundPoint.success", nameComponent));
 			}).validator(
-				AssetCommandValidatorsEx.count("environment", "count", "maxTick", "x", "y", "z")
+				AssetCommandValidatorsEx.count("environment", "sound", "maxTick", "x", "y", "z")
 			));
 		
 		addCommand.subCommand(

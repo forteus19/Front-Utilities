@@ -2,9 +2,11 @@ package red.vuis.frontutil.client.command;
 
 import java.util.concurrent.CompletableFuture;
 
+import com.boehmod.blockfront.assets.impl.MapAsset;
 import com.boehmod.blockfront.client.BFClientManager;
 import com.boehmod.blockfront.common.item.GunItem;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
@@ -15,13 +17,16 @@ import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import red.vuis.frontutil.client.FrontUtilClient;
+import red.vuis.frontutil.client.data.AddonClientData;
 import red.vuis.frontutil.client.screen.LoadoutEditorScreen;
 import red.vuis.frontutil.client.screen.WeaponExtraScreen;
+import red.vuis.frontutil.command.arg.AssetArgument;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
 import red.vuis.frontutil.setup.GunItemIndex;
 import red.vuis.frontutil.setup.LoadoutIndex;
@@ -38,6 +43,16 @@ public final class FrontUtilClientCommand {
 		
 		root.then(
 			literal("config").executes(FrontUtilClientCommand::config)
+		).then(
+			literal("editorMode").then(
+				literal("off").executes(FrontUtilClientCommand::editorModeOff)
+			).then(
+				literal("on").then(
+					argument("mapAsset", AssetArgument.asset(MapAsset.class)).then(
+						argument("environment", StringArgumentType.word()).suggests(FrontUtilClientCommand::suggestMapEnvironments).executes(FrontUtilClientCommand::editorModeOn)
+					)
+				)
+			)
 		).then(
 			literal("gun").then(
 				literal("giveMenu").then(
@@ -59,6 +74,39 @@ public final class FrontUtilClientCommand {
 	private static int config(CommandContext<CommandSourceStack> context) {
 		// shut up intellij it can be null >:(
 		Minecraft.getInstance().setScreen(new ConfigurationScreen(FrontUtilClient.getInstance().container, null));
+		
+		return 1;
+	}
+	
+	private static int editorModeOff(CommandContext<CommandSourceStack> context) {
+		AddonClientData.getInstance().editing = null;
+		
+		return 1;
+	}
+	
+	private static CompletableFuture<Suggestions> suggestMapEnvironments(CommandContext<CommandSourceStack> context, SuggestionsBuilder suggestions) {
+		MapAsset asset = AssetArgument.getAsset(context, "mapAsset", MapAsset.class);
+		return SharedSuggestionProvider.suggest(asset.getEnvironments().keySet(), suggestions);
+	}
+	
+	private static int editorModeOn(CommandContext<CommandSourceStack> context) {
+		Player player = Minecraft.getInstance().player;
+		assert player != null;
+		
+		if (!(player.isCreative() || player.isSpectator())) {
+			context.getSource().sendFailure(Component.translatable("frontutil.message.command.editorMode.error.mode"));
+			return -1;
+		}
+		
+		MapAsset asset = AssetArgument.getAsset(context, "mapAsset", MapAsset.class);
+		String envStr = StringArgumentType.getString(context, "environment");
+		
+		if (!asset.environments.containsKey(envStr)) {
+			context.getSource().sendFailure(Component.translatable("frontutil.message.command.editorMode.error.environment"));
+			return -1;
+		}
+		
+		AddonClientData.getInstance().editing = asset.environments.get(envStr);
 		
 		return 1;
 	}
