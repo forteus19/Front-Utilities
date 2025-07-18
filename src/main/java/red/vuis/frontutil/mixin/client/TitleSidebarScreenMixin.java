@@ -32,7 +32,7 @@ public abstract class TitleSidebarScreenMixin extends SidebarScreen {
 				Text.translatable("fml.menu.mods").fillStyle(BFStyles.BOLD),
 				button -> client.setScreen(new ModListScreen((TitleSidebarScreen) (Object) this))
 			)
-				.method_383(Text.translatable("frontutil.menu.button.mods.tip"))
+				.tip(Text.translatable("frontutil.menu.button.mods.tip"))
 				.alignment(BFButton.Alignment.LEFT)
 		);
 	}
