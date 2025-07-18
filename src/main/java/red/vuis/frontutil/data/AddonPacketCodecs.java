@@ -16,6 +16,7 @@ import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.util.function.ValueLists;
+import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 
 import red.vuis.frontutil.setup.LoadoutIndex;
@@ -64,6 +65,12 @@ public final class AddonPacketCodecs {
 			PacketCodecs.VAR_INT.encode(buf, loadout.getMinimumXp());
 		}
 	};
+	public static final PacketCodec<ByteBuf, Vec3d> VEC3D = PacketCodec.tuple(
+		PacketCodecs.DOUBLE, Vec3d::getX,
+		PacketCodecs.DOUBLE, Vec3d::getY,
+		PacketCodecs.DOUBLE, Vec3d::getZ,
+		Vec3d::new
+	);
 	
 	private AddonPacketCodecs() {
 	}

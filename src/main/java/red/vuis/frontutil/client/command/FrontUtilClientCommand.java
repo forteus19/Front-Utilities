@@ -79,7 +79,9 @@ public final class FrontUtilClientCommand {
 	}
 	
 	private static int editorModeOff(CommandContext<ServerCommandSource> context) {
-		AddonClientData.getInstance().editing = null;
+		AddonClientData clientData = AddonClientData.getInstance();
+		clientData.editingMapName = null;
+		clientData.editingEnv = null;
 		
 		return 1;
 	}
@@ -106,7 +108,9 @@ public final class FrontUtilClientCommand {
 			return -1;
 		}
 		
-		AddonClientData.getInstance().editing = asset.environments.get(envStr);
+		AddonClientData clientData = AddonClientData.getInstance();
+		clientData.editingMapName = asset.getName();
+		clientData.editingEnv = asset.environments.get(envStr);
 		
 		return 1;
 	}

@@ -39,6 +39,9 @@ import static red.vuis.frontutil.util.ColorUtils.blueFloat;
 import static red.vuis.frontutil.util.ColorUtils.greenFloat;
 import static red.vuis.frontutil.util.ColorUtils.redFloat;
 
+/**
+ * Various static utility methods for rendering.
+ */
 public final class AddonRendering {
 	public static final Identifier CPOINT_ARROW_RIGHT_BLACK = BFRes.loc("textures/gui/game/domination/cpoint_arrow_right_black.png");
 	public static final Identifier CPOINT_ARROW_LEFT_BLACK = BFRes.loc("textures/gui/game/domination/cpoint_arrow_left_black.png");
@@ -82,9 +85,13 @@ public final class AddonRendering {
 		matrices.pop();
 	}
 	
-	public static void texture(MatrixStack matrices, Identifier texture, float x, float y, float z, float width, float height, boolean depthTest) {
+	public static void texture(MatrixStack matrices, Identifier texture, float x, float y, float z, float width, float height, float alpha, boolean depthTest) {
 		RenderSystem.depthMask(true);
+		RenderSystem.enableCull();
+		RenderSystem.enableBlend();
+		RenderSystem.defaultBlendFunc();
 		RenderSystem.setShaderTexture(0, texture);
+		RenderSystem.setShaderColor(1, 1, 1, alpha);
 		RenderSystem.setShader(GameRenderer::getPositionTexProgram);
 		
 		Matrix4f matrix = matrices.peek().getPositionMatrix();
@@ -99,18 +106,37 @@ public final class AddonRendering {
 		
 		depthTest(depthTest);
 		BufferRenderer.drawWithGlobalProgram(builder.end());
+		
+		RenderSystem.setShaderColor(1, 1, 1, 1);
 	}
 	
-	public static void billboardTexture(MatrixStack matrices, Camera camera, Identifier texture, Vec3d position, float width, float height, boolean depthTest) {
+	public static void billboardTexture(MatrixStack matrices, Camera camera, Identifier texture, Vec3d position, float width, float height, float alpha, boolean depthTest) {
 		matrices.push();
 		
 		translate(matrices, position);
 		billboard(matrices, camera);
 		matrices.scale(-1, -1, 1);
 		
-		texture(matrices, texture, -width / 2f, -height / 2f, 0, width, height, depthTest);
+		texture(matrices, texture, -width / 2f, -height / 2f, 0, width, height, alpha, depthTest);
 		
 		matrices.pop();
+	}
+	
+	public static void line(MatrixStack matrices, Vec3d start, Vec3d end, int color, boolean depthTest) {
+		RenderSystem.disableCull();
+		RenderSystem.enableBlend();
+		RenderSystem.defaultBlendFunc();
+		RenderSystem.setShader(GameRenderer::getRenderTypeLinesProgram);
+		
+		MatrixStack.Entry matrixEntry = matrices.peek();
+		BufferBuilder builder = Tessellator.getInstance().begin(VertexFormat.DrawMode.LINES, VertexFormats.LINES);
+		
+		Vec3d dir = end.subtract(start).normalize();
+		builder.vertex(matrixEntry, start.toVector3f()).color(color).normal(matrixEntry, (float) dir.x, (float) dir.y, (float) dir.z);
+		builder.vertex(matrixEntry, end.toVector3f()).color(color).normal(matrixEntry, (float) dir.x, (float) dir.y, (float) dir.z);
+		
+		depthTest(depthTest);
+		BufferRenderer.drawWithGlobalProgram(builder.end());
 	}
 	
 	public static void boxOutline(MatrixStack matrices, Box box, int color, boolean depthTest) {

@@ -20,7 +20,8 @@ public final class AddonClientData {
 	private static AddonClientData instance = null;
 	
 	public Map<LoadoutIndex.Identifier, List<Loadout>> tempLoadouts;
-	public @Nullable MapEnvironment editing = null;
+	public @Nullable String editingMapName = null;
+	public @Nullable MapEnvironment editingEnv = null;
 	
 	private AddonClientData() {
 		reloadLoadouts();

@@ -17,6 +17,7 @@ import red.vuis.frontutil.data.GunModifierTarget;
 import red.vuis.frontutil.net.packet.GiveGunPacket;
 import red.vuis.frontutil.net.packet.GunModifiersPacket;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
+import red.vuis.frontutil.net.packet.MapEffectPositionPacket;
 import red.vuis.frontutil.setup.GunItemIndex;
 import red.vuis.frontutil.setup.GunModifierIndex;
 import red.vuis.frontutil.setup.GunSkinIndex;
@@ -65,6 +66,7 @@ public final class AddonCommonEvents {
 		registrar.playBidirectional(LoadoutsPacket.ID, LoadoutsPacket.PACKET_CODEC, new DirectionalPayloadHandler<>(
 			LoadoutsPacket::handleClient, LoadoutsPacket::handleServer
 		));
+		registrar.playToServer(MapEffectPositionPacket.ID, MapEffectPositionPacket.PACKET_CODEC, MapEffectPositionPacket::handle);
 	}
 	
 	@SubscribeEvent

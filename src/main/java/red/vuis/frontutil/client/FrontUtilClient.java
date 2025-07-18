@@ -32,7 +32,7 @@ public final class FrontUtilClient {
 	
 	public static FrontUtilClient getInstance() {
 		if (instance == null) {
-			throw new IllegalStateException("FrontUtilClient instance of null!");
+			throw new IllegalStateException("FrontUtilClient instance is null!");
 		}
 		return instance;
 	}
