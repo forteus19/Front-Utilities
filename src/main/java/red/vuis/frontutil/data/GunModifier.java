@@ -12,6 +12,7 @@ import com.boehmod.blockfront.common.gun.GunDamageConfig;
 import com.boehmod.blockfront.common.gun.GunFireConfig;
 import com.boehmod.blockfront.common.gun.GunFireMode;
 import com.boehmod.blockfront.common.gun.GunMagType;
+import com.boehmod.blockfront.common.item.AimConfig;
 import com.boehmod.blockfront.common.item.GunItem;
 import com.boehmod.blockfront.unnamed.BF_959;
 import com.mojang.serialization.Codec;
@@ -38,6 +39,7 @@ public record GunModifier(
 	Optional<Ammo> ammo,
 	Optional<List<Damage>> damage,
 	Optional<List<FireMode>> fireModes,
+	Optional<Spread> spread,
 	Optional<Float> weight
 ) {
 	public static final Map<RegistryEntry<Item>, GunModifier> ACTIVE = new Object2ObjectOpenHashMap<>();
@@ -46,6 +48,7 @@ public record GunModifier(
 			Ammo.CODEC.optionalFieldOf("ammo").forGetter(GunModifier::ammo),
 			Damage.CODEC.listOf(1, Integer.MAX_VALUE).optionalFieldOf("damage").forGetter(GunModifier::damage),
 			FireMode.CODEC.listOf(1, Integer.MAX_VALUE).optionalFieldOf("fire_modes").forGetter(GunModifier::fireModes),
+			Spread.CODEC.optionalFieldOf("spread").forGetter(GunModifier::spread),
 			Codec.FLOAT.optionalFieldOf("weight").forGetter(GunModifier::weight)
 		).apply(instance, GunModifier::new)
 	);
@@ -53,15 +56,17 @@ public record GunModifier(
 		Ammo.PACKET_CODEC.collect(PacketCodecs::optional), GunModifier::ammo,
 		Damage.PACKET_CODEC.collect(PacketCodecs.toList()).collect(PacketCodecs::optional), GunModifier::damage,
 		FireMode.PACKET_CODEC.collect(PacketCodecs.toList()).collect(PacketCodecs::optional), GunModifier::fireModes,
+		Spread.PACKET_CODEC.collect(PacketCodecs::optional), GunModifier::spread,
 		PacketCodecs.FLOAT.collect(PacketCodecs::optional), GunModifier::weight,
 		GunModifier::new
 	);
 	
-	public GunModifier(Ammo ammo, List<Damage> damage, List<FireMode> fireModes, float weight) {
+	public GunModifier(Ammo ammo, List<Damage> damage, List<FireMode> fireModes, Spread spread, float weight) {
 		this(
 			Optional.of(ammo),
 			Optional.of(damage),
 			Optional.of(fireModes),
+			Optional.of(spread),
 			Optional.of(weight)
 		);
 	}
@@ -70,6 +75,7 @@ public record GunModifier(
 		ammo.ifPresent(ammo -> Ammo.apply(ammo, item));
 		damage.ifPresent(damage -> Damage.apply(damage, item));
 		fireModes.ifPresent(fireModes -> FireMode.apply(fireModes, item));
+		spread.ifPresent(spread -> Spread.apply(spread, item));
 		weight.ifPresent(item::weight);
 	}
 	
@@ -218,6 +224,62 @@ public record GunModifier(
 			}
 			
 			item.fireModes(fireConfigs.toArray(GunFireConfig[]::new));
+		}
+	}
+	
+	public record Spread(
+		float jumping,
+		float walking,
+		float walkingAds,
+		float idle,
+		float idleAds,
+		float crawling,
+		float crawlingAds
+	) {
+		public static final Codec<Spread> CODEC = RecordCodecBuilder.create(instance ->
+			instance.group(
+				Codec.floatRange(0f, Float.MAX_VALUE).fieldOf("jumping").forGetter(Spread::jumping),
+				Codec.floatRange(0f, Float.MAX_VALUE).fieldOf("walking").forGetter(Spread::walking),
+				Codec.floatRange(0f, Float.MAX_VALUE).fieldOf("walking_ads").forGetter(Spread::walkingAds),
+				Codec.floatRange(0f, Float.MAX_VALUE).fieldOf("idle").forGetter(Spread::idle),
+				Codec.floatRange(0f, Float.MAX_VALUE).fieldOf("idle_ads").forGetter(Spread::idleAds),
+				Codec.floatRange(0f, Float.MAX_VALUE).fieldOf("crawling").forGetter(Spread::crawling),
+				Codec.floatRange(0f, Float.MAX_VALUE).fieldOf("crawling_ads").forGetter(Spread::crawlingAds)
+			).apply(instance, Spread::new)
+		);
+		public static PacketCodec<ByteBuf, Spread> PACKET_CODEC = AddonPacketCodecs.tuple(
+			PacketCodecs.FLOAT, Spread::jumping,
+			PacketCodecs.FLOAT, Spread::walking,
+			PacketCodecs.FLOAT, Spread::walkingAds,
+			PacketCodecs.FLOAT, Spread::idle,
+			PacketCodecs.FLOAT, Spread::idleAds,
+			PacketCodecs.FLOAT, Spread::crawling,
+			PacketCodecs.FLOAT, Spread::crawlingAds,
+			Spread::new
+		);
+		
+		public static Spread of(AimConfig config) {
+			return new Spread(
+				config.jumpingSpread(),
+				config.walkingSpread(),
+				config.walkingSpreadAiming(),
+				config.idleSpread(),
+				config.idleSpreadAiming(),
+				config.crawlingSpread(),
+				config.crawlingSpreadAiming()
+			);
+		}
+		
+		private static void apply(Spread spread, @NotNull GunItem item) {
+			item.aim(new AimConfig(
+				spread.jumping,
+				spread.walking,
+				spread.walkingAds,
+				spread.idle,
+				spread.idleAds,
+				spread.crawling,
+				spread.crawlingAds
+			));
 		}
 	}
 }

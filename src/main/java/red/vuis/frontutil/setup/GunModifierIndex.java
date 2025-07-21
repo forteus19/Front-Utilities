@@ -30,6 +30,7 @@ public final class GunModifierIndex {
 					GunModifier.Ammo.of(applyGunItem(gunItem, GunItemAccessor::getMagIdMap).get("default")),
 					GunModifier.Damage.of(gunItem.getDamageConfig()),
 					GunModifier.FireMode.of(gunItem.getFireConfigs()),
+					GunModifier.Spread.of(gunItem.getAimConfig()),
 					gunItem.getWeight(null) // Unused parameter
 				)
 			);
