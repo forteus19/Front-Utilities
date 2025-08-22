@@ -10,6 +10,8 @@ modId = "frontutil"
 version = "0.1.4"
 displayName = "Front-Utilities"
 description = '''Helper stuff for BlockFront'''
+logoFile = "logo.png"
+updateJSONURL = "https://raw.githubusercontent.com/forteus19/Front-Utilities/main/update.json"
 
 [[dependencies.frontutil]]
 modId = "neoforge"
