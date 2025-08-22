@@ -28,6 +28,6 @@ side = "BOTH"
 [[dependencies.frontutil]]
 modId = "bf"
 type = "required"
-versionRange = "[0.7.0.13b,0.7.0.14b]"
+versionRange = "[0.7.0.17b]"
 ordering = "AFTER"
 side = "BOTH"

@@ -8,7 +8,7 @@ plugins {
 group = "red.vuis"
 version = "0.1.3"
 
-val bfVersion = "0.7.0.14b"
+val bfVersion = "0.7.0.17b"
 
 repositories {
     maven("https://maven.neoforged.net/releases")
@@ -33,6 +33,8 @@ dependencies {
     modCompileOnly(files("$bfVersion-named.jar"))
     modCompileOnly("software.bernie.geckolib:geckolib-neoforge-1.21.1:4.7.3")
     compileOnly(files("bflib-$bfVersion.jar"))
+
+    compileOnly("com.demonwav.mcdev:annotations:2.1.0")
 }
 
 java {

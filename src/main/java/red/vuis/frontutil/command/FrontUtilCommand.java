@@ -18,6 +18,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandOutput;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -130,7 +131,10 @@ public final class FrontUtilCommand {
 		try (Stream<Path> filesList = Files.list(loadoutsPath)) {
 			filenameList = AddonUtils.listify(
 				filesList
-					.map(path -> path.getFileName().toString())
+					.map(path -> {
+						String pathStr = path.getFileName().toString();
+						return pathStr.substring(0, pathStr.lastIndexOf('.'));
+					})
 					.iterator()
 			);
 		} catch (IOException e) {
@@ -143,6 +147,12 @@ public final class FrontUtilCommand {
 	
 	private static int loadoutRead(CommandContext<ServerCommandSource> context) {
 		ServerCommandSource source = context.getSource();
+		MinecraftServer server = source.getServer();
+		
+		if (!server.isDedicated()) {
+			source.sendError(Text.translatable("frontutil.message.command.loadout.read.error.server"));
+			return -1;
+		}
 		
 		if (AddonUtils.anyGamesActive()) {
 			source.sendError(Text.translatable("frontutil.message.command.loadout.read.game"));
@@ -150,7 +160,7 @@ public final class FrontUtilCommand {
 		}
 		
 		String filename = StringArgumentType.getString(context, "filename") + ".dat";
-		Path indexPath = AddonUtils.getServerDataPath(source.getServer()).resolve("loadouts").resolve(filename);
+		Path indexPath = AddonUtils.getServerDataPath(server).resolve("loadouts").resolve(filename);
 		
 		if (!LoadoutIndex.parseAndApply(indexPath)) {
 			source.sendError(Text.translatable("frontutil.message.command.loadout.read.error"));
@@ -165,10 +175,16 @@ public final class FrontUtilCommand {
 	
 	private static int loadoutWrite(CommandContext<ServerCommandSource> context) {
 		ServerCommandSource source = context.getSource();
+		MinecraftServer server = source.getServer();
+		
+		if (!server.isDedicated()) {
+			source.sendError(Text.translatable("frontutil.message.command.loadout.write.error.server"));
+			return -1;
+		}
 		
 		String filename = StringArgumentType.getString(context, "filename") + ".dat";
 		
-		Path loadoutsPath = AddonUtils.getServerDataPath(source.getServer()).resolve("loadouts");
+		Path loadoutsPath = AddonUtils.getServerDataPath(server).resolve("loadouts");
 		if (!Files.isDirectory(loadoutsPath)) {
 			try {
 				Files.createDirectory(loadoutsPath);

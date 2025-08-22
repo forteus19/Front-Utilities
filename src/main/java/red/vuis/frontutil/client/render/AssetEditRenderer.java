@@ -24,6 +24,9 @@ import red.vuis.frontutil.client.input.InputTracker;
 import red.vuis.frontutil.client.util.ClientSound;
 import red.vuis.frontutil.net.packet.MapEffectPositionPacket;
 
+/**
+ * Currently unused, to be implemented properly eventually :P
+ */
 public final class AssetEditRenderer extends RenderObject {
 	private static final Identifier LOOPING_SOUND_POINT = BFRes.loc("textures/misc/debug/sound_looping.png");
 	private static final float ICON_SIZE = 0.75f;
@@ -38,7 +41,6 @@ public final class AssetEditRenderer extends RenderObject {
 	@Override
 	public void render() {
 		super.render();
-		cameraAsOrigin();
 		
 		AddonClientData clientData = AddonClientData.getInstance();
 		if (client.world == null || clientData.editingMapName == null || clientData.editingEnv == null) {
@@ -46,6 +48,8 @@ public final class AssetEditRenderer extends RenderObject {
 		}
 		
 		List<HighlightResult> highlights = new ArrayList<>();
+		
+		cameraAsOrigin();
 		
 		for (AbstractMapEffect absMapEffect : clientData.editingEnv.getMapEffects()) {
 			renderIcon(absMapEffect, 1f);

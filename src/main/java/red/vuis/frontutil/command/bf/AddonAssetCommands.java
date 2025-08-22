@@ -10,6 +10,7 @@ import com.boehmod.blockfront.assets.AssetCommandBuilder;
 import com.boehmod.blockfront.util.BFStyles;
 import com.boehmod.blockfront.util.CommandUtils;
 import com.boehmod.blockfront.util.math.FDSPose;
+import com.demonwav.mcdev.annotations.Translatable;
 import com.mojang.brigadier.context.CommandContext;
 import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
 import it.unimi.dsi.fastutil.ints.IntObjectPair;
@@ -57,7 +58,7 @@ public final class AddonAssetCommands {
 		}
 	}
 	
-	public static <T> void genericList(CommandContext<ServerCommandSource> context, @Nullable Supplier<String> name, String noneMessage, String headerMessage, List<T> items, Function<? super T, String> infoFunc) {
+	public static <T> void genericList(CommandContext<ServerCommandSource> context, @Nullable Supplier<String> name, @Translatable String noneMessage, @Translatable String headerMessage, List<T> items, Function<? super T, String> infoFunc) {
 		if (name != null) {
 			Supplier<Text> nameText = () -> Text.literal(name.get()).fillStyle(BFStyles.LIME);
 			genericList(
@@ -76,20 +77,20 @@ public final class AddonAssetCommands {
 		}
 	}
 	
-	public static <T> void genericList(CommandContext<ServerCommandSource> context, String noneMessage, String headerMessage, List<T> items, Function<? super T, String> infoFunc) {
+	public static <T> void genericList(CommandContext<ServerCommandSource> context, @Translatable String noneMessage, @Translatable String headerMessage, List<T> items, Function<? super T, String> infoFunc) {
 		genericList(context, null, noneMessage, headerMessage, items, infoFunc);
 	}
 	
-	public static <T> AssetCommandBuilder genericList(String noneMessage, String headerMessage, List<T> items, Function<? super T, String> infoFunc) {
+	public static <T> AssetCommandBuilder genericList(@Translatable String noneMessage, @Translatable String headerMessage, List<T> items, Function<? super T, String> infoFunc) {
 		return new AssetCommandBuilder(
 			(context, args) -> genericList(context, noneMessage, headerMessage, items, infoFunc)
 		);
 	}
 	
-	public static void genericRemove(CommandContext<ServerCommandSource> context, List<String> args, Function<Text, Text> successMessage, List<?> items) {
+	public static void genericRemove(CommandContext<ServerCommandSource> context, String[] args, Function<Text, Text> successMessage, List<?> items) {
 		CommandOutput output = context.getSource().output;
 		
-		var indexParse = parseIndex(output, args.getFirst(), items, false);
+		var indexParse = parseIndex(output, args[0], items, false);
 		if (indexParse == null) {
 			return;
 		}
@@ -100,7 +101,7 @@ public final class AddonAssetCommands {
 		CommandUtils.sendBfa(output, successMessage.apply(indexComponent));
 	}
 	
-	public static void genericRemove(CommandContext<ServerCommandSource> context, List<String> args, @Nullable Supplier<String> name, String successMessage, List<?> items) {
+	public static void genericRemove(CommandContext<ServerCommandSource> context, String[] args, @Nullable Supplier<String> name, @Translatable String successMessage, List<?> items) {
 		if (name != null) {
 			Supplier<Text> nameText = () -> Text.literal(name.get()).fillStyle(BFStyles.LIME);
 			genericRemove(
@@ -117,23 +118,23 @@ public final class AddonAssetCommands {
 		}
 	}
 	
-	public static void genericRemove(CommandContext<ServerCommandSource> context, List<String> args, String successMessage, List<?> items) {
+	public static void genericRemove(CommandContext<ServerCommandSource> context, String[] args, @Translatable String successMessage, List<?> items) {
 		genericRemove(context, args, null, successMessage, items);
 	}
 	
-	public static AssetCommandBuilder genericRemove(String successMessage, List<?> items) {
+	public static AssetCommandBuilder genericRemove(@Translatable String successMessage, List<?> items) {
 		return new AssetCommandBuilder(
-			(context, args) -> genericRemove(context, List.of(args), successMessage, items)
+			(context, args) -> genericRemove(context, args, successMessage, items)
 		).validator(AssetCommandValidatorsEx.count("index"));
 	}
 	
-	public static <T extends FDSPose> void genericTeleport(CommandContext<ServerCommandSource> context, List<String> args, BiFunction<? super T, Text, Text> successMessage, List<T> items) {
+	public static <T extends FDSPose> void genericTeleport(CommandContext<ServerCommandSource> context, String[] args, BiFunction<? super T, Text, Text> successMessage, List<T> items) {
 		ServerPlayerEntity player = AddonCommandUtils.getContextPlayer(context);
 		if (player == null) {
 			return;
 		}
 		
-		var indexParse = AddonAssetCommands.parseIndex(player, args.getFirst(), items, false);
+		var indexParse = AddonAssetCommands.parseIndex(player, args[0], items, false);
 		if (indexParse == null) {
 			return;
 		}
@@ -147,7 +148,7 @@ public final class AddonAssetCommands {
 	
 	public static <T extends FDSPose> AssetCommandBuilder genericTeleport(BiFunction<? super T, Text, Text> successMessage, List<T> items) {
 		return new AssetCommandBuilder(
-			(context, args) -> genericTeleport(context, List.of(args), successMessage, items)
+			(context, args) -> genericTeleport(context, args, successMessage, items)
 		).validator(AssetCommandValidatorsEx.count("index"));
 	}
 }

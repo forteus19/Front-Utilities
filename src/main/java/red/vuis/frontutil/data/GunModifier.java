@@ -12,9 +12,9 @@ import com.boehmod.blockfront.common.gun.GunDamageConfig;
 import com.boehmod.blockfront.common.gun.GunFireConfig;
 import com.boehmod.blockfront.common.gun.GunFireMode;
 import com.boehmod.blockfront.common.gun.GunMagType;
+import com.boehmod.blockfront.common.gun.GunTriggerSpawnType;
 import com.boehmod.blockfront.common.item.AimConfig;
 import com.boehmod.blockfront.common.item.GunItem;
-import com.boehmod.blockfront.unnamed.BF_959;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
@@ -144,7 +144,7 @@ public record GunModifier(
 	}
 	
 	public record FireMode(
-		BF_959 type,
+		GunTriggerSpawnType type,
 		GunFireMode mode,
 		int ticks,
 		int numInstances,
@@ -152,7 +152,7 @@ public record GunModifier(
 	) {
 		public static final Codec<FireMode> CODEC = RecordCodecBuilder.create(instance ->
 			instance.group(
-				AddonCodecs.GUN_FIRE_TYPE.fieldOf("type").forGetter(FireMode::type),
+				AddonCodecs.GUN_TRIGGER_SPAWN_TYPE.fieldOf("type").forGetter(FireMode::type),
 				AddonCodecs.GUN_FIRE_MODE.fieldOf("mode").forGetter(FireMode::mode),
 				Codec.intRange(1, Integer.MAX_VALUE).fieldOf("ticks").forGetter(FireMode::ticks),
 				Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("num_instances", 1).forGetter(FireMode::numInstances),
@@ -160,7 +160,7 @@ public record GunModifier(
 			).apply(instance, FireMode::new)
 		);
 		public static final PacketCodec<RegistryByteBuf, FireMode> PACKET_CODEC = PacketCodec.tuple(
-			AddonPacketCodecs.GUN_FIRE_TYPE, FireMode::type,
+			AddonPacketCodecs.GUN_TRIGGER_SPAWN_TYPE, FireMode::type,
 			AddonPacketCodecs.GUN_FIRE_MODE, FireMode::mode,
 			PacketCodecs.VAR_INT, FireMode::ticks,
 			PacketCodecs.VAR_INT, FireMode::numInstances,
@@ -187,7 +187,7 @@ public record GunModifier(
 			List<GunFireConfig> fireConfigs = new ArrayList<>();
 			
 			for (FireMode fireMode : fireModes) {
-				if (fireMode.type == BF_959.ENTITY && fireMode.entity.isPresent()) {
+				if (fireMode.type == GunTriggerSpawnType.ENTITY && fireMode.entity.isPresent()) {
 					EntityType<?> entityType = fireMode.entity.orElseThrow().value();
 					
 					if (!AddonEntityUtils.PRODUCED_PROJECTILES.contains(entityType)) {

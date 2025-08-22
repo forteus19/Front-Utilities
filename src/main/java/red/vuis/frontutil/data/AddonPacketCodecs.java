@@ -6,10 +6,10 @@ import java.util.function.IntFunction;
 import java.util.function.ToIntFunction;
 
 import com.boehmod.blockfront.common.gun.GunFireMode;
+import com.boehmod.blockfront.common.gun.GunTriggerSpawnType;
 import com.boehmod.blockfront.common.match.BFCountry;
 import com.boehmod.blockfront.common.match.Loadout;
 import com.boehmod.blockfront.common.match.MatchClass;
-import com.boehmod.blockfront.unnamed.BF_959;
 import com.mojang.datafixers.util.Function7;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.item.ItemStack;
@@ -25,7 +25,7 @@ import red.vuis.frontutil.setup.LoadoutIndex;
 public final class AddonPacketCodecs {
 	public static final PacketCodec<ByteBuf, BFCountry> BF_COUNTRY = enumOrdinal(BFCountry.values());
 	public static final PacketCodec<ByteBuf, GunFireMode> GUN_FIRE_MODE = enumOrdinal(GunFireMode.values());
-	public static final PacketCodec<ByteBuf, BF_959> GUN_FIRE_TYPE = enumOrdinal(BF_959.values());
+	public static final PacketCodec<ByteBuf, GunTriggerSpawnType> GUN_TRIGGER_SPAWN_TYPE = enumOrdinal(GunTriggerSpawnType.values());
 	public static final PacketCodec<ByteBuf, MatchClass> MATCH_CLASS = enumOrdinal(MatchClass.values());
 	public static final PacketCodec<RegistryByteBuf, Loadout> LOADOUT = new PacketCodec<>() {
 		@Override

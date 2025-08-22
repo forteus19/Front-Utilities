@@ -99,6 +99,9 @@ public class WeaponExtraScreen extends AddonScreen {
 			Text.literal("+"),
 			dim(width / 2 - 120, 110, 10, 20),
 			button -> {
+				if (magTypeNames.isEmpty()) {
+					return;
+				}
 				int currentIndex = magTypeNames.indexOf(magTypeBox.getText());
 				if (currentIndex < 0) {
 					currentIndex = 0;
@@ -121,6 +124,9 @@ public class WeaponExtraScreen extends AddonScreen {
 			Text.literal("+"),
 			dim(width / 2 - 120, 150, 10, 20),
 			button -> {
+				if (barrelTypeNames.isEmpty()) {
+					return;
+				}
 				int currentIndex = barrelTypeNames.indexOf(barrelTypeBox.getText());
 				if (currentIndex < 0) {
 					currentIndex = 0;
@@ -143,6 +149,9 @@ public class WeaponExtraScreen extends AddonScreen {
 			Text.literal("+"),
 			dim(width / 2 - 120, 190, 10, 20),
 			button -> {
+				if (skinNames.isEmpty()) {
+					return;
+				}
 				int currentIndex = skinNames.indexOf(skinBox.getText());
 				if (currentIndex < 0) {
 					currentIndex = 0;

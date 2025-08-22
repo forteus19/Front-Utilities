@@ -43,17 +43,19 @@ public final class FrontUtilClientCommand {
 		
 		root.then(
 			literal("config").executes(FrontUtilClientCommand::config)
-		).then(
-			literal("editorMode").then(
-				literal("off").executes(FrontUtilClientCommand::editorModeOff)
-			).then(
-				literal("on").then(
-					argument("mapAsset", AssetArgument.asset(MapAsset.class)).then(
-						argument("environment", StringArgumentType.word()).suggests(FrontUtilClientCommand::suggestMapEnvironments).executes(FrontUtilClientCommand::editorModeOn)
-					)
-				)
-			)
-		).then(
+		)
+//			.then(
+//			literal("editorMode").then(
+//				literal("off").executes(FrontUtilClientCommand::editorModeOff)
+//			).then(
+//				literal("on").then(
+//					argument("mapAsset", AssetArgument.asset(MapAsset.class)).then(
+//						argument("environment", StringArgumentType.word()).suggests(FrontUtilClientCommand::suggestMapEnvironments).executes(FrontUtilClientCommand::editorModeOn)
+//					)
+//				)
+//			)
+//		)
+			.then(
 			literal("gun").then(
 				literal("giveMenu").then(
 					argument("item", IdentifierArgumentType.identifier()).suggests(FrontUtilClientCommand::suggestGunItems).executes(FrontUtilClientCommand::gunGiveMenu)
