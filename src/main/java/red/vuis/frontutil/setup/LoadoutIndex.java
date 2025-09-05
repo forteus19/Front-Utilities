@@ -17,6 +17,7 @@ import com.boehmod.blockfront.common.match.Loadout;
 import com.boehmod.blockfront.common.match.MatchClass;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
@@ -53,7 +54,7 @@ public final class LoadoutIndex {
 			
 			SKINS.get(country).add(skin);
 			
-			for (Map.Entry<MatchClass, List<Loadout>> entry : division.getLoadouts().entrySet()) {
+			for (Map.Entry<MatchClass, ObjectList<Loadout>> entry : division.getLoadouts().entrySet()) {
 				MatchClass matchClass = entry.getKey();
 				List<Loadout> loadouts = entry.getValue();
 				Identifier id = new Identifier(country, skin, matchClass);
@@ -128,7 +129,7 @@ public final class LoadoutIndex {
 			BFCountry country = divisionData.getCountry();
 			String skin = divisionData.getSkin();
 			
-			for (Map.Entry<MatchClass, List<Loadout>> loadoutData : divisionData.getLoadouts().entrySet()) {
+			for (Map.Entry<MatchClass, ObjectList<Loadout>> loadoutData : divisionData.getLoadouts().entrySet()) {
 				List<Loadout> clonedLoadouts = new ObjectArrayList<>();
 				loadoutData.getValue().forEach(loudout -> clonedLoadouts.add(cloneLoadout(loudout)));
 				result.put(new Identifier(country, skin, loadoutData.getKey()), clonedLoadouts);
