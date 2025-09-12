@@ -1,14 +1,12 @@
 package red.vuis.frontutil.event;
 
 import com.boehmod.blockfront.BlockFront;
-import net.minecraft.network.listener.ServerConfigurationPacketListener;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
-import net.neoforged.neoforge.network.event.RegisterConfigurationTasksEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -20,7 +18,6 @@ import red.vuis.frontutil.net.packet.GiveGunPacket;
 import red.vuis.frontutil.net.packet.GunModifiersPacket;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
 import red.vuis.frontutil.net.packet.MapEffectPositionPacket;
-import red.vuis.frontutil.net.task.GunModifiersConfigurationTask;
 import red.vuis.frontutil.setup.GunItemIndex;
 import red.vuis.frontutil.setup.GunModifierIndex;
 import red.vuis.frontutil.setup.GunSkinIndex;
@@ -59,12 +56,6 @@ public final class AddonCommonEvents {
 		
 		var dispatcher = event.getDispatcher();
 		FrontUtilCommand.register(dispatcher);
-	}
-	
-	@SubscribeEvent
-	public static void onRegisterConfigurationTasks(RegisterConfigurationTasksEvent event) {
-		ServerConfigurationPacketListener listener = event.getListener();
-		event.register(new GunModifiersConfigurationTask(listener));
 	}
 	
 	@SubscribeEvent

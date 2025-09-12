@@ -8,6 +8,8 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import red.vuis.frontutil.AddonConstants;
+import red.vuis.frontutil.data.GunModifier;
+import red.vuis.frontutil.net.packet.GunModifiersPacket;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
 import red.vuis.frontutil.setup.LoadoutIndex;
 
@@ -23,6 +25,7 @@ public final class AddonServerEvents {
 	public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
 		if (event.getEntity() instanceof ServerPlayerEntity serverPlayer) {
 			AddonConstants.LOGGER.info("Syncing custom data with player '{}'.", event.getEntity().getName().getString());
+			PacketDistributor.sendToPlayer(serverPlayer, new GunModifiersPacket(GunModifier.ACTIVE));
 			PacketDistributor.sendToPlayer(serverPlayer, new LoadoutsPacket(LoadoutIndex.currentFlat()));
 		}
 	}
