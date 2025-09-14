@@ -19,10 +19,8 @@ import net.minecraft.registry.Registries;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-import red.vuis.frontutil.client.FrontUtilClient;
 import red.vuis.frontutil.client.data.AddonClientData;
 import red.vuis.frontutil.client.screen.LoadoutEditorScreen;
 import red.vuis.frontutil.client.screen.WeaponExtraScreen;
@@ -41,9 +39,7 @@ public final class FrontUtilClientCommand {
 	public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
 		var root = literal("frontutil").requires(stack -> stack.hasPermissionLevel(3));
 		
-		root.then(
-			literal("config").executes(FrontUtilClientCommand::config)
-		)
+		root
 //			.then(
 //			literal("editorMode").then(
 //				literal("off").executes(FrontUtilClientCommand::editorModeOff)
@@ -70,14 +66,6 @@ public final class FrontUtilClientCommand {
 		);
 		
 		dispatcher.register(root);
-	}
-	
-	@SuppressWarnings("DataFlowIssue")
-	private static int config(CommandContext<ServerCommandSource> context) {
-		// shut up intellij it can be null >:(
-		MinecraftClient.getInstance().setScreen(new ConfigurationScreen(FrontUtilClient.getInstance().container, null));
-		
-		return 1;
 	}
 	
 	private static int editorModeOff(CommandContext<ServerCommandSource> context) {

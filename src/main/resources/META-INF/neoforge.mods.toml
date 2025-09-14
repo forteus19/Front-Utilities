@@ -16,7 +16,7 @@ updateJSONURL = "https://raw.githubusercontent.com/forteus19/Front-Utilities/mai
 [[dependencies.frontutil]]
 modId = "neoforge"
 type = "required"
-versionRange = "[21.1.183,22.0)"
+versionRange = "[21.1.206,22.0)"
 ordering = "NONE"
 side = "BOTH"
 
