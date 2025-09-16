@@ -18,9 +18,7 @@ import com.boehmod.blockfront.common.item.GunItem;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.entity.EntityType;
-import net.minecraft.item.Item;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
@@ -42,7 +40,6 @@ public record GunModifier(
 	Optional<Spread> spread,
 	Optional<Float> weight
 ) {
-	public static final Map<RegistryEntry<Item>, GunModifier> ACTIVE = new Object2ObjectOpenHashMap<>();
 	public static final Codec<GunModifier> CODEC = RecordCodecBuilder.create(instance ->
 		instance.group(
 			Ammo.CODEC.optionalFieldOf("ammo").forGetter(GunModifier::ammo),

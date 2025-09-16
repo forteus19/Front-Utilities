@@ -18,6 +18,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandOutput;
 import net.minecraft.server.command.ServerCommandSource;
@@ -26,7 +27,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-import red.vuis.frontutil.data.GunModifierTarget;
+import red.vuis.frontutil.data.AddonWorldData;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
 import red.vuis.frontutil.setup.GunSkinIndex;
 import red.vuis.frontutil.setup.LoadoutIndex;
@@ -52,7 +53,7 @@ public final class FrontUtilCommand {
 				)
 			).then(
 				literal("modifier").then(
-					literal("listAll").executes(FrontUtilCommand::gunModifierListAll)
+					literal("list").executes(FrontUtilCommand::gunModifierList)
 				)
 			)
 		).then(
@@ -108,11 +109,12 @@ public final class FrontUtilCommand {
 		return 1;
 	}
 	
-	private static int gunModifierListAll(CommandContext<ServerCommandSource> context) {
-		CommandOutput output = context.getSource().output;
+	private static int gunModifierList(CommandContext<ServerCommandSource> context) {
+		ServerCommandSource source = context.getSource();
+		CommandOutput output = source.output;
 		
-		for (GunModifierTarget target : GunModifierTarget.ACTIVE) {
-			output.sendMessage(Text.literal(target.toString()));
+		for (RegistryEntry<Item> itemEntry : AddonWorldData.get(source.getServer()).gunModifiers.keySet()) {
+			output.sendMessage(Text.literal(itemEntry.getIdAsString()));
 		}
 		
 		return 1;

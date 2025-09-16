@@ -20,6 +20,10 @@ public class ItemPreview implements Drawable {
 		this.size = size;
 	}
 	
+	public ItemPreview(WidgetDim dim) {
+		this(dim.x(), dim.y(), dim.width());
+	}
+	
 	public ItemPreview setItemStack(@Nullable ItemStack itemStack) {
 		this.itemStack = itemStack;
 		return this;

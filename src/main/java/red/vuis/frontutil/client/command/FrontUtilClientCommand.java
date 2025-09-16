@@ -22,6 +22,7 @@ import net.minecraft.util.Identifier;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import red.vuis.frontutil.client.data.AddonClientData;
+import red.vuis.frontutil.client.screen.GunModifierEditorScreen;
 import red.vuis.frontutil.client.screen.LoadoutEditorScreen;
 import red.vuis.frontutil.client.screen.WeaponExtraScreen;
 import red.vuis.frontutil.command.arg.AssetArgument;
@@ -55,6 +56,12 @@ public final class FrontUtilClientCommand {
 			literal("gun").then(
 				literal("giveMenu").then(
 					argument("item", IdentifierArgumentType.identifier()).suggests(FrontUtilClientCommand::suggestGunItems).executes(FrontUtilClientCommand::gunGiveMenu)
+				)
+			).then(
+				literal("modifier").then(
+					literal("editor").then(
+						argument("item", IdentifierArgumentType.identifier()).suggests(FrontUtilClientCommand::suggestGunItems).executes(FrontUtilClientCommand::gunModifierEditor)
+					)
 				)
 			)
 		).then(
@@ -112,11 +119,23 @@ public final class FrontUtilClientCommand {
 	private static int gunGiveMenu(CommandContext<ServerCommandSource> context) {
 		Item item = Registries.ITEM.get(IdentifierArgumentType.getIdentifier(context, "item"));
 		if (!(item instanceof GunItem gunItem)) {
-			context.getSource().sendError(Text.translatable("frontutil.message.command.gun.giveMenu.error.item"));
+			context.getSource().sendError(Text.translatable("frontutil.message.command.error.gunItem"));
 			return -1;
 		}
 		
 		MinecraftClient.getInstance().setScreen(new WeaponExtraScreen(null, gunItem).sendGivePacket());
+		
+		return 1;
+	}
+	
+	private static int gunModifierEditor(CommandContext<ServerCommandSource> context) {
+		Item item = Registries.ITEM.get(IdentifierArgumentType.getIdentifier(context, "item"));
+		if (!(item instanceof GunItem gunItem)) {
+			context.getSource().sendError(Text.translatable("frontutil.message.command.error.gunItem"));
+			return -1;
+		}
+		
+		MinecraftClient.getInstance().setScreen(new GunModifierEditorScreen(gunItem));
 		
 		return 1;
 	}

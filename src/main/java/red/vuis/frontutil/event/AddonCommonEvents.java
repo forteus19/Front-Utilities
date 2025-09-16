@@ -1,19 +1,20 @@
 package red.vuis.frontutil.event;
 
 import com.boehmod.blockfront.BlockFront;
+import com.boehmod.blockfront.common.item.GunItem;
+import net.minecraft.item.Item;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
-import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 import red.vuis.frontutil.AddonConstants;
 import red.vuis.frontutil.command.FrontUtilCommand;
-import red.vuis.frontutil.data.GunModifierTarget;
+import red.vuis.frontutil.data.AddonWorldData;
 import red.vuis.frontutil.net.packet.GiveGunPacket;
 import red.vuis.frontutil.net.packet.GunModifiersPacket;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
@@ -70,18 +71,20 @@ public final class AddonCommonEvents {
 	}
 	
 	@SubscribeEvent
-	public static void onServerAboutToStart(ServerAboutToStartEvent event) {
+	public static void onServerStarting(ServerStartingEvent event) {
 		AddonConstants.LOGGER.info("Preparing gun modifiers...");
 		
 		GunModifierIndex.applyDefaults();
 		
-		AddonConstants.LOGGER.info("Parsing and applying gun modifier targets...");
+		AddonConstants.LOGGER.info("Applying gun modifier targets...");
 		
-		GunModifierTarget.parseAndApply(event.getServer().getResourceManager());
-	}
-	
-	@SubscribeEvent
-	public static void onServerStopping(ServerStoppingEvent event) {
-		GunModifierTarget.ACTIVE.clear();
+		AddonWorldData.get(event.getServer()).gunModifiers.forEach((itemEntry, modifier) -> {
+			Item item = itemEntry.value();
+			if (item instanceof GunItem gunItem) {
+				modifier.apply(gunItem);
+			} else {
+				AddonConstants.LOGGER.error("{} is not modifiable!", itemEntry.getIdAsString());
+			}
+		});
 	}
 }

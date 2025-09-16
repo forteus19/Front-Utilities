@@ -1,11 +1,10 @@
 package red.vuis.frontutil.client.screen;
 
-import javax.annotation.OverridingMethodsMustInvokeSuper;
-
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class ImmediateScreen extends Screen {
@@ -16,7 +15,7 @@ public abstract class ImmediateScreen extends Screen {
 	}
 	
 	@Override
-	@OverridingMethodsMustInvokeSuper
+	@MustBeInvokedByOverriders
 	public void render(@NotNull DrawContext context, int mouseX, int mouseY, float delta) {
 		super.render(context, mouseX, mouseY, delta);
 		this.context = context;
