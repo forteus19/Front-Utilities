@@ -23,10 +23,12 @@ import red.vuis.frontutil.client.widget.IntegerFieldWidget;
 import red.vuis.frontutil.client.widget.WeaponEditContainer;
 import red.vuis.frontutil.client.widget.Widgets;
 import red.vuis.frontutil.setup.LoadoutIndex;
+import red.vuis.frontutil.util.IntBounds;
 
 import static red.vuis.frontutil.client.widget.WidgetDim.centeredDim;
 import static red.vuis.frontutil.client.widget.WidgetDim.dim;
 import static red.vuis.frontutil.client.widget.WidgetDim.sqrCenteredDim;
+import static red.vuis.frontutil.util.IntBounds.intMin;
 
 public class LoadoutEditorScreen extends AddonScreen {
 	private static final Text C_BUTTON_COPY = Text.translatable("frontutil.screen.generic.button.copy");
@@ -36,6 +38,7 @@ public class LoadoutEditorScreen extends AddonScreen {
 	private static final Text C_FOOTER_MULTIPLAYER = Text.translatable("frontutil.screen.loadout.editor.footer.multiplayer")
 		.formatted(Formatting.GOLD);
 	private static final Text C_HEADER = Text.translatable("frontutil.screen.loadout.editor.header");
+	private static final IntBounds MINIMUM_XP_BOUNDS = intMin(0);
 	
 	private static final String[] SLOT_LABELS = new String[]{
 		"primary", "secondary", "melee", "offHand", "head", "chest", "legs", "feet"
@@ -246,7 +249,8 @@ public class LoadoutEditorScreen extends AddonScreen {
 			minimumXpField = addDrawableChild(new IntegerFieldWidget(
 				textRenderer,
 				dim(width / 2 + 70, lastSlotY, 120, 20),
-				Text.empty()
+				Text.empty(),
+				MINIMUM_XP_BOUNDS
 			));
 		} else {
 			addDrawableChild(minimumXpField);

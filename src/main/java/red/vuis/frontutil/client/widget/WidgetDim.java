@@ -1,6 +1,6 @@
 package red.vuis.frontutil.client.widget;
 
-public final class WidgetDim {
+public class WidgetDim {
 	private final int x, y, width, height;
 	
 	private WidgetDim(int x, int y, int width, int height) {

@@ -14,8 +14,13 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
+import red.vuis.frontutil.util.IntBounds;
+
+import static red.vuis.frontutil.util.IntBounds.intMin;
+
 public class ItemEditContainer implements CompoundWidget {
 	private static final Text C_ITEM_ID_HINT = Text.translatable("frontutil.widget.itemStack.itemId.hint");
+	private static final IntBounds COUNT_BOUNDS = intMin(1);
 	
 	protected final TextFieldWidget itemIdField;
 	protected final IntegerFieldWidget countField;
@@ -23,7 +28,7 @@ public class ItemEditContainer implements CompoundWidget {
 	
 	public ItemEditContainer(TextRenderer font, int x, int y, int width, int height) {
 		itemIdField = new TextFieldWidget(font, x, y, width - 40, height, Text.empty());
-		countField = new IntegerFieldWidget(font, x + width - 40, y, 20, height, Text.empty());
+		countField = new IntegerFieldWidget(font, x + width - 40, y, 20, height, Text.empty(), COUNT_BOUNDS);
 		preview = new ItemPreview(x + width - 20, y, 20);
 		
 		itemIdField.setChangedListener(this::onItemIdChanged);

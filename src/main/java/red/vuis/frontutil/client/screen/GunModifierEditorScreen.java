@@ -78,6 +78,13 @@ public class GunModifierEditorScreen extends AddonScreen {
 		}
 		
 		@Override
+		protected void init() {
+			super.init();
+			
+			
+		}
+		
+		@Override
 		public void close() {
 			assert client != null;
 			client.setScreen(GunModifierEditorScreen.this);
