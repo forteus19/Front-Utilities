@@ -8,7 +8,7 @@ plugins {
 group = "red.vuis"
 version = "0.1.4"
 
-val bfVersion = "0.7.0.20b"
+val bfVersion = "0.7.0.27b"
 
 repositories {
     maven("https://maven.neoforged.net/releases")
@@ -28,7 +28,7 @@ dependencies {
         mappings("net.fabricmc:yarn:1.21.1+build.3:v2")
         mappings("dev.architectury:yarn-mappings-patch-neoforge:1.21+build.4")
     })
-    neoForge("net.neoforged:neoforge:21.1.183")
+    neoForge("net.neoforged:neoforge:21.1.211")
 
     modCompileOnly(files("$bfVersion-named.jar"))
     modCompileOnly("software.bernie.geckolib:geckolib-neoforge-1.21.1:4.7.3")
