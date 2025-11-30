@@ -15,6 +15,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
 import red.vuis.frontutil.AddonConstants;
+import red.vuis.frontutil.client.data.AddonClientData;
 import red.vuis.frontutil.data.GunModifier;
 import red.vuis.frontutil.setup.GunModifierIndex;
 
@@ -42,5 +43,7 @@ public record GunModifiersPacket(Map<RegistryEntry<Item>, GunModifier> modifiers
 				entry.getValue().apply(gunItem);
 			}
 		}
+		
+		AddonClientData.getInstance().tempGunModifiers = packet.modifiers();
 	}
 }

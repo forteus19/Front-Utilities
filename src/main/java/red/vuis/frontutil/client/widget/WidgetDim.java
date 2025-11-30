@@ -1,5 +1,7 @@
 package red.vuis.frontutil.client.widget;
 
+import net.minecraft.client.gui.widget.ClickableWidget;
+
 public class WidgetDim {
 	private final int x, y, width, height;
 	
@@ -40,5 +42,11 @@ public class WidgetDim {
 	
 	public int height() {
 		return height;
+	}
+	
+	public void apply(ClickableWidget widget) {
+		widget.setPosition(x, y);
+		widget.setWidth(width);
+		widget.setHeight(height);
 	}
 }

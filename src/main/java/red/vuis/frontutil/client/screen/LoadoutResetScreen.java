@@ -20,7 +20,7 @@ import static red.vuis.frontutil.client.widget.WidgetDim.centeredDim;
 
 public class LoadoutResetScreen extends AddonScreen {
 	private static final Text C_BUTTON_APPLY = Text.translatable("frontutil.screen.generic.button.apply");
-	private static final Text C_BUTTON_BACK = Text.translatable("frontutil.screen.generic.button.back");
+	private static final Text C_BUTTON_BACK = Text.translatable("gui.back");
 	private static final Function<Object, Text> C_BUTTON_MODE = i -> Text.translatable("frontutil.screen.loadout.reset.button.mode", i);
 	private static final Text C_HEADER = Text.translatable("frontutil.screen.loadout.reset.header");
 	

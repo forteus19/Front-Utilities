@@ -8,11 +8,14 @@ import com.boehmod.blockfront.common.match.Loadout;
 import com.boehmod.blockfront.common.match.MatchClass;
 import com.boehmod.blockfront.map.MapEnvironment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.item.Item;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import red.vuis.frontutil.AddonConstants;
+import red.vuis.frontutil.data.GunModifier;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
 import red.vuis.frontutil.setup.LoadoutIndex;
 
@@ -20,6 +23,7 @@ public final class AddonClientData {
 	private static AddonClientData instance = null;
 	
 	public Map<LoadoutIndex.Identifier, List<Loadout>> tempLoadouts;
+	public Map<RegistryEntry<Item>, GunModifier> tempGunModifiers;
 	public @Nullable String editingMapName = null;
 	public @Nullable MapEnvironment editingEnv = null;
 	

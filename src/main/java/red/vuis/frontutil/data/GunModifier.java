@@ -68,6 +68,26 @@ public record GunModifier(
 		);
 	}
 	
+	public GunModifier withAmmo(Ammo ammo) {
+		return new GunModifier(Optional.of(ammo), damage, fireModes, spread, weight);
+	}
+	
+	public GunModifier withDamage(List<Damage> damage) {
+		return new GunModifier(ammo, Optional.of(damage), fireModes, spread, weight);
+	}
+	
+	public GunModifier withFireModes(List<FireMode> fireModes) {
+		return new GunModifier(ammo, damage, Optional.of(fireModes), spread, weight);
+	}
+	
+	public GunModifier withSpread(Spread spread) {
+		return new GunModifier(ammo, damage, fireModes, Optional.of(spread), weight);
+	}
+	
+	public GunModifier withWeight(float weight) {
+		return new GunModifier(ammo, damage, fireModes, spread, Optional.of(weight));
+	}
+	
 	public void apply(@NotNull GunItem item) {
 		ammo.ifPresent(ammo -> Ammo.apply(ammo, item));
 		damage.ifPresent(damage -> Damage.apply(damage, item));

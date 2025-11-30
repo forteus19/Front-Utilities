@@ -14,13 +14,13 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
-import red.vuis.frontutil.util.IntBounds;
+import red.vuis.frontutil.util.math.IntBounds;
 
-import static red.vuis.frontutil.util.IntBounds.intMin;
+import static red.vuis.frontutil.util.math.IntBounds.ofMin;
 
 public class ItemEditContainer implements CompoundWidget {
 	private static final Text C_ITEM_ID_HINT = Text.translatable("frontutil.widget.itemStack.itemId.hint");
-	private static final IntBounds COUNT_BOUNDS = intMin(1);
+	private static final IntBounds COUNT_BOUNDS = ofMin(1);
 	
 	protected final TextFieldWidget itemIdField;
 	protected final IntegerFieldWidget countField;
@@ -74,7 +74,7 @@ public class ItemEditContainer implements CompoundWidget {
 	
 	public ItemStack getValue() {
 		Item item = Registries.ITEM.get(Identifier.tryParse(itemIdField.getText()));
-		return item == Items.AIR ? ItemStack.EMPTY : new ItemStack(item, countField.getInt().orElse(1));
+		return item == Items.AIR ? ItemStack.EMPTY : new ItemStack(item, countField.getOptionalInt().orElse(1));
 	}
 	
 	public void setValue(ItemStack itemStack) {

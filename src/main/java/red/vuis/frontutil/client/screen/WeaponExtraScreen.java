@@ -28,7 +28,7 @@ import static red.vuis.frontutil.client.widget.WidgetDim.sqrDim;
 import static red.vuis.frontutil.util.AddonAccessors.accessGunItem;
 
 public class WeaponExtraScreen extends AddonScreen {
-	private static final Text C_BUTTON_BACK = Text.translatable("frontutil.screen.generic.button.back");
+	private static final Text C_BUTTON_BACK = Text.translatable("gui.back");
 	private static final Text C_BUTTON_GIVE = Text.translatable("frontutil.screen.generic.button.give");
 	private static final Text C_HEADER = Text.translatable("frontutil.screen.weapon.extra.header");
 	private static final Text C_LABEL_BARRELTYPE = Text.translatable("frontutil.screen.weapon.label.barrelType");

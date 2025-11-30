@@ -3,11 +3,15 @@ package red.vuis.frontutil.event;
 import com.boehmod.blockfront.BlockFront;
 import com.boehmod.blockfront.common.item.GunItem;
 import net.minecraft.item.Item;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -49,6 +53,21 @@ public final class AddonCommonEvents {
 			AddonConstants.LOGGER.info("Indexing skins...");
 			GunSkinIndex.init(manager.getCloudRegistry());
 		}
+	}
+	
+	@SubscribeEvent
+	public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+		if (!(event.getEntity() instanceof ServerPlayerEntity player)) {
+			return;
+		}
+		
+		AddonConstants.LOGGER.info("Syncing custom common data with player '{}'.", player.getName().getString());
+		
+		MinecraftServer server = player.getServer();
+		assert server != null;
+		AddonWorldData worldData = AddonWorldData.get(server);
+		
+		PacketDistributor.sendToPlayer(player, new GunModifiersPacket(worldData.gunModifiers));
 	}
 	
 	@SubscribeEvent

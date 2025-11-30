@@ -1,4 +1,4 @@
-package red.vuis.frontutil.util;
+package red.vuis.frontutil.util.math;
 
 public class IntBounds {
 	public static final IntBounds ALL = new IntBounds(Integer.MIN_VALUE, Integer.MAX_VALUE);
@@ -13,23 +13,23 @@ public class IntBounds {
 		this.max = max;
 	}
 	
-	public static IntBounds intAll() {
+	public static IntBounds all() {
 		return ALL;
 	}
 	
-	public static IntBounds intBounds(int min, int max) {
+	public static IntBounds of(int min, int max) {
 		return new IntBounds(min, max);
 	}
 	
-	public static IntBounds intMin(int min) {
+	public static IntBounds ofMin(int min) {
 		return new IntBounds(min, Integer.MAX_VALUE);
 	}
 	
-	public static IntBounds intMax(int max) {
+	public static IntBounds ofMax(int max) {
 		return new IntBounds(Integer.MIN_VALUE, max);
 	}
 	
-	public static IntBounds intEquals(int value) {
+	public static IntBounds ofOnly(int value) {
 		return new IntBounds(value, value);
 	}
 	

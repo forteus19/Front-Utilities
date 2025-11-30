@@ -10,6 +10,8 @@
         <value>
           <package name="" withSubpackages="true" static="false" module="true" />
           <emptyLine />
+          <package name="lombok" withSubpackages="true" static="false" />
+          <emptyLine />
           <package name="java" withSubpackages="true" static="false" />
           <package name="javax" withSubpackages="true" static="false" />
           <emptyLine />

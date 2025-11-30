@@ -1,7 +1,10 @@
 package red.vuis.frontutil.util;
 
+import lombok.Getter;
+
 import java.util.Objects;
 
+@Getter
 public class Diff<T> {
 	private T value;
 	private T prevValue;
@@ -16,17 +19,5 @@ public class Diff<T> {
 		updated = !Objects.equals(value, newValue);
 		prevValue = value;
 		value = newValue;
-	}
-	
-	public T value() {
-		return value;
-	}
-	
-	public T prevValue() {
-		return prevValue;
-	}
-	
-	public boolean updated() {
-		return updated;
 	}
 }

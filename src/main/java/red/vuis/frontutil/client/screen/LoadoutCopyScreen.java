@@ -23,7 +23,7 @@ import static red.vuis.frontutil.client.widget.WidgetDim.sqrCenteredDim;
 
 public class LoadoutCopyScreen extends AddonScreen {
 	private static final Text C_BUTTON_APPLY = Text.translatable("frontutil.screen.generic.button.apply");
-	private static final Text C_BUTTON_BACK = Text.translatable("frontutil.screen.generic.button.back");
+	private static final Text C_BUTTON_BACK = Text.translatable("gui.back");
 	private static final Text C_CHECKBOX_EXCLUDE = Text.translatable("frontutil.screen.loadout.copy.checkbox.exclude");
 	private static final Text C_HEADER = Text.translatable("frontutil.screen.loadout.copy.header");
 	private static final Text C_MESSAGE = Text.translatable("frontutil.screen.loadout.copy.message");

@@ -30,7 +30,12 @@ dependencies {
     })
     neoForge("net.neoforged:neoforge:21.1.211")
 
+    compileOnly("org.projectlombok:lombok:1.18.42")
+    annotationProcessor("org.projectlombok:lombok:1.18.42")
+
     modCompileOnly(files("$bfVersion-named.jar"))
+    modRuntimeOnly(files("$bfVersion-original.jar"))
+
     modCompileOnly("software.bernie.geckolib:geckolib-neoforge-1.21.1:4.7.3")
     compileOnly(files("bflib-$bfVersion.jar"))
 

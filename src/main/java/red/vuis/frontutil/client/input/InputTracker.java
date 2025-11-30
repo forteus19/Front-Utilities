@@ -28,10 +28,10 @@ public final class InputTracker {
 	}
 	
 	public boolean leftClicked() {
-		return leftClicked.updated() && leftClicked.value() == true;
+		return leftClicked.isUpdated() && leftClicked.getValue() == true;
 	}
 	
 	public boolean leftReleased() {
-		return leftClicked.updated() && leftClicked.value() == false;
+		return leftClicked.isUpdated() && leftClicked.getValue() == false;
 	}
 }

@@ -1,5 +1,7 @@
 package red.vuis.frontutil.data;
 
+import lombok.AllArgsConstructor;
+
 import java.util.Optional;
 
 import com.boehmod.blockfront.common.item.GunItem;
@@ -13,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 import red.vuis.frontutil.setup.GunSkinIndex;
 
+@AllArgsConstructor
 public class WeaponExtraSettings {
 	public static final PacketCodec<ByteBuf, WeaponExtraSettings> PACKET_CODEC = PacketCodec.tuple(
 		PacketCodecs.BOOL,
@@ -36,13 +39,6 @@ public class WeaponExtraSettings {
 		magType = "default";
 		barrelType = "default";
 		skin = null;
-	}
-	
-	public WeaponExtraSettings(boolean scope, String magType, String barrelType, String skin) {
-		this.scope = scope;
-		this.magType = magType;
-		this.barrelType = barrelType;
-		this.skin = skin;
 	}
 	
 	public void getComponents(@Nullable ItemStack itemStack) {

@@ -5,11 +5,8 @@ import java.util.Optional;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
-import org.apache.commons.lang3.StringUtils;
 
-import red.vuis.frontutil.util.IntBounds;
-
-import static red.vuis.frontutil.util.IntBounds.intAll;
+import red.vuis.frontutil.util.math.IntBounds;
 
 public class IntegerFieldWidget extends TextFieldWidget {
 	public final IntBounds bounds;
@@ -21,15 +18,21 @@ public class IntegerFieldWidget extends TextFieldWidget {
 			if (str == null) {
 				return false;
 			}
-			if (str.isEmpty() || StringUtils.isNumeric(str)) {
+			if (str.isEmpty()) {
 				return true;
 			}
-			if (str.charAt(0) == '-' && StringUtils.isNumeric(str.substring(1))) {
-				return true;
+			try {
+				Integer.parseInt(str);
+			} catch (NumberFormatException e) {
+				return false;
 			}
-			return false;
+			return true;
 		});
 		setChangedListener(str -> {
+			if (str.isEmpty()) {
+				return;
+			}
+			
 			int value = Integer.parseInt(str);
 			if (!bounds.within(value)) {
 				setText(Integer.toString(bounds.clamp(value)));
@@ -38,7 +41,7 @@ public class IntegerFieldWidget extends TextFieldWidget {
 	}
 	
 	public IntegerFieldWidget(TextRenderer font, int x, int y, int width, int height, Text message) {
-		this(font, x, y, width, height, message, intAll());
+		this(font, x, y, width, height, message, IntBounds.all());
 	}
 	
 	public IntegerFieldWidget(TextRenderer font, WidgetDim dim, Text message, IntBounds bounds) {
@@ -46,15 +49,19 @@ public class IntegerFieldWidget extends TextFieldWidget {
 	}
 	
 	public IntegerFieldWidget(TextRenderer font, WidgetDim dim, Text message) {
-		this(font, dim, message, intAll());
+		this(font, dim, message, IntBounds.all());
 	}
 	
-	public Optional<Integer> getInt() {
+	public Optional<Integer> getOptionalInt() {
 		try {
-			return Optional.of(Integer.parseInt(getText()));
+			return Optional.of(getInt());
 		} catch (NumberFormatException e) {
 			return Optional.empty();
 		}
+	}
+	
+	public int getInt() {
+		return Integer.parseInt(getText());
 	}
 	
 	public void setInt(int value) {
