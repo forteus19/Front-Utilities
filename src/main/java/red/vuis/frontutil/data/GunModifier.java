@@ -12,8 +12,8 @@ import com.boehmod.blockfront.common.gun.GunDamageConfig;
 import com.boehmod.blockfront.common.gun.GunFireConfig;
 import com.boehmod.blockfront.common.gun.GunFireMode;
 import com.boehmod.blockfront.common.gun.GunMagType;
+import com.boehmod.blockfront.common.gun.GunSpreadConfig;
 import com.boehmod.blockfront.common.gun.GunTriggerSpawnType;
-import com.boehmod.blockfront.common.item.AimConfig;
 import com.boehmod.blockfront.common.item.GunItem;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -275,7 +275,7 @@ public record GunModifier(
 			Spread::new
 		);
 		
-		public static Spread of(AimConfig config) {
+		public static Spread of(GunSpreadConfig config) {
 			return new Spread(
 				config.jumpingSpread(),
 				config.walkingSpread(),
@@ -288,7 +288,7 @@ public record GunModifier(
 		}
 		
 		private static void apply(Spread spread, @NotNull GunItem item) {
-			item.aim(new AimConfig(
+			item.spread(new GunSpreadConfig(
 				spread.jumping,
 				spread.walking,
 				spread.walkingAds,

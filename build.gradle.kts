@@ -8,7 +8,7 @@ plugins {
 group = "red.vuis"
 version = "0.1.4"
 
-val bfVersion = "0.7.0.27b"
+val bfVersion = "0.7.1.2b"
 
 repositories {
     maven("https://maven.neoforged.net/releases")
@@ -33,11 +33,11 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.42")
     annotationProcessor("org.projectlombok:lombok:1.18.42")
 
-    modCompileOnly(files("$bfVersion-named.jar"))
-    modRuntimeOnly(files("$bfVersion-original.jar"))
+    modCompileOnly(files("bf/$bfVersion-named.jar"))
+    modRuntimeOnly(files("bf/$bfVersion-original.jar"))
 
     modCompileOnly("software.bernie.geckolib:geckolib-neoforge-1.21.1:4.7.3")
-    compileOnly(files("bflib-$bfVersion.jar"))
+    compileOnly(files("bf/bflib-$bfVersion.jar"))
 
     compileOnly("com.demonwav.mcdev:annotations:2.1.0")
 }
@@ -55,8 +55,8 @@ val remapBfObfTask = tasks.register<RemapTask>("remapBfObf") {
     dependsOn(tasks.remapJar)
     input = tasks.remapJar.get().archiveFile
     output = base.libsDirectory.file("${project.name}-${project.version}-bfobf.jar")
-    mappings = file("$bfVersion-merged.tiny")
-    classpath.from(files("$bfVersion-named.jar"))
+    mappings = file("bf/$bfVersion-merged.tiny")
+    classpath.from(files("bf/$bfVersion-named.jar"))
     from = "named"
     to = "official"
 }

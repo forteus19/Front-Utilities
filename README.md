@@ -16,6 +16,10 @@ Most of the time you're gonna be consulting the [wiki](https://github.com/forteu
 
 The downloads for the mod can be found on the [Modrinth](https://modrinth.com/mod/front-utilities/versions) page.
 
+## Building
+
+Before building able to build Front-Utilities, you have to follow some extra instructions in [bf/README.md](bf/README.md). Then, it should build successfully by running the `build` task.
+
 ## License
 
 Front-Utilities is licensed under the GNU General Public License version 3.
