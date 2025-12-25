@@ -40,6 +40,10 @@ public record MapEffectPositionPacket(String map, String environment, int index,
 			return;
 		}
 		
+		if (!context.player().hasPermissionLevel(3)) {
+			return;
+		}
+		
 		AssetRegistry<MapAsset> mapRegistry = AssetStore.getInstance().getRegistry(MapAsset.class);
 		
 		MapAsset map = mapRegistry.getByName(packet.map);
