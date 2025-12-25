@@ -184,9 +184,9 @@ public class GunModifierEditorScreen extends AddonScreen {
 		@Override
 		public void close() {
 			GunModifier.Ammo newAmmo = new GunModifier.Ammo(magazineField.getInt(), reserveField.getInt());
-			if (!newAmmo.equals(modifierPart(GunModifier::ammo))) {
-				modifier = modifier.withAmmo(newAmmo);
-			}
+			modifier = modifier.withAmmo(
+				newAmmo.equals(defaultModifier.ammo().orElseThrow()) ? Optional.empty() : Optional.of(newAmmo)
+			);
 			
 			assert client != null;
 			client.setScreen(GunModifierEditorScreen.this);
@@ -257,9 +257,9 @@ public class GunModifierEditorScreen extends AddonScreen {
 			List<GunModifier.Damage> newDamage = entries.stream().map(holder -> new GunModifier.Damage(
 				holder.head().getFloat(), holder.body().getFloat(), holder.distance().getFloat())
 			).toList();
-			if (!newDamage.equals(modifierPart(GunModifier::damage))) {
-				modifier = modifier.withDamage(newDamage);
-			}
+			modifier = modifier.withDamage(
+				newDamage.equals(defaultModifier.damage().orElseThrow()) ? Optional.empty() : Optional.of(newDamage)
+			);
 			
 			assert client != null;
 			client.setScreen(GunModifierEditorScreen.this);
@@ -389,9 +389,9 @@ public class GunModifierEditorScreen extends AddonScreen {
 					entity
 				);
 			}).toList();
-			if (!newFireModes.equals(modifierPart(GunModifier::fireModes))) {
-				modifier = modifier.withFireModes(newFireModes);
-			}
+			modifier = modifier.withFireModes(
+				newFireModes.equals(defaultModifier.fireModes().orElseThrow()) ? Optional.empty() : Optional.of(newFireModes)
+			);
 			
 			assert client != null;
 			client.setScreen(GunModifierEditorScreen.this);
@@ -600,9 +600,9 @@ public class GunModifierEditorScreen extends AddonScreen {
 				idleField.getFloat(), idleAdsField.getFloat(),
 				crawlingField.getFloat(), crawlingAdsField.getFloat()
 			);
-			if (!newSpread.equals(modifierPart(GunModifier::spread))) {
-				modifier = modifier.withSpread(newSpread);
-			}
+			modifier = modifier.withSpread(
+				newSpread.equals(defaultModifier.spread().orElseThrow()) ? Optional.empty() : Optional.of(newSpread)
+			);
 			
 			assert client != null;
 			client.setScreen(GunModifierEditorScreen.this);
@@ -653,9 +653,9 @@ public class GunModifierEditorScreen extends AddonScreen {
 		@Override
 		public void close() {
 			float newWeight = weightField.getFloat();
-			if (newWeight != modifierPart(GunModifier::weight)) {
-				modifier = modifier.withWeight(newWeight);
-			}
+			modifier = modifier.withWeight(
+				newWeight == defaultModifier.weight().orElseThrow() ? Optional.empty() : Optional.of(newWeight)
+			);
 			
 			assert client != null;
 			client.setScreen(GunModifierEditorScreen.this);
