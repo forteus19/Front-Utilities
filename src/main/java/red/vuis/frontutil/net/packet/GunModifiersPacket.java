@@ -64,7 +64,7 @@ public record GunModifiersPacket(Map<RegistryEntry<Item>, GunModifier> modifiers
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		assert server != null;
 		try {
-			GunModifierFiles.saveModifierMap(AddonUtils.getServerDataPath(server).resolve("gunModifiers"), packet.modifiers());
+			GunModifierFiles.saveModifierMap(AddonUtils.getServerDataPath(server).resolve(GunModifierFiles.GUN_MODIFIERS_PATH), packet.modifiers());
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

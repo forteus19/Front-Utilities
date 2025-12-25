@@ -22,7 +22,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 
-import red.vuis.frontutil.AddonConstants;
 import red.vuis.frontutil.client.data.AddonClientData;
 import red.vuis.frontutil.client.widget.EnumButtonWidget;
 import red.vuis.frontutil.client.widget.FloatFieldWidget;
@@ -255,7 +254,7 @@ public class GunModifierEditorScreen extends AddonScreen {
 		@Override
 		public void close() {
 			List<GunModifier.Damage> newDamage = entries.stream().map(holder -> new GunModifier.Damage(
-				holder.head().getFloat(), holder.body().getFloat(), holder.distance().getFloat())
+				holder.body().getFloat(), holder.head().getFloat(), holder.distance().getFloat())
 			).toList();
 			modifier = modifier.withDamage(
 				newDamage.equals(defaultModifier.damage().orElseThrow()) ? Optional.empty() : Optional.of(newDamage)

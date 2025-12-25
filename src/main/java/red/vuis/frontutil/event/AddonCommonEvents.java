@@ -1,5 +1,7 @@
 package red.vuis.frontutil.event;
 
+import java.io.IOException;
+
 import com.boehmod.blockfront.BlockFront;
 import com.boehmod.blockfront.common.item.GunItem;
 import net.minecraft.item.Item;
@@ -18,6 +20,7 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import red.vuis.frontutil.AddonConstants;
 import red.vuis.frontutil.command.FrontUtilCommand;
 import red.vuis.frontutil.data.GunModifier;
+import red.vuis.frontutil.data.GunModifierFiles;
 import red.vuis.frontutil.net.packet.GiveGunPacket;
 import red.vuis.frontutil.net.packet.GunModifiersPacket;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
@@ -26,6 +29,7 @@ import red.vuis.frontutil.setup.GunItemIndex;
 import red.vuis.frontutil.setup.GunModifierIndex;
 import red.vuis.frontutil.setup.GunSkinIndex;
 import red.vuis.frontutil.setup.LoadoutIndex;
+import red.vuis.frontutil.util.AddonUtils;
 
 @EventBusSubscriber(
 	modid = AddonConstants.MOD_ID
@@ -90,6 +94,14 @@ public final class AddonCommonEvents {
 		AddonConstants.LOGGER.info("Preparing gun modifiers...");
 		
 		GunModifierIndex.applyDefaults();
+		
+		AddonConstants.LOGGER.info("Loading gun modifiers...");
+		
+		try {
+			GunModifierFiles.loadModifierMap(AddonUtils.getServerDataPath(event.getServer()).resolve(GunModifierFiles.GUN_MODIFIERS_PATH), GunModifier.ACTIVE);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 		
 		AddonConstants.LOGGER.info("Applying gun modifier targets...");
 		
