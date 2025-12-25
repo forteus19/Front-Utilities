@@ -27,7 +27,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-import red.vuis.frontutil.data.AddonWorldData;
+import red.vuis.frontutil.data.GunModifier;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
 import red.vuis.frontutil.setup.GunSkinIndex;
 import red.vuis.frontutil.setup.LoadoutIndex;
@@ -113,7 +113,7 @@ public final class FrontUtilCommand {
 		ServerCommandSource source = context.getSource();
 		CommandOutput output = source.output;
 		
-		for (RegistryEntry<Item> itemEntry : AddonWorldData.get(source.getServer()).gunModifiers.keySet()) {
+		for (RegistryEntry<Item> itemEntry : GunModifier.ACTIVE.keySet()) {
 			output.sendMessage(Text.literal(itemEntry.getIdAsString()));
 		}
 		

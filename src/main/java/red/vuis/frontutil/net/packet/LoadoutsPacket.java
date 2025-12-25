@@ -64,11 +64,15 @@ public record LoadoutsPacket(Map<LoadoutIndex.Identifier, List<Loadout>> loadout
 			return;
 		}
 		
+		if (!context.player().hasPermissionLevel(4)) {
+			return;
+		}
+		
 		if (AddonUtils.anyGamesActive()) {
 			context.player().sendMessage(Text.translatable(
 				"frontutil.message.packet.loadouts.game",
-				Text.literal("/frontutil loadout sync").formatted(Formatting.DARK_GREEN)
-			).formatted(Formatting.GOLD));
+				Text.literal("/frontutil loadout sync").formatted(Formatting.GOLD)
+			).formatted(Formatting.RED));
 			return;
 		}
 		

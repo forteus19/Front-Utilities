@@ -18,7 +18,9 @@ import com.boehmod.blockfront.common.item.GunItem;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.entity.EntityType;
+import net.minecraft.item.Item;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
@@ -40,6 +42,11 @@ public record GunModifier(
 	Optional<Spread> spread,
 	Optional<Float> weight
 ) {
+	public static final GunModifier EMPTY = new GunModifier(
+		Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()
+	);
+	public static final Map<RegistryEntry<Item>, GunModifier> ACTIVE = new Object2ObjectOpenHashMap<>();
+	
 	public static final Codec<GunModifier> CODEC = RecordCodecBuilder.create(instance ->
 		instance.group(
 			Ammo.CODEC.optionalFieldOf("ammo").forGetter(GunModifier::ammo),
@@ -68,24 +75,24 @@ public record GunModifier(
 		);
 	}
 	
-	public GunModifier withAmmo(Ammo ammo) {
-		return new GunModifier(Optional.of(ammo), damage, fireModes, spread, weight);
+	public GunModifier withAmmo(Optional<Ammo> ammo) {
+		return new GunModifier(ammo, damage, fireModes, spread, weight);
 	}
 	
-	public GunModifier withDamage(List<Damage> damage) {
-		return new GunModifier(ammo, Optional.of(damage), fireModes, spread, weight);
+	public GunModifier withDamage(Optional<List<Damage>> damage) {
+		return new GunModifier(ammo, damage, fireModes, spread, weight);
 	}
 	
-	public GunModifier withFireModes(List<FireMode> fireModes) {
-		return new GunModifier(ammo, damage, Optional.of(fireModes), spread, weight);
+	public GunModifier withFireModes(Optional<List<FireMode>> fireModes) {
+		return new GunModifier(ammo, damage, fireModes, spread, weight);
 	}
 	
-	public GunModifier withSpread(Spread spread) {
-		return new GunModifier(ammo, damage, fireModes, Optional.of(spread), weight);
+	public GunModifier withSpread(Optional<Spread> spread) {
+		return new GunModifier(ammo, damage, fireModes, spread, weight);
 	}
 	
-	public GunModifier withWeight(float weight) {
-		return new GunModifier(ammo, damage, fireModes, spread, Optional.of(weight));
+	public GunModifier withWeight(Optional<Float> weight) {
+		return new GunModifier(ammo, damage, fireModes, spread, weight);
 	}
 	
 	public void apply(@NotNull GunItem item) {
@@ -94,6 +101,10 @@ public record GunModifier(
 		fireModes.ifPresent(fireModes -> FireMode.apply(fireModes, item));
 		spread.ifPresent(spread -> Spread.apply(spread, item));
 		weight.ifPresent(item::weight);
+	}
+	
+	public boolean hasData() {
+		return ammo.isPresent() || damage.isPresent() || fireModes.isPresent() || spread.isPresent() || weight.isPresent();
 	}
 	
 	public record Ammo(

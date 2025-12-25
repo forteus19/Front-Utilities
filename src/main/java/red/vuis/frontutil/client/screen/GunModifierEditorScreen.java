@@ -6,17 +6,25 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import com.boehmod.blockfront.common.gun.GunFireMode;
+import com.boehmod.blockfront.common.gun.GunTriggerSpawnType;
 import com.boehmod.blockfront.common.item.GunItem;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 
+import red.vuis.frontutil.AddonConstants;
 import red.vuis.frontutil.client.data.AddonClientData;
+import red.vuis.frontutil.client.widget.EnumButtonWidget;
 import red.vuis.frontutil.client.widget.FloatFieldWidget;
 import red.vuis.frontutil.client.widget.IntegerFieldWidget;
 import red.vuis.frontutil.client.widget.ItemPreview;
@@ -27,14 +35,17 @@ import red.vuis.frontutil.util.math.FloatBounds;
 import red.vuis.frontutil.util.math.IntBounds;
 
 import static red.vuis.frontutil.client.widget.WidgetDim.centeredDim;
+import static red.vuis.frontutil.client.widget.WidgetDim.dim;
 import static red.vuis.frontutil.client.widget.WidgetDim.sqrCenteredDim;
 
 public class GunModifierEditorScreen extends AddonScreen {
 	private static final Text C_BUTTON_BACK = Text.translatable("gui.back");
+	private static final Text C_BUTTON_CLOSE_AND_SAVE = Text.translatable("frontutil.screen.gun.modifier.editor.button.closeAndSave");
 	private static final Text C_HEADER = Text.translatable("frontutil.screen.gun.modifier.editor.header");
 	
 	private final GunItem item;
 	private final String itemId;
+	private final RegistryEntry<Item> itemEntry;
 	private final GunModifier defaultModifier;
 	private GunModifier modifier;
 	
@@ -42,9 +53,9 @@ public class GunModifierEditorScreen extends AddonScreen {
 		super(C_HEADER);
 		this.item = item;
 		this.itemId = Registries.ITEM.getId(item).toString();
-		RegistryEntry<Item> entry = Registries.ITEM.getEntry(item);
-		this.defaultModifier = GunModifierIndex.DEFAULT.get(entry);
-		this.modifier = AddonClientData.getInstance().tempGunModifiers.getOrDefault(entry, defaultModifier);
+		this.itemEntry = Registries.ITEM.getEntry(item);
+		this.defaultModifier = GunModifierIndex.DEFAULT.get(itemEntry);
+		this.modifier = AddonClientData.getInstance().tempGunModifiers.getOrDefault(itemEntry, GunModifier.EMPTY);
 	}
 	
 	@Override
@@ -79,6 +90,12 @@ public class GunModifierEditorScreen extends AddonScreen {
 			centeredDim(width / 2, 220, 100, 20),
 			button -> client.setScreen(new Other())
 		));
+		
+		addDrawableChild(Widgets.button(
+			C_BUTTON_CLOSE_AND_SAVE,
+			centeredDim(width / 2, height - 20, 90, 20),
+			button -> close()
+		));
 	}
 	
 	@Override
@@ -88,6 +105,24 @@ public class GunModifierEditorScreen extends AddonScreen {
 		drawText(C_HEADER, width / 2, 20, true);
 		
 		drawText(Text.literal(itemId), width / 2, 60, true);
+	}
+	
+	@Override
+	public void close() {
+		if (modifier.hasData()) {
+			AddonClientData.getInstance().tempGunModifiers.put(itemEntry, modifier);
+		}
+		
+		assert client != null;
+		client.getMessageHandler().onGameMessage(
+			Text.translatable(
+				"frontutil.screen.gun.modifier.editor.closeMessage",
+				Text.literal("/frontutil gun modifier sync")
+			),
+			false
+		);
+		
+		super.close();
 	}
 	
 	private <T> T modifierPart(Function<GunModifier, Optional<T>> getter) {
@@ -149,7 +184,7 @@ public class GunModifierEditorScreen extends AddonScreen {
 		@Override
 		public void close() {
 			GunModifier.Ammo newAmmo = new GunModifier.Ammo(magazineField.getInt(), reserveField.getInt());
-			if (!newAmmo.equals(defaultModifier.ammo().orElseThrow())) {
+			if (!newAmmo.equals(modifierPart(GunModifier::ammo))) {
 				modifier = modifier.withAmmo(newAmmo);
 			}
 			
@@ -168,8 +203,7 @@ public class GunModifierEditorScreen extends AddonScreen {
 		private static final FloatBounds HEAD_BOUNDS = FloatBounds.ofMin(0);
 		
 		private final List<EntryWidgetHolder> entries = new ArrayList<>();
-		private ButtonWidget addButton;
-		private ButtonWidget removeButton;
+		private ButtonWidget addButton, removeButton;
 		
 		public Damage() {
 			super(C_HEADER);
@@ -194,8 +228,7 @@ public class GunModifierEditorScreen extends AddonScreen {
 				Text.literal("-"),
 				centeredDim(width / 2 + 60, 76 + entries.size() * 20, 120, 12),
 				button -> {
-					entries.getLast().forEach(this::remove);
-					entries.removeLast();
+					entries.removeLast().forEach(this::remove);
 					updateNumButtons();
 				}
 			));
@@ -222,9 +255,9 @@ public class GunModifierEditorScreen extends AddonScreen {
 		@Override
 		public void close() {
 			List<GunModifier.Damage> newDamage = entries.stream().map(holder -> new GunModifier.Damage(
-				holder.head.getFloat(), holder.body.getFloat(), holder.distance.getFloat())
+				holder.head().getFloat(), holder.body().getFloat(), holder.distance().getFloat())
 			).toList();
-			if (!newDamage.equals(defaultModifier.damage().orElseThrow())) {
+			if (!newDamage.equals(modifierPart(GunModifier::damage))) {
 				modifier = modifier.withDamage(newDamage);
 			}
 			
@@ -266,7 +299,11 @@ public class GunModifierEditorScreen extends AddonScreen {
 			removeButton.active = entries.size() > 1;
 		}
 		
-		private record EntryWidgetHolder(FloatFieldWidget distance, FloatFieldWidget body, FloatFieldWidget head) {
+		private record EntryWidgetHolder(
+			@NotNull FloatFieldWidget distance,
+			@NotNull FloatFieldWidget body,
+			@NotNull FloatFieldWidget head
+		) {
 			public void forEach(Consumer<FloatFieldWidget> consumer) {
 				consumer.accept(distance);
 				consumer.accept(body);
@@ -277,6 +314,17 @@ public class GunModifierEditorScreen extends AddonScreen {
 	
 	private class FireModes extends AddonScreen {
 		private static final Text C_HEADER = Text.translatable("frontutil.screen.gun.modifier.editor.fireModes.header");
+		private static final Text C_LABEL_ENTITY = Text.translatable("frontutil.screen.gun.modifier.editor.fireModes.label.entity");
+		private static final Text C_LABEL_INSTANCES = Text.translatable("frontutil.screen.gun.modifier.editor.fireModes.label.instances");
+		private static final Text C_LABEL_MODE = Text.translatable("frontutil.screen.gun.modifier.editor.fireModes.label.mode");
+		private static final Text C_LABEL_TICKS = Text.translatable("frontutil.screen.gun.modifier.editor.fireModes.label.ticks");
+		private static final Text C_LABEL_TYPE = Text.translatable("frontutil.screen.gun.modifier.editor.fireModes.label.type");
+		private static final IntBounds INSTANCES_BOUNDS = IntBounds.ofMin(1);
+		private static final IntBounds TICKS_BOUNDS = IntBounds.ofMin(1);
+		
+		private final List<EntryWidgetHolder> entries = new ArrayList<>();
+		private ButtonWidget addButton, removeButton;
+		private ButtonWidget backButton;
 		
 		public FireModes() {
 			super(C_HEADER);
@@ -286,7 +334,25 @@ public class GunModifierEditorScreen extends AddonScreen {
 		protected void init() {
 			super.init();
 			
-			addDrawableChild(Widgets.button(
+			modifierPart(GunModifier::fireModes).forEach(this::addEntry);
+			addButton = addDrawableChild(Widgets.button(
+				Text.literal("+"),
+				dim(width / 2 - 220, 70 + entries.size() * 20, 220, 12),
+				button -> {
+					addEntry(new GunModifier.FireMode(GunTriggerSpawnType.BULLET, GunFireMode.SEMI, 1, 1, Optional.empty()));
+					updateNumButtons();
+				}
+			));
+			removeButton = addDrawableChild(Widgets.button(
+				Text.literal("-"),
+				dim(width / 2, 70 + entries.size() * 20, 220, 12),
+				button -> {
+					entries.removeLast().forEach(this::remove);
+					updateNumButtons();
+				}
+			));
+			
+			backButton = addDrawableChild(Widgets.button(
 				C_BUTTON_BACK,
 				centeredDim(width / 2, height - 20, 90, 20),
 				button -> close()
@@ -298,12 +364,126 @@ public class GunModifierEditorScreen extends AddonScreen {
 			super.render(context, mouseX, mouseY, delta);
 			
 			drawText(C_HEADER, width / 2, 20, true);
+			
+			drawText(C_LABEL_TYPE, width / 2 - 180, 60, true);
+			drawText(C_LABEL_MODE, width / 2 - 100, 60, true);
+			drawText(C_LABEL_TICKS, width / 2 - 20, 60, true);
+			drawText(C_LABEL_INSTANCES, width / 2 + 60, 60, true);
+			drawText(C_LABEL_ENTITY, width / 2 + 160, 60, true);
 		}
 		
 		@Override
 		public void close() {
+			List<GunModifier.FireMode> newFireModes = entries.stream().map(holder -> {
+				Optional<RegistryEntry<EntityType<?>>> entity;
+				if (holder.type().getEnum() == GunTriggerSpawnType.ENTITY) {
+					entity = Optional.of(Registries.ENTITY_TYPE.getEntry(Registries.ENTITY_TYPE.get(Identifier.of(holder.entity().getText()))));
+				} else {
+					entity = Optional.empty();
+				}
+				return new GunModifier.FireMode(
+					holder.type().getEnum(),
+					holder.mode().getEnum(),
+					holder.ticks().getInt(),
+					holder.instances().getInt(),
+					entity
+				);
+			}).toList();
+			if (!newFireModes.equals(modifierPart(GunModifier::fireModes))) {
+				modifier = modifier.withFireModes(newFireModes);
+			}
+			
 			assert client != null;
 			client.setScreen(GunModifierEditorScreen.this);
+		}
+		
+		private void addEntry(GunModifier.FireMode fireMode) {
+			EnumButtonWidget<GunTriggerSpawnType> typeButton = addDrawableChild(new EnumButtonWidget<>(
+				GunTriggerSpawnType.values(),
+				dim(width / 2 - 220, 70 + entries.size() * 20, 80, 20),
+				new ButtonWidget.PressAction() {
+					private final int index = entries.size();
+					
+					@Override
+					public void onPress(ButtonWidget b) {
+						@SuppressWarnings("unchecked")
+						EnumButtonWidget<GunTriggerSpawnType> button = (EnumButtonWidget<GunTriggerSpawnType>) b;
+						
+						TextFieldWidget entityField = entries.get(index).entity();
+						switch (button.getEnum()) {
+							case BULLET -> {
+								entityField.active = false;
+								entityField.setText("");
+							}
+							case ENTITY -> {
+								entityField.active = true;
+							}
+						}
+					}
+				}
+			));
+			typeButton.setEnum(fireMode.type());
+			
+			EnumButtonWidget<GunFireMode> modeButton = addDrawableChild(new EnumButtonWidget<>(
+				GunFireMode.values(),
+				dim(width / 2 - 140, 70 + entries.size() * 20, 80, 20)
+			));
+			modeButton.setEnum(fireMode.mode());
+			
+			IntegerFieldWidget ticksField = addDrawableChild(new IntegerFieldWidget(
+				textRenderer,
+				dim(width / 2 - 60, 70 + entries.size() * 20, 80, 20),
+				C_LABEL_TICKS,
+				TICKS_BOUNDS
+			));
+			ticksField.setInt(fireMode.ticks());
+			
+			IntegerFieldWidget instancesField = addDrawableChild(new IntegerFieldWidget(
+				textRenderer,
+				dim(width / 2 + 20, 70 + entries.size() * 20, 80, 20),
+				C_LABEL_INSTANCES,
+				INSTANCES_BOUNDS
+			));
+			instancesField.setInt(fireMode.numInstances());
+			
+			TextFieldWidget entityField = addDrawableChild(Widgets.textField(
+				textRenderer,
+				dim(width / 2 + 100, 70 + entries.size() * 20, 120, 20)
+			));
+			entityField.setChangedListener(s ->
+				backButton.active = Optional.ofNullable(Identifier.tryParse(s)).map(Registries.ENTITY_TYPE::containsId).orElse(false)
+			);
+			if (fireMode.type() == GunTriggerSpawnType.ENTITY) {
+				fireMode.entity().ifPresent(regEntry ->
+					entityField.setText(Registries.ENTITY_TYPE.getId(regEntry.value()).toString())
+				);
+			} else {
+				entityField.active = false;
+			}
+			
+			entries.add(new EntryWidgetHolder(typeButton, modeButton, ticksField, instancesField, entityField));
+		}
+		
+		private void updateNumButtons() {
+			dim(width / 2 - 220, 70 + (entries.size() + 1) * 20, 220, 12).apply(addButton);
+			dim(width / 2, 70 + (entries.size() + 1) * 20, 220, 12).apply(removeButton);
+			removeButton.active = entries.size() > 1;
+		}
+		
+		private record EntryWidgetHolder(
+			@NotNull EnumButtonWidget<GunTriggerSpawnType> type,
+			@NotNull EnumButtonWidget<GunFireMode> mode,
+			@NotNull IntegerFieldWidget ticks,
+			@NotNull IntegerFieldWidget instances,
+			@NotNull TextFieldWidget entity
+		) {
+			public void forEach(Consumer<Element> consumer) {
+				consumer.accept(type);
+				consumer.accept(mode);
+				consumer.accept(ticks);
+				consumer.accept(instances);
+				consumer.accept(entity);
+			}
 		}
 	}
 	
@@ -420,7 +600,7 @@ public class GunModifierEditorScreen extends AddonScreen {
 				idleField.getFloat(), idleAdsField.getFloat(),
 				crawlingField.getFloat(), crawlingAdsField.getFloat()
 			);
-			if (!newSpread.equals(defaultModifier.spread().orElseThrow())) {
+			if (!newSpread.equals(modifierPart(GunModifier::spread))) {
 				modifier = modifier.withSpread(newSpread);
 			}
 			
@@ -432,6 +612,9 @@ public class GunModifierEditorScreen extends AddonScreen {
 	private class Other extends AddonScreen {
 		private static final Text C_HEADER = Text.translatable("frontutil.screen.gun.modifier.editor.other.header");
 		private static final Text C_LABEL_WEIGHT = Text.translatable("frontutil.screen.gun.modifier.editor.other.label.weight");
+		private static final FloatBounds WEIGHT_BOUNDS = FloatBounds.ofMin(0);
+		
+		private FloatFieldWidget weightField;
 		
 		public Other() {
 			super(C_HEADER);
@@ -440,6 +623,16 @@ public class GunModifierEditorScreen extends AddonScreen {
 		@Override
 		protected void init() {
 			super.init();
+			
+			float weight = modifierPart(GunModifier::weight);
+			
+			weightField = addDrawableChild(new FloatFieldWidget(
+				textRenderer,
+				centeredDim(width / 2, 80, 100, 20),
+				Text.empty(),
+				WEIGHT_BOUNDS
+			));
+			weightField.setFloat(weight);
 			
 			addDrawableChild(Widgets.button(
 				C_BUTTON_BACK,
@@ -453,10 +646,17 @@ public class GunModifierEditorScreen extends AddonScreen {
 			super.render(context, mouseX, mouseY, delta);
 			
 			drawText(C_HEADER, width / 2, 20, true);
+			
+			drawText(C_LABEL_WEIGHT, width / 2, 60, true);
 		}
 		
 		@Override
 		public void close() {
+			float newWeight = weightField.getFloat();
+			if (newWeight != modifierPart(GunModifier::weight)) {
+				modifier = modifier.withWeight(newWeight);
+			}
+			
 			assert client != null;
 			client.setScreen(GunModifierEditorScreen.this);
 		}

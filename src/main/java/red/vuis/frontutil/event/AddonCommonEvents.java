@@ -3,7 +3,6 @@ package red.vuis.frontutil.event;
 import com.boehmod.blockfront.BlockFront;
 import com.boehmod.blockfront.common.item.GunItem;
 import net.minecraft.item.Item;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -18,7 +17,7 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 import red.vuis.frontutil.AddonConstants;
 import red.vuis.frontutil.command.FrontUtilCommand;
-import red.vuis.frontutil.data.AddonWorldData;
+import red.vuis.frontutil.data.GunModifier;
 import red.vuis.frontutil.net.packet.GiveGunPacket;
 import red.vuis.frontutil.net.packet.GunModifiersPacket;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
@@ -62,12 +61,7 @@ public final class AddonCommonEvents {
 		}
 		
 		AddonConstants.LOGGER.info("Syncing custom common data with player '{}'.", player.getName().getString());
-		
-		MinecraftServer server = player.getServer();
-		assert server != null;
-		AddonWorldData worldData = AddonWorldData.get(server);
-		
-		PacketDistributor.sendToPlayer(player, new GunModifiersPacket(worldData.gunModifiers));
+		PacketDistributor.sendToPlayer(player, new GunModifiersPacket(GunModifier.ACTIVE, true));
 	}
 	
 	@SubscribeEvent
@@ -82,7 +76,9 @@ public final class AddonCommonEvents {
 	public static void onRegisterPayloadHandlers(RegisterPayloadHandlersEvent event) {
 		PayloadRegistrar registrar = event.registrar("1");
 		registrar.playToServer(GiveGunPacket.ID, GiveGunPacket.PACKET_CODEC, GiveGunPacket::handle);
-		registrar.playToClient(GunModifiersPacket.ID, GunModifiersPacket.PACKET_CODEC, GunModifiersPacket::handle);
+		registrar.playBidirectional(GunModifiersPacket.ID, GunModifiersPacket.PACKET_CODEC, new DirectionalPayloadHandler<>(
+			GunModifiersPacket::handleClient, GunModifiersPacket::handleServer
+		));
 		registrar.playBidirectional(LoadoutsPacket.ID, LoadoutsPacket.PACKET_CODEC, new DirectionalPayloadHandler<>(
 			LoadoutsPacket::handleClient, LoadoutsPacket::handleServer
 		));
@@ -97,7 +93,7 @@ public final class AddonCommonEvents {
 		
 		AddonConstants.LOGGER.info("Applying gun modifier targets...");
 		
-		AddonWorldData.get(event.getServer()).gunModifiers.forEach((itemEntry, modifier) -> {
+		GunModifier.ACTIVE.forEach((itemEntry, modifier) -> {
 			Item item = itemEntry.value();
 			if (item instanceof GunItem gunItem) {
 				modifier.apply(gunItem);

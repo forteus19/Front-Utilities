@@ -26,6 +26,7 @@ import red.vuis.frontutil.client.screen.GunModifierEditorScreen;
 import red.vuis.frontutil.client.screen.LoadoutEditorScreen;
 import red.vuis.frontutil.client.screen.WeaponExtraScreen;
 import red.vuis.frontutil.command.arg.AssetArgument;
+import red.vuis.frontutil.net.packet.GunModifiersPacket;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
 import red.vuis.frontutil.setup.GunItemIndex;
 import red.vuis.frontutil.setup.LoadoutIndex;
@@ -38,7 +39,7 @@ public final class FrontUtilClientCommand {
 	}
 	
 	public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
-		var root = literal("frontutil").requires(stack -> stack.hasPermissionLevel(3));
+		var root = literal("frontutil").requires(source -> source.hasPermissionLevel(2));
 		
 		root
 //			.then(
@@ -58,15 +59,17 @@ public final class FrontUtilClientCommand {
 					argument("item", IdentifierArgumentType.identifier()).suggests(FrontUtilClientCommand::suggestGunItems).executes(FrontUtilClientCommand::gunGiveMenu)
 				)
 			).then(
-				literal("modifier").then(
+				literal("modifier").requires(source -> source.hasPermissionLevel(4)).then(
 					literal("editor").then(
 						argument("item", IdentifierArgumentType.identifier()).suggests(FrontUtilClientCommand::suggestGunItems).executes(FrontUtilClientCommand::gunModifierEditor)
 					)
+				).then(
+					literal("sync").executes(FrontUtilClientCommand::gunModifierSync)
 				)
 			)
 		).then(
-			literal("loadout").then(
-				literal("openEditor").executes(FrontUtilClientCommand::loadoutOpenEditor)
+			literal("loadout").requires(source -> source.hasPermissionLevel(4)).then(
+				literal("editor").executes(FrontUtilClientCommand::loadoutEditor)
 			).then(
 				literal("sync").executes(FrontUtilClientCommand::loadoutSync)
 			)
@@ -140,7 +143,13 @@ public final class FrontUtilClientCommand {
 		return 1;
 	}
 	
-	private static int loadoutOpenEditor(CommandContext<ServerCommandSource> context) {
+	private static int gunModifierSync(CommandContext<ServerCommandSource> context) {
+		PacketDistributor.sendToServer(new GunModifiersPacket(AddonClientData.getInstance().tempGunModifiers, false));
+		context.getSource().sendMessage(Text.translatable("frontutil.message.command.gun.modifier.sync.success"));
+		return 1;
+	}
+	
+	private static int loadoutEditor(CommandContext<ServerCommandSource> context) {
 		BFClientManager manager = BFClientManager.getInstance();
 		if (manager == null) {
 			return 0;
@@ -165,6 +174,7 @@ public final class FrontUtilClientCommand {
 		}
 		
 		PacketDistributor.sendToServer(new LoadoutsPacket(LoadoutIndex.currentFlat()));
+		context.getSource().sendMessage(Text.translatable("frontutil.message.packet.loadouts.success"));
 		return 1;
 	}
 }

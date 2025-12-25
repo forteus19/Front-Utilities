@@ -2,6 +2,8 @@ package red.vuis.frontutil.setup;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -174,8 +176,8 @@ public final class LoadoutIndex {
 		long startNs = Util.getMeasuringTimeNano();
 		
 		NbtCompound indexTag;
-		try {
-			indexTag = NbtIo.readCompound(new DataInputStream(Files.newInputStream(indexPath)));
+		try (InputStream input = Files.newInputStream(indexPath)) {
+			indexTag = NbtIo.readCompound(new DataInputStream(input));
 		} catch (NoSuchFileException e) {
 			AddonConstants.LOGGER.error("Loadout file does not exist!");
 			return false;
@@ -204,8 +206,8 @@ public final class LoadoutIndex {
 			.resultOrPartial(AddonConstants.LOGGER::error)
 			.orElseThrow();
 		
-		try {
-			NbtIo.writeCompound(encodeResult, new DataOutputStream(Files.newOutputStream(indexPath)));
+		try (OutputStream output = Files.newOutputStream(indexPath)) {
+			NbtIo.writeCompound(encodeResult, new DataOutputStream(output));
 		} catch (Exception e) {
 			AddonConstants.LOGGER.error("Error while writing loadout data to disk!", e);
 			return false;

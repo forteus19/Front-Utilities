@@ -41,6 +41,9 @@ public record GiveGunPacket(RegistryEntry<Item> item, WeaponExtraSettings settin
 	}
 	
 	public static void handle(GiveGunPacket packet, IPayloadContext context) {
+		if (!context.player().hasPermissionLevel(2)) {
+			return;
+		}
 		context.player().giveItemStack(packet.settings.getItemStack((GunItem) packet.item.value()));
 	}
 }
