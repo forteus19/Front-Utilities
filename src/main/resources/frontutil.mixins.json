@@ -7,6 +7,7 @@
     "DivisionDataAccessor",
     "DominationGameMixin",
     "FallingArtilleryMapEffectAccessor",
+    "FreeForAllGameMixin",
     "GameStageTimerAccessor",
     "GunItemAccessor",
     "MapAssetMixin",
