@@ -19,6 +19,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 
@@ -116,7 +117,7 @@ public class GunModifierEditorScreen extends AddonScreen {
 		client.getMessageHandler().onGameMessage(
 			Text.translatable(
 				"frontutil.screen.gun.modifier.editor.closeMessage",
-				Text.literal("/frontutil gun modifier sync")
+				Text.literal("/frontutil gun modifier sync").formatted(Formatting.RED)
 			),
 			false
 		);
@@ -333,6 +334,12 @@ public class GunModifierEditorScreen extends AddonScreen {
 		protected void init() {
 			super.init();
 			
+			backButton = addDrawableChild(Widgets.button(
+				C_BUTTON_BACK,
+				centeredDim(width / 2, height - 20, 90, 20),
+				button -> close()
+			));
+			
 			modifierPart(GunModifier::fireModes).forEach(this::addEntry);
 			addButton = addDrawableChild(Widgets.button(
 				Text.literal("+"),
@@ -349,12 +356,6 @@ public class GunModifierEditorScreen extends AddonScreen {
 					entries.removeLast().forEach(this::remove);
 					updateNumButtons();
 				}
-			));
-			
-			backButton = addDrawableChild(Widgets.button(
-				C_BUTTON_BACK,
-				centeredDim(width / 2, height - 20, 90, 20),
-				button -> close()
 			));
 		}
 		
