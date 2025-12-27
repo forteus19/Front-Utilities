@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "red.vuis"
-version = "0.2.1"
+version = "0.2.2"
 
 val bfVersion = "0.7.1.2b"
 
