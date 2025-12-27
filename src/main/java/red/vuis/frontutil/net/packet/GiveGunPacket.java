@@ -40,7 +40,7 @@ public record GiveGunPacket(RegistryEntry<Item> item, WeaponExtraSettings settin
 		return ID;
 	}
 	
-	public static void handle(GiveGunPacket packet, IPayloadContext context) {
+	public static void handleServer(GiveGunPacket packet, IPayloadContext context) {
 		if (!context.player().hasPermissionLevel(2)) {
 			return;
 		}

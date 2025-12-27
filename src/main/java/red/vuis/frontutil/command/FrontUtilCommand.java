@@ -3,13 +3,18 @@ package red.vuis.frontutil.command;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
+import com.boehmod.blockfront.assets.impl.GameAsset;
+import com.boehmod.blockfront.game.impl.ffa.FreeForAllGame;
 import com.boehmod.blockfront.registry.BFDataComponents;
+import com.boehmod.blockfront.util.math.FDSPose;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.command.CommandSource;
@@ -29,6 +34,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import red.vuis.frontutil.data.GunModifier;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
+import red.vuis.frontutil.net.packet.ViewSpawnsPacket;
 import red.vuis.frontutil.setup.GunSkinIndex;
 import red.vuis.frontutil.setup.LoadoutIndex;
 import red.vuis.frontutil.util.AddonCommandUtils;
@@ -66,6 +72,12 @@ public final class FrontUtilCommand {
 			).then(
 				literal("write").then(
 					argument("filename", StringArgumentType.word()).executes(FrontUtilCommand::loadoutWrite)
+				)
+			)
+		).then(
+			literal("spawnView").then(
+				literal("enable").then(
+					AddonArguments.asset("game", GameAsset.class).executes(FrontUtilCommand::spawnViewEnable)
 				)
 			)
 		);
@@ -200,6 +212,31 @@ public final class FrontUtilCommand {
 		if (!LoadoutIndex.saveCurrent(indexPath)) {
 			source.sendError(Text.translatable("frontutil.message.command.loadout.write.error"));
 			return -1;
+		}
+		
+		return 1;
+	}
+	
+	private static int spawnViewEnable(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+		ServerCommandSource source = context.getSource();
+		ServerPlayerEntity player = source.getPlayer();
+		
+		if (player == null) {
+			source.sendError(Text.translatable("frontutil.message.command.error.player"));
+			return -1;
+		}
+		
+		GameAsset gameAsset = AddonArguments.getAsset(context, "game", GameAsset.class);
+		
+		switch (gameAsset.getGame()) {
+			case FreeForAllGame game -> {
+				List<FDSPose> spawns = game.getPlayerManager().method_3566();
+				PacketDistributor.sendToPlayer(player, new ViewSpawnsPacket(game.getName(), spawns));
+			}
+			case null, default -> {
+				source.sendError(Text.translatable("frontutil.message.command.viewSpawns.enable.error.type"));
+				return -1;
+			}
 		}
 		
 		return 1;

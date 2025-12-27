@@ -20,6 +20,7 @@ import red.vuis.frontutil.client.input.InputTracker;
 import red.vuis.frontutil.client.input.MouseButton;
 import red.vuis.frontutil.client.render.AssetEditRenderer;
 import red.vuis.frontutil.client.render.RenderObject;
+import red.vuis.frontutil.client.render.SpawnViewRenderer;
 import red.vuis.frontutil.util.AddonUtils;
 
 @EventBusSubscriber(
@@ -29,7 +30,8 @@ import red.vuis.frontutil.util.AddonUtils;
 public final class AddonClientEvents {
 	private static final Map<RenderLevelStageEvent.Stage, List<Supplier<? extends RenderObject>>> RENDER_OBJECTS = Map.of(
 		RenderLevelStageEvent.Stage.AFTER_WEATHER, List.of(
-			RenderObject.of(AssetEditRenderer::new)
+			RenderObject.of(AssetEditRenderer::new),
+			RenderObject.of(SpawnViewRenderer::new)
 		)
 	);
 	
@@ -63,7 +65,7 @@ public final class AddonClientEvents {
 	public static void onRenderLevelStage(RenderLevelStageEvent event) {
 		List<Supplier<? extends RenderObject>> objs = RENDER_OBJECTS.get(event.getStage());
 		if (objs != null) {
-			objs.forEach(obf -> obf.get().render());
+			objs.forEach(obj -> obj.get().render());
 		}
 	}
 }

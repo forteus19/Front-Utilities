@@ -8,6 +8,7 @@ import com.boehmod.blockfront.common.item.GunItem;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.client.MinecraftClient;
@@ -25,7 +26,7 @@ import red.vuis.frontutil.client.data.AddonClientData;
 import red.vuis.frontutil.client.screen.GunModifierEditorScreen;
 import red.vuis.frontutil.client.screen.LoadoutEditorScreen;
 import red.vuis.frontutil.client.screen.WeaponExtraScreen;
-import red.vuis.frontutil.command.arg.AssetArgument;
+import red.vuis.frontutil.command.AddonArguments;
 import red.vuis.frontutil.net.packet.GunModifiersPacket;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
 import red.vuis.frontutil.setup.GunItemIndex;
@@ -41,19 +42,18 @@ public final class FrontUtilClientCommand {
 	public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
 		var root = literal("frontutil").requires(source -> source.hasPermissionLevel(2));
 		
-		root
-//			.then(
+		//			.then(
 //			literal("editorMode").then(
 //				literal("off").executes(FrontUtilClientCommand::editorModeOff)
 //			).then(
 //				literal("on").then(
-//					argument("mapAsset", AssetArgument.asset(MapAsset.class)).then(
+//					argument("mapAsset", AssetArgumentType.asset(MapAsset.class)).then(
 //						argument("environment", StringArgumentType.word()).suggests(FrontUtilClientCommand::suggestMapEnvironments).executes(FrontUtilClientCommand::editorModeOn)
 //					)
 //				)
 //			)
 //		)
-			.then(
+		root.then(
 			literal("gun").then(
 				literal("giveMenu").then(
 					argument("item", IdentifierArgumentType.identifier()).suggests(FrontUtilClientCommand::suggestGunItems).executes(FrontUtilClientCommand::gunGiveMenu)
@@ -73,6 +73,10 @@ public final class FrontUtilClientCommand {
 			).then(
 				literal("sync").executes(FrontUtilClientCommand::loadoutSync)
 			)
+		).then(
+			literal("spawnView").requires(source -> source.hasPermissionLevel(3)).then(
+				literal("disable").executes(FrontUtilClientCommand::spawnViewDisable)
+			)
 		);
 		
 		dispatcher.register(root);
@@ -86,12 +90,12 @@ public final class FrontUtilClientCommand {
 		return 1;
 	}
 	
-	private static CompletableFuture<Suggestions> suggestMapEnvironments(CommandContext<ServerCommandSource> context, SuggestionsBuilder suggestions) {
-		MapAsset asset = AssetArgument.getAsset(context, "mapAsset", MapAsset.class);
+	private static CompletableFuture<Suggestions> suggestMapEnvironments(CommandContext<ServerCommandSource> context, SuggestionsBuilder suggestions) throws CommandSyntaxException {
+		MapAsset asset = AddonArguments.getAsset(context, "mapAsset", MapAsset.class);
 		return CommandSource.suggestMatching(asset.getEnvironments().keySet(), suggestions);
 	}
 	
-	private static int editorModeOn(CommandContext<ServerCommandSource> context) {
+	private static int editorModeOn(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
 		PlayerEntity player = MinecraftClient.getInstance().player;
 		assert player != null;
 		
@@ -100,7 +104,7 @@ public final class FrontUtilClientCommand {
 			return -1;
 		}
 		
-		MapAsset asset = AssetArgument.getAsset(context, "mapAsset", MapAsset.class);
+		MapAsset asset = AddonArguments.getAsset(context, "mapAsset", MapAsset.class);
 		String envStr = StringArgumentType.getString(context, "environment");
 		
 		if (!asset.environments.containsKey(envStr)) {
@@ -175,6 +179,15 @@ public final class FrontUtilClientCommand {
 		
 		PacketDistributor.sendToServer(new LoadoutsPacket(LoadoutIndex.currentFlat()));
 		context.getSource().sendMessage(Text.translatable("frontutil.message.packet.loadouts.success"));
+		return 1;
+	}
+	
+	private static int spawnViewDisable(CommandContext<ServerCommandSource> context) {
+		ServerCommandSource source = context.getSource();
+		
+		AddonClientData.getInstance().spawnView = null;
+		source.sendMessage(Text.translatable("frontutil.message.command.viewSpawns.disable.success"));
+		
 		return 1;
 	}
 }

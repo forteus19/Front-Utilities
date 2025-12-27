@@ -126,7 +126,7 @@ public abstract class DominationGameClientMixin extends CapturePointGameClient<D
 			BFRendering.texture(matrices, context, AddonRendering.CPOINT_ARROW_RIGHT_BLACK, midX - 98f + 7f * i, 17f, 6f, 6f, arrowAlpha);
 		}
 		for (int i = 0; i < alliesArrows; i++) {
-			BFRendering.texture(matrices, context, AddonRendering.CPOINT_ARROW_LEFT_BLACK, midX + 92f - 7 * i, 17f, 6f, 6f, arrowAlpha);
+			BFRendering.texture(matrices, context, AddonRendering.CPOINT_ARROW_LEFT_BLACK, midX + 92f - 7f * i, 17f, 6f, 6f, arrowAlpha);
 		}
 	}
 }

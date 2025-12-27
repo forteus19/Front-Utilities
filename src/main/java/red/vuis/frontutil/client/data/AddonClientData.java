@@ -7,6 +7,7 @@ import com.boehmod.blockfront.common.match.BFCountry;
 import com.boehmod.blockfront.common.match.Loadout;
 import com.boehmod.blockfront.common.match.MatchClass;
 import com.boehmod.blockfront.map.MapEnvironment;
+import com.boehmod.blockfront.util.math.FDSPose;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.Item;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -24,6 +25,9 @@ public final class AddonClientData {
 	
 	public Map<LoadoutIndex.Identifier, List<Loadout>> tempLoadouts;
 	public Map<RegistryEntry<Item>, GunModifier> tempGunModifiers;
+	
+	public @Nullable List<FDSPose> spawnView = null;
+	
 	public @Nullable String editingMapName = null;
 	public @Nullable MapEnvironment editingEnv = null;
 	

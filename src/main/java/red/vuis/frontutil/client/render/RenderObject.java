@@ -62,11 +62,19 @@ public abstract class RenderObject {
 	}
 	
 	protected void billboardString(String text, Vec3d position, float scale) {
-		AddonRendering.billboardString(matrices, camera, client.textRenderer, vertexConsumers, text, position, scale, true);
+		billboardString(text, position, scale, true);
+	}
+	
+	protected void billboardString(String text, Vec3d position, float scale, boolean depthTest) {
+		AddonRendering.billboardString(matrices, camera, client.textRenderer, vertexConsumers, text, position, scale, depthTest);
 	}
 	
 	protected void billboardTexture(Identifier texture, Vec3d position, float width, float height, float alpha) {
-		AddonRendering.billboardTexture(matrices, camera, texture, position, width, height, alpha, true);
+		billboardTexture(texture, position, width, height, alpha, true);
+	}
+	
+	protected void billboardTexture(Identifier texture, Vec3d position, float width, float height, float alpha, boolean depthTest) {
+		AddonRendering.billboardTexture(matrices, camera, texture, position, width, height, alpha, depthTest);
 	}
 	
 	protected void line(Vec3d start, Vec3d end, int color) {

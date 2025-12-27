@@ -35,7 +35,7 @@ public record MapEffectPositionPacket(String map, String environment, int index,
 		return ID;
 	}
 	
-	public static void handle(MapEffectPositionPacket packet, IPayloadContext context) {
+	public static void handleServer(MapEffectPositionPacket packet, IPayloadContext context) {
 		if (!FMLEnvironment.dist.isDedicatedServer()) {
 			return;
 		}

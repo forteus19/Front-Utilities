@@ -10,6 +10,7 @@ import com.boehmod.blockfront.common.gun.GunTriggerSpawnType;
 import com.boehmod.blockfront.common.match.BFCountry;
 import com.boehmod.blockfront.common.match.Loadout;
 import com.boehmod.blockfront.common.match.MatchClass;
+import com.boehmod.blockfront.util.math.FDSPose;
 import com.mojang.datafixers.util.Function7;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.item.ItemStack;
@@ -24,6 +25,14 @@ import red.vuis.frontutil.setup.LoadoutIndex;
 
 public final class AddonPacketCodecs {
 	public static final PacketCodec<ByteBuf, BFCountry> BF_COUNTRY = enumOrdinal(BFCountry.values());
+	public static final PacketCodec<ByteBuf, FDSPose> FDS_POSE = PacketCodec.tuple(
+		PacketCodecs.DOUBLE, pose -> pose.position.x,
+		PacketCodecs.DOUBLE, pose -> pose.position.y,
+		PacketCodecs.DOUBLE, pose -> pose.position.z,
+		PacketCodecs.FLOAT, pose -> pose.rotation.x,
+		PacketCodecs.FLOAT, pose -> pose.rotation.y,
+		FDSPose::new
+	);
 	public static final PacketCodec<ByteBuf, GunFireMode> GUN_FIRE_MODE = enumOrdinal(GunFireMode.values());
 	public static final PacketCodec<ByteBuf, GunTriggerSpawnType> GUN_TRIGGER_SPAWN_TYPE = enumOrdinal(GunTriggerSpawnType.values());
 	public static final PacketCodec<ByteBuf, MatchClass> MATCH_CLASS = enumOrdinal(MatchClass.values());

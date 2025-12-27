@@ -25,6 +25,7 @@ import red.vuis.frontutil.net.packet.GiveGunPacket;
 import red.vuis.frontutil.net.packet.GunModifiersPacket;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
 import red.vuis.frontutil.net.packet.MapEffectPositionPacket;
+import red.vuis.frontutil.net.packet.ViewSpawnsPacket;
 import red.vuis.frontutil.setup.GunItemIndex;
 import red.vuis.frontutil.setup.GunModifierIndex;
 import red.vuis.frontutil.setup.GunSkinIndex;
@@ -79,14 +80,15 @@ public final class AddonCommonEvents {
 	@SubscribeEvent
 	public static void onRegisterPayloadHandlers(RegisterPayloadHandlersEvent event) {
 		PayloadRegistrar registrar = event.registrar("1");
-		registrar.playToServer(GiveGunPacket.ID, GiveGunPacket.PACKET_CODEC, GiveGunPacket::handle);
+		registrar.playToServer(GiveGunPacket.ID, GiveGunPacket.PACKET_CODEC, GiveGunPacket::handleServer);
 		registrar.playBidirectional(GunModifiersPacket.ID, GunModifiersPacket.PACKET_CODEC, new DirectionalPayloadHandler<>(
 			GunModifiersPacket::handleClient, GunModifiersPacket::handleServer
 		));
 		registrar.playBidirectional(LoadoutsPacket.ID, LoadoutsPacket.PACKET_CODEC, new DirectionalPayloadHandler<>(
 			LoadoutsPacket::handleClient, LoadoutsPacket::handleServer
 		));
-		registrar.playToServer(MapEffectPositionPacket.ID, MapEffectPositionPacket.PACKET_CODEC, MapEffectPositionPacket::handle);
+		registrar.playToServer(MapEffectPositionPacket.ID, MapEffectPositionPacket.PACKET_CODEC, MapEffectPositionPacket::handleServer);
+		registrar.playToClient(ViewSpawnsPacket.ID, ViewSpawnsPacket.PACKET_CODEC, ViewSpawnsPacket::handleClient);
 	}
 	
 	@SubscribeEvent
