@@ -9,6 +9,7 @@
   "frontutil.configuration.render_corpses.tooltip": "Enable/disable whether corpses should render",
   "frontutil.menu.button.mods.tip": "Access the mods menu",
   "frontutil.message.argument.asset.error.not_found": "Asset '%s' not found in registry '%s'",
+  "frontutil.message.command.changeClass.error.missing": "Class %s is not available for division %s",
   "frontutil.message.command.editorMode.error.environment": "Environment '%s' not found in map '%s'",
   "frontutil.message.command.editorMode.error.mode": "Creative or spectator mode is required to use editor mode!",
   "frontutil.message.command.error.args.count": "Missing arguments! Arguments must be one of the following:",

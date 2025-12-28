@@ -2,6 +2,7 @@
   "required": true,
   "package": "red.vuis.frontutil.mixin",
   "mixins": [
+    "ArgumentTypesMixin",
     "AssetsCommandMixin",
     "BulletTracerSpawnerMapEffectAccessor",
     "ConquestGameMixin",

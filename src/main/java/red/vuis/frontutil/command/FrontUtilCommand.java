@@ -3,21 +3,34 @@ package red.vuis.frontutil.command;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
+import com.boehmod.blockfront.BlockFront;
+import com.boehmod.blockfront.assets.AssetStore;
 import com.boehmod.blockfront.assets.impl.GameAsset;
+import com.boehmod.blockfront.common.BFAbstractManager;
+import com.boehmod.blockfront.common.match.DivisionData;
+import com.boehmod.blockfront.common.match.MatchClass;
+import com.boehmod.blockfront.game.AbstractGamePlayerManager;
+import com.boehmod.blockfront.game.GameTeam;
 import com.boehmod.blockfront.game.impl.ffa.FreeForAllGame;
 import com.boehmod.blockfront.registry.BFDataComponents;
 import com.boehmod.blockfront.util.math.FDSPose;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.command.CommandSource;
+import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -29,9 +42,11 @@ import net.minecraft.server.command.CommandOutput;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.neoforged.neoforge.network.PacketDistributor;
 
+import red.vuis.frontutil.command.arg.MatchClassArgumentType;
 import red.vuis.frontutil.data.GunModifier;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
 import red.vuis.frontutil.net.packet.ViewSpawnsPacket;
@@ -51,6 +66,14 @@ public final class FrontUtilCommand {
 		var root = literal("frontutil").requires(stack -> stack.hasPermissionLevel(3));
 		
 		root.then(
+			literal("changeClass").then(
+				argument("players", EntityArgumentType.players()).then(
+					argument("class", MatchClassArgumentType.matchClass()).then(
+						argument("level", IntegerArgumentType.integer(1)).executes(FrontUtilCommand::changeClass)
+					)
+				)
+			)
+		).then(
 			literal("gun").then(
 				literal("giveWithSkin").then(
 					argument("id", IdentifierArgumentType.identifier()).suggests(FrontUtilCommand::suggestGunGiveId).then(
@@ -95,6 +118,42 @@ public final class FrontUtilCommand {
 			return Suggestions.empty();
 		}
 		return CommandSource.suggestMatching(GunSkinIndex.SKINS.get(id).keySet(), suggestions);
+	}
+	
+	private static int changeClass(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+		ServerCommandSource source = context.getSource();
+		
+		Collection<ServerPlayerEntity> players = EntityArgumentType.getPlayers(context, "players");
+		MatchClass matchClass = MatchClassArgumentType.getMatchClass(context, "class");
+		int level = IntegerArgumentType.getInteger(context, "level") - 1;
+		
+		BFAbstractManager<?, ?, ?> manager = BlockFront.getInstance().getManager();
+		assert manager != null;
+		Set<Integer> sentMissingErrors = new HashSet<>();
+		
+		AssetStore.getInstance().getRegistry(GameAsset.class).getEntries().values().stream().map(GameAsset::getGame).filter(Objects::nonNull).forEach(game -> {
+			AbstractGamePlayerManager<?> playerManager = game.getPlayerManager();
+			players.stream().filter(player -> playerManager.hasPlayer(player.getUuid())).forEach(player -> {
+				GameTeam team = playerManager.getPlayerTeam(player.getUuid());
+				if (team == null) {
+					return;
+				}
+				
+				DivisionData division = team.getDivisionData(game);
+				if (division.getLoadout(matchClass, level) == null && sentMissingErrors.add(division.getId())) {
+					source.sendError(Text.translatable(
+						"frontutil.message.command.changeClass.error.missing",
+						AddonUtils.getMatchClassText(matchClass, level).formatted(Formatting.GOLD),
+						AddonUtils.getDivisionText(division).formatted(Formatting.GOLD)
+					));
+					return;
+				}
+				
+				playerManager.changePlayerClass(manager, player.getServerWorld(), player, player.getUuid(), matchClass, level);
+			});
+		});
+		
+		return 1;
 	}
 	
 	private static int gunGiveWithSkin(CommandContext<ServerCommandSource> context) {

@@ -15,12 +15,16 @@ import java.util.stream.StreamSupport;
 
 import com.boehmod.blockfront.BlockFront;
 import com.boehmod.blockfront.assets.impl.GameAsset;
+import com.boehmod.blockfront.common.match.DivisionData;
+import com.boehmod.blockfront.common.match.MatchClass;
 import com.boehmod.blockfront.game.GameStatus;
 import com.boehmod.blockfront.util.BFUtils;
 import com.boehmod.blockfront.util.math.FDSPose;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 
@@ -130,5 +134,13 @@ public final class AddonUtils {
 			.map(GameAsset::getGame)
 			.filter(Objects::nonNull)
 			.anyMatch(game -> game.getStatus() != GameStatus.IDLE);
+	}
+	
+	public static MutableText getMatchClassText(MatchClass matchClass, int level) {
+		return Text.translatable(matchClass.getDisplayTitle()).append(" ").append(Text.translatable("enchantment.level." + (level + 1)));
+	}
+	
+	public static MutableText getDivisionText(DivisionData division) {
+		return Text.literal(division.getCountry().getTag().toUpperCase()).append(" ").append(division.getSkin());
 	}
 }
