@@ -20,6 +20,8 @@
     "client.AbstractGameClientMixin",
     "client.ClientCorpseManagerMixin",
     "client.DominationGameClientMixin",
+    "client.FreeForAllGameClientMixin",
+    "client.GunGameClientMixin",
     "client.KillFeedEntryMixin",
     "client.KillSectionDistanceMixin",
     "client.KillSectionPlayerMixin",

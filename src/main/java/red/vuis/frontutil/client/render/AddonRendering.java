@@ -1,14 +1,20 @@
 package red.vuis.frontutil.client.render;
 
 import java.util.List;
+import java.util.UUID;
 
+import com.boehmod.blockfront.client.BFClientManager;
 import com.boehmod.blockfront.client.event.BFRenderFrameSubscriber;
+import com.boehmod.blockfront.client.player.BFClientPlayerData;
+import com.boehmod.blockfront.client.player.ClientPlayerDataHandler;
 import com.boehmod.blockfront.client.render.BFRendering;
+import com.boehmod.blockfront.common.player.PlayerCloudData;
 import com.boehmod.blockfront.game.AbstractCapturePoint;
 import com.boehmod.blockfront.game.AbstractGame;
 import com.boehmod.blockfront.game.GameStageTimer;
 import com.boehmod.blockfront.util.BFRes;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.BufferBuilder;
@@ -29,6 +35,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
 import red.vuis.frontutil.mixin.GameStageTimerAccessor;
@@ -45,6 +52,7 @@ import static red.vuis.frontutil.util.ColorUtils.redFloat;
 public final class AddonRendering {
 	public static final Identifier CPOINT_ARROW_RIGHT_BLACK = BFRes.loc("textures/gui/game/domination/cpoint_arrow_right_black.png");
 	public static final Identifier CPOINT_ARROW_LEFT_BLACK = BFRes.loc("textures/gui/game/domination/cpoint_arrow_left_black.png");
+	private static final Identifier PLAYER_HEAD_DEAD = BFRes.loc("textures/gui/dead.png");
 	
 	private AddonRendering() {
 	}
@@ -190,5 +198,35 @@ public final class AddonRendering {
 	public static void oldTimer(MatrixStack matrices, TextRenderer textRenderer, DrawContext context, int x, GameStageTimer timer) {
 		BFRendering.rectangle(matrices, context, x - 19f, 1f, 38f, 13f, BFRendering.translucentBlack());
 		BFRendering.centeredComponent2d(matrices, textRenderer, context, oldTimerText(timer), x, 4f);
+	}
+	
+	public static void oldPlayerHeadList(MinecraftClient client, BFClientManager manager, DrawContext context, ClientPlayerDataHandler dataHandler, int midX, @Nullable List<UUID> leftPlayers, @Nullable List<UUID> rightPlayers) {
+		MatrixStack matrices = context.getMatrices();
+		matrices.push();
+		
+		if (leftPlayers != null) {
+			for (int i = 0; i < leftPlayers.size(); i++) {
+				oldPlayerHead(client, manager, matrices, context, dataHandler, leftPlayers.get(i), 11, midX - 32 - i * 14, 2);
+			}
+		}
+		if (rightPlayers != null) {
+			for (int i = 0; i < rightPlayers.size(); i++) {
+				oldPlayerHead(client, manager, matrices, context, dataHandler, rightPlayers.get(i), 11, midX + 21 + i * 14, 2);
+			}
+		}
+		
+		matrices.pop();
+	}
+	
+	public static void oldPlayerHead(MinecraftClient client, BFClientManager manager, MatrixStack matrices, DrawContext context, ClientPlayerDataHandler dataHandler, UUID playerUuid, int size, int x, int y) {
+		BFClientPlayerData playerData = dataHandler.getPlayerData(playerUuid);
+		PlayerCloudData cloudData = dataHandler.getCloudProfile(playerUuid);
+		
+		BFRendering.rectangle(context, x - 1, y - 1, size + 2, size + 2, BFRendering.translucentBlack());
+		if (playerData.isOutOfGame()) {
+			BFRendering.texture(matrices, context, PLAYER_HEAD_DEAD, x, y, size, size);
+		} else {
+			BFRendering.playerHead(client, manager, matrices, context, cloudData.getMcProfile(), x, y, size);
+		}
 	}
 }

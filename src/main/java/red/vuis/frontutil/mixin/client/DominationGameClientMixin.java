@@ -1,5 +1,6 @@
 package red.vuis.frontutil.mixin.client;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -71,6 +72,10 @@ public abstract class DominationGameClientMixin extends CapturePointGameClient<D
 		if (axisTeam == null || alliesTeam == null) {
 			return;
 		}
+		
+		List<UUID> axisPlayers = axisTeam.getPlayers().stream().sorted().toList();
+		List<UUID> alliesPlayers = alliesTeam.getPlayers().stream().sorted().toList();
+		AddonRendering.oldPlayerHeadList(client, manager, context, dataHandler, midX, axisPlayers, alliesPlayers);
 		
 		int axisColor = 0x7E3831;
 		int alliesColor = 0x747948;

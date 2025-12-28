@@ -2,6 +2,8 @@ package red.vuis.frontutil.mixin.client;
 
 import com.boehmod.blockfront.game.AbstractGameClient;
 import com.boehmod.blockfront.game.impl.dom.DominationGameClient;
+import com.boehmod.blockfront.game.impl.ffa.FreeForAllGameClient;
+import com.boehmod.blockfront.game.impl.gg.GunGameClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.util.math.MatrixStack;
@@ -23,7 +25,10 @@ public abstract class AbstractGameClientMixin {
 		cancellable = true
 	)
 	private void disableGameElementRendering(DrawContext context, TextRenderer textRenderer, MatrixStack matrices, int width, float renderTime, CallbackInfo ci) {
-		if ((AbstractGameClient<?, ?>) (Object) this instanceof DominationGameClient && AddonClientConfig.getMatchHudStyle() != MatchHudStyle.MODERN) {
+		AbstractGameClient<?, ?> thiz = (AbstractGameClient<?, ?>) (Object) this;
+		if (AddonClientConfig.getMatchHudStyle() != MatchHudStyle.MODERN &&
+			(thiz instanceof DominationGameClient || thiz instanceof FreeForAllGameClient || thiz instanceof GunGameClient)
+		) {
 			ci.cancel();
 		}
 	}
