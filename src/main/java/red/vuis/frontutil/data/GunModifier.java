@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.boehmod.blockfront.common.entity.base.IProducedProjectileEntity;
+import com.boehmod.blockfront.common.gun.GunCameraConfig;
 import com.boehmod.blockfront.common.gun.GunDamageConfig;
 import com.boehmod.blockfront.common.gun.GunFireConfig;
 import com.boehmod.blockfront.common.gun.GunFireMode;
@@ -37,19 +38,21 @@ import static red.vuis.frontutil.util.AddonAccessors.applyGunItem;
 
 public record GunModifier(
 	Optional<Ammo> ammo,
+	Optional<Camera> camera,
 	Optional<List<Damage>> damage,
 	Optional<List<FireMode>> fireModes,
 	Optional<Spread> spread,
 	Optional<Float> weight
 ) {
 	public static final GunModifier EMPTY = new GunModifier(
-		Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()
+		Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()
 	);
 	public static final Map<RegistryEntry<Item>, GunModifier> ACTIVE = new Object2ObjectOpenHashMap<>();
 	
 	public static final Codec<GunModifier> CODEC = RecordCodecBuilder.create(instance ->
 		instance.group(
 			Ammo.CODEC.optionalFieldOf("ammo").forGetter(GunModifier::ammo),
+			Camera.CODEC.optionalFieldOf("camera").forGetter(GunModifier::camera),
 			Damage.CODEC.listOf(1, Integer.MAX_VALUE).optionalFieldOf("damage").forGetter(GunModifier::damage),
 			FireMode.CODEC.listOf(1, Integer.MAX_VALUE).optionalFieldOf("fire_modes").forGetter(GunModifier::fireModes),
 			Spread.CODEC.optionalFieldOf("spread").forGetter(GunModifier::spread),
@@ -58,6 +61,7 @@ public record GunModifier(
 	);
 	public static final PacketCodec<RegistryByteBuf, GunModifier> PACKET_CODEC = PacketCodec.tuple(
 		Ammo.PACKET_CODEC.collect(PacketCodecs::optional), GunModifier::ammo,
+		Camera.PACKET_CODEC.collect(PacketCodecs::optional), GunModifier::camera,
 		Damage.PACKET_CODEC.collect(PacketCodecs.toList()).collect(PacketCodecs::optional), GunModifier::damage,
 		FireMode.PACKET_CODEC.collect(PacketCodecs.toList()).collect(PacketCodecs::optional), GunModifier::fireModes,
 		Spread.PACKET_CODEC.collect(PacketCodecs::optional), GunModifier::spread,
@@ -65,9 +69,10 @@ public record GunModifier(
 		GunModifier::new
 	);
 	
-	public GunModifier(Ammo ammo, List<Damage> damage, List<FireMode> fireModes, Spread spread, float weight) {
+	public GunModifier(Ammo ammo, Camera camera, List<Damage> damage, List<FireMode> fireModes, Spread spread, float weight) {
 		this(
 			Optional.of(ammo),
+			Optional.of(camera),
 			Optional.of(damage),
 			Optional.of(fireModes),
 			Optional.of(spread),
@@ -76,27 +81,32 @@ public record GunModifier(
 	}
 	
 	public GunModifier withAmmo(Optional<Ammo> ammo) {
-		return new GunModifier(ammo, damage, fireModes, spread, weight);
+		return new GunModifier(ammo, camera, damage, fireModes, spread, weight);
+	}
+	
+	public GunModifier withCamera(Optional<Camera> camera) {
+		return new GunModifier(ammo, camera, damage, fireModes, spread, weight);
 	}
 	
 	public GunModifier withDamage(Optional<List<Damage>> damage) {
-		return new GunModifier(ammo, damage, fireModes, spread, weight);
+		return new GunModifier(ammo, camera, damage, fireModes, spread, weight);
 	}
 	
 	public GunModifier withFireModes(Optional<List<FireMode>> fireModes) {
-		return new GunModifier(ammo, damage, fireModes, spread, weight);
+		return new GunModifier(ammo, camera, damage, fireModes, spread, weight);
 	}
 	
 	public GunModifier withSpread(Optional<Spread> spread) {
-		return new GunModifier(ammo, damage, fireModes, spread, weight);
+		return new GunModifier(ammo, camera, damage, fireModes, spread, weight);
 	}
 	
 	public GunModifier withWeight(Optional<Float> weight) {
-		return new GunModifier(ammo, damage, fireModes, spread, weight);
+		return new GunModifier(ammo, camera, damage, fireModes, spread, weight);
 	}
 	
 	public void apply(@NotNull GunItem item) {
 		ammo.ifPresent(ammo -> Ammo.apply(ammo, item));
+		camera.ifPresent(camera -> Camera.apply(camera, item));
 		damage.ifPresent(damage -> Damage.apply(damage, item));
 		fireModes.ifPresent(fireModes -> FireMode.apply(fireModes, item));
 		spread.ifPresent(spread -> Spread.apply(spread, item));
@@ -104,7 +114,7 @@ public record GunModifier(
 	}
 	
 	public boolean hasData() {
-		return ammo.isPresent() || damage.isPresent() || fireModes.isPresent() || spread.isPresent() || weight.isPresent();
+		return ammo.isPresent() || camera.isPresent() || damage.isPresent() || fireModes.isPresent() || spread.isPresent() || weight.isPresent();
 	}
 	
 	public record Ammo(
@@ -131,6 +141,61 @@ public record GunModifier(
 			Map<String, GunMagType> magIdMap = applyGunItem(item, GunItemAccessor::getMagIdMap);
 			GunMagType prevMagType = magIdMap.get("default");
 			magIdMap.replace("default", new GunMagType(prevMagType.isDefault(), prevMagType.displayName(), ammo.magazine, ammo.reserve));
+		}
+	}
+	
+	public record Camera(
+		float jumpingRecoil,
+		float sprintingRecoil,
+		float walkingRecoil,
+		float idleRecoil,
+		float crawlingRecoil,
+		float recoverSpeed
+	) {
+		public static final Codec<Camera> CODEC = RecordCodecBuilder.create(instance ->
+			instance.group(
+				Codec.floatRange(0f, Float.MAX_VALUE).fieldOf("jumping_recoil").forGetter(Camera::jumpingRecoil),
+				Codec.floatRange(0f, Float.MAX_VALUE).fieldOf("sprinting_recoil").forGetter(Camera::sprintingRecoil),
+				Codec.floatRange(0f, Float.MAX_VALUE).fieldOf("walking_recoil").forGetter(Camera::walkingRecoil),
+				Codec.floatRange(0f, Float.MAX_VALUE).fieldOf("idle_recoil").forGetter(Camera::idleRecoil),
+				Codec.floatRange(0f, Float.MAX_VALUE).fieldOf("crawling_recoil").forGetter(Camera::crawlingRecoil),
+				Codec.floatRange(0f, Float.MAX_VALUE).fieldOf("recover_speed").forGetter(Camera::recoverSpeed)
+			).apply(instance, Camera::new)
+		);
+		public static final PacketCodec<ByteBuf, Camera> PACKET_CODEC = PacketCodec.tuple(
+			PacketCodecs.FLOAT, Camera::jumpingRecoil,
+			PacketCodecs.FLOAT, Camera::sprintingRecoil,
+			PacketCodecs.FLOAT, Camera::walkingRecoil,
+			PacketCodecs.FLOAT, Camera::idleRecoil,
+			PacketCodecs.FLOAT, Camera::crawlingRecoil,
+			PacketCodecs.FLOAT, Camera::recoverSpeed,
+			Camera::new
+		);
+		
+		public static Camera of(GunCameraConfig config) {
+			return new Camera(
+				config.jumpingAmount(),
+				config.sprintingAmount(),
+				config.walkingAmount(),
+				config.idleAmount(),
+				config.crawlingAmount(),
+				config.recoverSpeed()
+			);
+		}
+		
+		private static void apply(Camera camera, @NotNull GunItem item) {
+			GunCameraConfig prevConfig = item.method_5712();
+			item.method_5713(new GunCameraConfig(
+				prevConfig.maxModelDistance(),
+				prevConfig.maxModelPitch(),
+				prevConfig.maxCameraPitch(),
+				camera.recoverSpeed,
+				camera.idleRecoil,
+				camera.walkingRecoil,
+				camera.sprintingRecoil,
+				camera.crawlingRecoil,
+				camera.jumpingRecoil
+			));
 		}
 	}
 	

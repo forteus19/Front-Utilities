@@ -28,6 +28,7 @@ public final class GunModifierIndex {
 				Registries.ITEM.getEntry(gunItem),
 				new GunModifier(
 					GunModifier.Ammo.of(applyGunItem(gunItem, GunItemAccessor::getMagIdMap).get("default")),
+					GunModifier.Camera.of(gunItem.method_5712()),
 					GunModifier.Damage.of(gunItem.getDamageConfig()),
 					GunModifier.FireMode.of(gunItem.getFireConfigs()),
 					GunModifier.Spread.of(gunItem.getAimConfig()),

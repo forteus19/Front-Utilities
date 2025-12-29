@@ -71,23 +71,28 @@ public class GunModifierEditorScreen extends AddonScreen {
 			button -> client.setScreen(new Ammo())
 		));
 		addDrawableChild(Widgets.button(
-			Damage.C_HEADER,
+			Camera.C_HEADER,
 			centeredDim(width / 2, 145, 100, 20),
+			button -> client.setScreen(new Camera())
+		));
+		addDrawableChild(Widgets.button(
+			Damage.C_HEADER,
+			centeredDim(width / 2, 170, 100, 20),
 			button -> client.setScreen(new Damage())
 		));
 		addDrawableChild(Widgets.button(
 			FireModes.C_HEADER,
-			centeredDim(width / 2, 170, 100, 20),
+			centeredDim(width / 2, 195, 100, 20),
 			button -> client.setScreen(new FireModes())
 		));
 		addDrawableChild(Widgets.button(
 			Spread.C_HEADER,
-			centeredDim(width / 2, 195, 100, 20),
+			centeredDim(width / 2, 220, 100, 20),
 			button -> client.setScreen(new Spread())
 		));
 		addDrawableChild(Widgets.button(
 			Other.C_HEADER,
-			centeredDim(width / 2, 220, 100, 20),
+			centeredDim(width / 2, 245, 100, 20),
 			button -> client.setScreen(new Other())
 		));
 		
@@ -186,6 +191,123 @@ public class GunModifierEditorScreen extends AddonScreen {
 			GunModifier.Ammo newAmmo = new GunModifier.Ammo(magazineField.getInt(), reserveField.getInt());
 			modifier = modifier.withAmmo(
 				newAmmo.equals(defaultModifier.ammo().orElseThrow()) ? Optional.empty() : Optional.of(newAmmo)
+			);
+			
+			assert client != null;
+			client.setScreen(GunModifierEditorScreen.this);
+		}
+	}
+	
+	private class Camera extends AddonScreen {
+		private static final Text C_HEADER = Text.translatable("frontutil.screen.gun.modifier.editor.camera.header");
+		private static final Text C_LABEL_CRAWLING_RECOIL = Text.translatable("frontutil.screen.gun.modifier.editor.camera.label.crawlingRecoil");
+		private static final Text C_LABEL_IDLE_RECOIL = Text.translatable("frontutil.screen.gun.modifier.editor.camera.label.idleRecoil");
+		private static final Text C_LABEL_JUMPING_RECOIL = Text.translatable("frontutil.screen.gun.modifier.editor.camera.label.jumpingRecoil");
+		private static final Text C_LABEL_RECOVER_SPEED = Text.translatable("frontutil.screen.gun.modifier.editor.camera.label.recoverSpeed");
+		private static final Text C_LABEL_SPRINTING_RECOIL = Text.translatable("frontutil.screen.gun.modifier.editor.camera.label.sprintingRecoil");
+		private static final Text C_LABEL_WALKING_RECOIL = Text.translatable("frontutil.screen.gun.modifier.editor.camera.label.walkingRecoil");
+		private static final FloatBounds RECOIL_BOUNDS = FloatBounds.ofMin(0);
+		private static final FloatBounds RECOVER_SPEED_BOUNDS = FloatBounds.ofMin(0);
+		
+		private FloatFieldWidget
+			crawlingRecoilField,
+			idleRecoilField,
+			walkingRecoilField,
+			sprintingRecoilField,
+			jumpingRecoilField,
+			recoverSpeedField;
+		
+		public Camera() {
+			super(C_HEADER);
+		}
+		
+		@Override
+		protected void init() {
+			super.init();
+			
+			GunModifier.Camera camera = modifierPart(GunModifier::camera);
+			
+			crawlingRecoilField = addDrawableChild(new FloatFieldWidget(
+				textRenderer,
+				centeredDim(width / 2, 80, 100, 20),
+				Text.empty(),
+				RECOIL_BOUNDS
+			));
+			crawlingRecoilField.setFloat(camera.crawlingRecoil());
+			
+			idleRecoilField = addDrawableChild(new FloatFieldWidget(
+				textRenderer,
+				centeredDim(width / 2, 120, 100, 20),
+				Text.empty(),
+				RECOIL_BOUNDS
+			));
+			idleRecoilField.setFloat(camera.idleRecoil());
+			
+			walkingRecoilField = addDrawableChild(new FloatFieldWidget(
+				textRenderer,
+				centeredDim(width / 2, 160, 100, 20),
+				Text.empty(),
+				RECOIL_BOUNDS
+			));
+			walkingRecoilField.setFloat(camera.walkingRecoil());
+			
+			sprintingRecoilField = addDrawableChild(new FloatFieldWidget(
+				textRenderer,
+				centeredDim(width / 2, 200, 100, 20),
+				Text.empty(),
+				RECOIL_BOUNDS
+			));
+			sprintingRecoilField.setFloat(camera.sprintingRecoil());
+			
+			jumpingRecoilField = addDrawableChild(new FloatFieldWidget(
+				textRenderer,
+				centeredDim(width / 2, 240, 100, 20),
+				Text.empty(),
+				RECOIL_BOUNDS
+			));
+			jumpingRecoilField.setFloat(camera.jumpingRecoil());
+			
+			recoverSpeedField = addDrawableChild(new FloatFieldWidget(
+				textRenderer,
+				centeredDim(width / 2, 280, 100, 20),
+				Text.empty(),
+				RECOVER_SPEED_BOUNDS
+			));
+			recoverSpeedField.setFloat(camera.recoverSpeed());
+			
+			addDrawableChild(Widgets.button(
+				C_BUTTON_BACK,
+				centeredDim(width / 2, height - 20, 90, 20),
+				button -> close()
+			));
+		}
+		
+		@Override
+		public void render(@NotNull DrawContext context, int mouseX, int mouseY, float delta) {
+			super.render(context, mouseX, mouseY, delta);
+			
+			drawText(C_HEADER, width / 2, 20, true);
+			
+			drawText(C_LABEL_CRAWLING_RECOIL, width / 2, 60, true);
+			drawText(C_LABEL_IDLE_RECOIL, width / 2, 100, true);
+			drawText(C_LABEL_WALKING_RECOIL, width / 2, 140, true);
+			drawText(C_LABEL_SPRINTING_RECOIL, width / 2, 180, true);
+			drawText(C_LABEL_JUMPING_RECOIL, width / 2, 220, true);
+			drawText(C_LABEL_RECOVER_SPEED, width / 2, 260, true);
+		}
+		
+		@Override
+		public void close() {
+			GunModifier.Camera newCamera = new GunModifier.Camera(
+				jumpingRecoilField.getFloat(),
+				sprintingRecoilField.getFloat(),
+				walkingRecoilField.getFloat(),
+				idleRecoilField.getFloat(),
+				crawlingRecoilField.getFloat(),
+				recoverSpeedField.getFloat()
+			);
+			modifier = modifier.withCamera(
+				newCamera.equals(defaultModifier.camera().orElseThrow()) ? Optional.empty() : Optional.of(newCamera)
 			);
 			
 			assert client != null;
