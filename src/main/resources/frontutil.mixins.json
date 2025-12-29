@@ -18,6 +18,7 @@
   ],
   "client": [
     "client.AbstractGameClientMixin",
+    "client.CapturePointGameClientMixin",
     "client.ClientCorpseManagerMixin",
     "client.DominationGameClientMixin",
     "client.FreeForAllGameClientMixin",
