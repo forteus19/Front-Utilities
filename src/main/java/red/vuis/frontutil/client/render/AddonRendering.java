@@ -206,10 +206,9 @@ public final class AddonRendering {
 			.formatted(Formatting.BOLD);
 	}
 	
-	@SuppressWarnings("deprecation")
-	public static void oldTimer(MatrixStack matrices, TextRenderer textRenderer, DrawContext context, int x, GameStageTimer timer) {
-		BFRendering.rectangle(matrices, context, x - 19f, 1f, 38f, 13f, BFRendering.translucentBlack());
-		BFRendering.centeredComponent2d(matrices, textRenderer, context, oldTimerText(timer), x, 4f);
+	public static void oldTimer(MatrixStack matrices, TextRenderer textRenderer, DrawContext context, int midX, int midY, GameStageTimer timer) {
+		BFRendering.rectangle(context, midX - 19, midY - 6, 38, 13, BFRendering.translucentBlack());
+		BFRendering.centeredComponent2d(matrices, textRenderer, context, oldTimerText(timer), midX, midY - 3, 1f);
 	}
 	
 	public static void oldPlayerHeadList(MinecraftClient client, BFClientManager manager, DrawContext context, ClientPlayerDataHandler dataHandler, int midX, @Nullable List<UUID> leftPlayers, @Nullable List<UUID> rightPlayers) {

@@ -24,8 +24,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import red.vuis.frontutil.client.data.config.AddonClientConfig;
-import red.vuis.frontutil.client.data.config.MatchHudStyle;
-import red.vuis.frontutil.client.render.AddonRendering;
+import red.vuis.frontutil.client.render.game.FreeForAllAddonRendering;
 
 @Mixin(FreeForAllGameClient.class)
 public abstract class FreeForAllGameClientMixin extends AbstractGameClient<FreeForAllGame, FreeForAllPlayerManager> {
@@ -56,10 +55,8 @@ public abstract class FreeForAllGameClientMixin extends AbstractGameClient<FreeF
 		float delta,
 		CallbackInfo ci
 	) {
-		if (AddonClientConfig.getMatchHudStyle() == MatchHudStyle.MODERN) {
-			return;
+		switch (AddonClientConfig.getMatchHudStyle()) {
+			case OLD -> FreeForAllAddonRendering.oldMatchHud(method_2678(), context, textRenderer, matrices, midX);
 		}
-		
-		AddonRendering.oldTimer(matrices, textRenderer, context, midX, method_2678());
 	}
 }
