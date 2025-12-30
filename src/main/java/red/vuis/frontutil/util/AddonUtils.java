@@ -17,6 +17,8 @@ import com.boehmod.blockfront.BlockFront;
 import com.boehmod.blockfront.assets.impl.GameAsset;
 import com.boehmod.blockfront.common.match.DivisionData;
 import com.boehmod.blockfront.common.match.MatchClass;
+import com.boehmod.blockfront.game.AbstractGame;
+import com.boehmod.blockfront.game.BFGameType;
 import com.boehmod.blockfront.game.GameStatus;
 import com.boehmod.blockfront.util.BFUtils;
 import com.boehmod.blockfront.util.math.FDSPose;
@@ -142,5 +144,11 @@ public final class AddonUtils {
 	
 	public static MutableText getDivisionText(DivisionData division) {
 		return Text.literal(division.getCountry().getTag().toUpperCase()).append(" ").append(division.getSkin());
+	}
+	
+	public static BFGameType getGameType(AbstractGame<?, ?, ?> game) {
+		BFGameType gameType = BFGameType.getByName(game.getType());
+		assert gameType != null;
+		return gameType;
 	}
 }

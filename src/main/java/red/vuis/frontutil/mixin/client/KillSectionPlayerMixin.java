@@ -11,7 +11,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import red.vuis.frontutil.client.data.config.AddonClientConfig;
-import red.vuis.frontutil.client.data.config.MatchHudStyle;
 
 @Mixin(KillSectionPlayer.class)
 public abstract class KillSectionPlayerMixin {
@@ -24,10 +23,10 @@ public abstract class KillSectionPlayerMixin {
 		)
 	)
 	private void replaceDrawCall(MatrixStack matrices, TextRenderer textRenderer, DrawContext context, Text text, int x, int y) {
-		if (AddonClientConfig.getMatchHudStyle() == MatchHudStyle.MODERN) {
-			BFRendering.centeredComponent2dWithShadow(matrices, textRenderer, context, text, x, y);
-		} else {
+		if (AddonClientConfig.getMatchHudStyle().isOldKillFeed()) {
 			BFRendering.centeredComponent2d(matrices, textRenderer, context, text, x, y);
+		} else {
+			BFRendering.centeredComponent2dWithShadow(matrices, textRenderer, context, text, x, y);
 		}
 	}
 }

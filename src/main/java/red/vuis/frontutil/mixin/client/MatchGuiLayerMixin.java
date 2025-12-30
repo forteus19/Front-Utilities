@@ -23,7 +23,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import red.vuis.frontutil.client.data.config.AddonClientConfig;
-import red.vuis.frontutil.client.data.config.MatchHudStyle;
 import red.vuis.frontutil.client.render.AddonRendering;
 
 @Mixin(MatchGuiLayer.class)
@@ -35,7 +34,7 @@ public abstract class MatchGuiLayerMixin extends BFAbstractGuiLayer {
 		)
 	)
 	private int killFeedSpacing(int constant) {
-		return AddonClientConfig.getMatchHudStyle() == MatchHudStyle.MODERN ? constant : 12;
+		return AddonClientConfig.getMatchHudStyle().isOldKillFeed() ? 12 : constant;
 	}
 	
 	@Inject(

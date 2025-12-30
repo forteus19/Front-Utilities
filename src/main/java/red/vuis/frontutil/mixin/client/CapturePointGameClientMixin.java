@@ -26,7 +26,6 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import red.vuis.frontutil.client.data.config.AddonClientConfig;
-import red.vuis.frontutil.client.data.config.MatchHudStyle;
 
 @Mixin(CapturePointGameClient.class)
 public abstract class CapturePointGameClientMixin {
@@ -39,7 +38,7 @@ public abstract class CapturePointGameClientMixin {
 		constant = @Constant(intValue = 8159560)
 	)
 	private int changeAlliesColor(int constant) {
-		return AddonClientConfig.getMatchHudStyle() == MatchHudStyle.MODERN ? constant : 7633224;
+		return AddonClientConfig.getMatchHudStyle().isOldCapturingText() ? 7633224 : constant;
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -68,7 +67,7 @@ public abstract class CapturePointGameClientMixin {
 		@Local(ordinal = 4) int barColor,
 		@Local(ordinal = 1) float captureProgress
 	) {
-		if (AddonClientConfig.getMatchHudStyle() == MatchHudStyle.MODERN) {
+		if (!AddonClientConfig.getMatchHudStyle().isOldCapturingText()) {
 			return;
 		}
 		ci.cancel();

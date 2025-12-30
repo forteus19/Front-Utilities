@@ -7,9 +7,6 @@ import com.boehmod.blockfront.game.AbstractGame;
 import com.boehmod.blockfront.game.AbstractGameClient;
 import com.boehmod.blockfront.game.GameStatus;
 import com.boehmod.blockfront.game.GameTeam;
-import com.boehmod.blockfront.game.impl.dom.DominationGameClient;
-import com.boehmod.blockfront.game.impl.ffa.FreeForAllGameClient;
-import com.boehmod.blockfront.game.impl.gg.GunGameClient;
 import com.boehmod.blockfront.util.StringUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -29,7 +26,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import red.vuis.frontutil.client.data.config.AddonClientConfig;
-import red.vuis.frontutil.client.data.config.MatchHudStyle;
+import red.vuis.frontutil.util.AddonUtils;
 
 @Mixin(AbstractGameClient.class)
 public abstract class AbstractGameClientMixin {
@@ -44,10 +41,7 @@ public abstract class AbstractGameClientMixin {
 		cancellable = true
 	)
 	private void disableGameElementRendering(DrawContext context, TextRenderer textRenderer, MatrixStack matrices, int width, float renderTime, CallbackInfo ci) {
-		AbstractGameClient<?, ?> thiz = (AbstractGameClient<?, ?>) (Object) this;
-		if (AddonClientConfig.getMatchHudStyle() != MatchHudStyle.MODERN &&
-			(thiz instanceof DominationGameClient || thiz instanceof FreeForAllGameClient || thiz instanceof GunGameClient)
-		) {
+		if (AddonClientConfig.getMatchHudStyle().getDisabledGameElementTypes().contains(AddonUtils.getGameType(game))) {
 			ci.cancel();
 		}
 	}
@@ -61,11 +55,7 @@ public abstract class AbstractGameClientMixin {
 		)
 	)
 	private String disableWaitingFancyText(String str) {
-		if (AddonClientConfig.getMatchHudStyle() == MatchHudStyle.MODERN) {
-			return StringUtils.makeFancy(str);
-		} else {
-			return str;
-		}
+		return AddonClientConfig.getMatchHudStyle().isOldWaitingText() ? str : StringUtils.makeFancy(str);
 	}
 	
 	@Redirect(
@@ -78,7 +68,7 @@ public abstract class AbstractGameClientMixin {
 	)
 	@SuppressWarnings("deprecation")
 	private void renderWaitingTextBackground(MatrixStack matrices, TextRenderer textRenderer, DrawContext context, Text text, int x, int y) {
-		if (AddonClientConfig.getMatchHudStyle() == MatchHudStyle.MODERN) {
+		if (!AddonClientConfig.getMatchHudStyle().isOldWaitingText()) {
 			BFRendering.centeredComponent2dWithShadow(matrices, textRenderer, context, text, x, y);
 			return;
 		}
