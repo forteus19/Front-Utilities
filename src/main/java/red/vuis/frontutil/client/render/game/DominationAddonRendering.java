@@ -23,6 +23,9 @@ import org.jetbrains.annotations.NotNull;
 import red.vuis.frontutil.client.render.AddonRendering;
 
 public final class DominationAddonRendering {
+	private static final int AXIS_COLOR = 0x7E3831;
+	private static final int ALLIES_COLOR = 0x747948;
+	
 	private DominationAddonRendering() {
 	}
 	
@@ -53,13 +56,10 @@ public final class DominationAddonRendering {
 		List<UUID> alliesPlayers = alliesTeam.getPlayers().stream().sorted().toList();
 		AddonRendering.oldPlayerHeadList(client, manager, context, dataHandler, midX, axisPlayers, alliesPlayers);
 		
-		int axisColor = 0x7E3831;
-		int alliesColor = 0x747948;
-		
 		int axisScore = axisTeam.getObjectInt(BFStats.SCORE);
 		int alliesScore = alliesTeam.getObjectInt(BFStats.SCORE);
-		Text axisScoreComponent = Text.literal(Integer.toString(axisScore)).withColor(axisColor);
-		Text alliesScoreComponent = Text.literal(Integer.toString(alliesScore)).withColor(alliesColor);
+		Text axisScoreText = Text.literal(Integer.toString(axisScore)).withColor(AXIS_COLOR);
+		Text alliesScoreText = Text.literal(Integer.toString(alliesScore)).withColor(ALLIES_COLOR);
 		
 		float axisRectStartX = midX - 99f;
 		float axisScoreStartX = midX - 19f;
@@ -72,23 +72,23 @@ public final class DominationAddonRendering {
 		
 		// Axis score
 		BFRendering.rectangle(matrices, context, axisScoreStartX, 15f, 18.5f, 10f, BFRendering.translucentBlack());
-		BFRendering.centeredComponent2d(matrices, textRenderer, context, axisScoreComponent, axisScoreStartX + 9.75f, 16.5f);
+		BFRendering.centeredComponent2d(matrices, textRenderer, context, axisScoreText, axisScoreStartX + 9.75f, 16.5f);
 		
 		// Axis rect
 		BFRendering.rectangle(matrices, context, axisRectStartX - 1f, 15f, 80f, 10f, BFRendering.translucentBlack());
 		BFRendering.rectangle(matrices, context, axisRectStartX, 16f, 78f, 8f, 0, 0.35f);
-		BFRendering.rectangle(matrices, context, axisRectStartX, 16f, 78f, 8f, axisColor, 0.35f);
-		BFRendering.rectangle(matrices, context, axisRectStartX, 16f, axisScoreRectWidth, 8f, axisColor, 1f);
+		BFRendering.rectangle(matrices, context, axisRectStartX, 16f, 78f, 8f, AXIS_COLOR, 0.35f);
+		BFRendering.rectangle(matrices, context, axisRectStartX, 16f, axisScoreRectWidth, 8f, AXIS_COLOR, 1f);
 		
 		// Allies score
 		BFRendering.rectangle(matrices, context, alliesScoreStartX, 15f, 18.5f, 10f, BFRendering.translucentBlack());
-		BFRendering.centeredComponent2d(matrices, textRenderer, context, alliesScoreComponent, alliesScoreStartX + 9.75f, 16.5f);
+		BFRendering.centeredComponent2d(matrices, textRenderer, context, alliesScoreText, alliesScoreStartX + 9.75f, 16.5f);
 		
 		// Allies rect
 		BFRendering.rectangle(matrices, context, alliesRectStartX - 1f, 15f, 80f, 10f, BFRendering.translucentBlack());
 		BFRendering.rectangle(matrices, context, alliesRectStartX, 16f, 78f, 8f, 0, 0.35f);
-		BFRendering.rectangle(matrices, context, alliesRectStartX, 16f, 78f, 8f, alliesColor, 0.35f);
-		BFRendering.rectangle(matrices, context, alliesRectStartX + (78f - alliesScoreRectWidth), 16f, alliesScoreRectWidth, 8f, alliesColor, 1f);
+		BFRendering.rectangle(matrices, context, alliesRectStartX, 16f, 78f, 8f, ALLIES_COLOR, 0.35f);
+		BFRendering.rectangle(matrices, context, alliesRectStartX + (78f - alliesScoreRectWidth), 16f, alliesScoreRectWidth, 8f, ALLIES_COLOR, 1f);
 		
 		int axisArrows = 0;
 		int alliesArrows = 0;
@@ -109,5 +109,39 @@ public final class DominationAddonRendering {
 		for (int i = 0; i < alliesArrows; i++) {
 			BFRendering.texture(matrices, context, AddonRendering.CPOINT_ARROW_LEFT_BLACK, midX + 92f - 7f * i, 17f, 6f, 6f, arrowAlpha);
 		}
+	}
+	
+	public static void dayOfInfamyMatchHud(
+		@NotNull DominationGame game,
+		@NotNull GameStageTimer timer,
+		@NotNull DrawContext context,
+		@NotNull TextRenderer textRenderer,
+		@NotNull MatrixStack matrices,
+		int height,
+		int midX
+	) {
+		DominationPlayerManager playerManager = game.getPlayerManager();
+		
+		int baseY = height - 9;
+		int topY = baseY - 6;
+		int textY = baseY - 3;
+		
+		AddonRendering.oldTimer(matrices, textRenderer, context, midX, baseY, timer);
+		
+		GameTeam axisTeam = playerManager.getTeamByName("Axis");
+		GameTeam alliesTeam = playerManager.getTeamByName("Allies");
+		if (axisTeam == null || alliesTeam == null) {
+			return;
+		}
+		
+		int axisScore = axisTeam.getObjectInt(BFStats.SCORE);
+		int alliesScore = alliesTeam.getObjectInt(BFStats.SCORE);
+		Text axisScoreText = Text.literal(Integer.toString(axisScore)).withColor(AXIS_COLOR);
+		Text alliesScoreText = Text.literal(Integer.toString(alliesScore)).withColor(ALLIES_COLOR);
+		
+		BFRendering.rectangle(context, midX - 58, topY, 38, 13, BFRendering.translucentBlack());
+		BFRendering.centeredComponent2d(matrices, textRenderer, context, axisScoreText, midX - 39, textY, 1f);
+		BFRendering.rectangle(context, midX + 20, topY, 38, 13, BFRendering.translucentBlack());
+		BFRendering.centeredComponent2d(matrices, textRenderer, context, alliesScoreText, midX + 39, textY, 1f);
 	}
 }

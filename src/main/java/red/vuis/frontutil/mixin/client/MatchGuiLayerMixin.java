@@ -8,7 +8,7 @@ import com.boehmod.blockfront.client.gui.layer.MatchGuiLayer;
 import com.boehmod.blockfront.client.render.BFRendering;
 import com.boehmod.blockfront.game.AbstractCapturePoint;
 import com.boehmod.blockfront.game.AbstractGame;
-import com.boehmod.blockfront.game.tag.IHasCapturePoints;
+import com.boehmod.blockfront.game.impl.dom.DominationGame;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -45,14 +45,19 @@ public abstract class MatchGuiLayerMixin extends BFAbstractGuiLayer {
 		)
 	)
 	private void addCustomRendering(DrawContext context, RenderTickCounter tick, BFClientManager manager, CallbackInfo ci, @Local AbstractGame<?, ?, ?> game, @Local MatrixStack matrices, @Local TextRenderer textRenderer) {
-		if (game instanceof IHasCapturePoints<?, ?> cpGame) {
-			List<? extends AbstractCapturePoint<?>> capturePoints = cpGame.getCapturePoints();
+		if (game instanceof DominationGame domGame) {
+			List<? extends AbstractCapturePoint<?>> capturePoints = domGame.getCapturePoints();
+			int height = context.getScaledWindowHeight();
 			int midX = context.getScaledWindowWidth() / 2;
 			
 			switch (AddonClientConfig.getMatchHudStyle()) {
 				case OLD -> {
 					AddonRendering.oldCapturePointIcons(matrices, context, textRenderer, game, capturePoints, midX, 34, BFRendering.getRenderTime());
 					AddonRendering.oldCapturePointNames(matrices, context, textRenderer, capturePoints, midX, 44);
+				}
+				case DAY_OF_INFAMY -> {
+					AddonRendering.oldCapturePointIcons(matrices, context, textRenderer, game, capturePoints, midX, height - 24, BFRendering.getRenderTime());
+					AddonRendering.oldCapturePointNames(matrices, context, textRenderer, capturePoints, midX, height - 40);
 				}
 			}
 		}

@@ -7,6 +7,7 @@ import com.boehmod.blockfront.client.BFClientManager;
 import com.boehmod.blockfront.client.player.BFClientPlayerData;
 import com.boehmod.blockfront.client.player.ClientPlayerDataHandler;
 import com.boehmod.blockfront.game.CapturePointGameClient;
+import com.boehmod.blockfront.game.GameStageTimer;
 import com.boehmod.blockfront.game.impl.dom.DominationGame;
 import com.boehmod.blockfront.game.impl.dom.DominationGameClient;
 import com.boehmod.blockfront.game.impl.dom.DominationPlayerManager;
@@ -50,8 +51,10 @@ public abstract class DominationGameClientMixin extends CapturePointGameClient<D
 	) {
 		super.method_2722(client, manager, player, world, playerData, context, textRenderer, matrices, vertexConsumers, players, width, height, midX, midY, renderTime, delta);
 		
+		GameStageTimer timer = method_2678();
 		switch (AddonClientConfig.getMatchHudStyle()) {
-			case OLD -> DominationAddonRendering.oldMatchHud(client, manager, dataHandler, game, method_2678(), context, textRenderer, matrices, midX, renderTime);
+			case OLD -> DominationAddonRendering.oldMatchHud(client, manager, dataHandler, game, timer, context, textRenderer, matrices, midX, renderTime);
+			case DAY_OF_INFAMY -> DominationAddonRendering.dayOfInfamyMatchHud(game, timer, context, textRenderer, matrices, height, midX);
 		}
 	}
 }

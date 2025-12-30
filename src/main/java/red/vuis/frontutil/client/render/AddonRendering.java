@@ -179,7 +179,7 @@ public final class AddonRendering {
 			
 			Identifier cpIcon = capturePoint.icon;
 			if (cpIcon != null) {
-				BFRendering.texture(matrices, context, cpIcon, cpX, 27, 14, 14, alpha);
+				BFRendering.texture(matrices, context, cpIcon, cpX, iconY, 14, 14, alpha);
 			}
 		}
 	}
