@@ -161,12 +161,12 @@ public final class AddonRendering {
 		BufferRenderer.drawWithGlobalProgram(builder.end());
 	}
 	
-	@SuppressWarnings("deprecation")
-	public static void oldCapturePoints(MatrixStack matrices, DrawContext context, TextRenderer textRenderer, AbstractGame<?, ?, ?> game, List<? extends AbstractCapturePoint<?>> capturePoints, int x, float renderTime) {
+	public static void oldCapturePointIcons(MatrixStack matrices, DrawContext context, TextRenderer textRenderer, AbstractGame<?, ?, ?> game, List<? extends AbstractCapturePoint<?>> capturePoints, int midX, int midY, float renderTime) {
 		int numCapturePoints = capturePoints.size();
 		
-		int totalWidth = 16 * numCapturePoints + 2 * numCapturePoints;
-		int startX = x - totalWidth / 2;
+		int totalWidth = 18 * numCapturePoints;
+		int startX = midX - totalWidth / 2;
+		int iconY = midY - 7;
 		float flicker = MathHelper.sin(renderTime / 5f);
 		
 		for (int i = 0; i < numCapturePoints; i++) {
@@ -175,14 +175,26 @@ public final class AddonRendering {
 			int cpX = startX + i * 18 + 1;
 			float alpha = Math.max(capturePoint.isBeingCaptured ? 0.5f * flicker : 0.5f, 0.01f);
 			
-			BFRendering.tintedTexture(matrices, context, BFRenderFrameSubscriber.NEUTRAL_ICON_TEXTURE, cpX, 27f, 14f, 14f, 0f, alpha, capturePoint.method_3143(game));
+			BFRendering.tintedTexture(matrices, context, BFRenderFrameSubscriber.NEUTRAL_ICON_TEXTURE, cpX, iconY, 14, 14, 0f, alpha, capturePoint.method_3143(game));
 			
 			Identifier cpIcon = capturePoint.icon;
 			if (cpIcon != null) {
 				BFRendering.texture(matrices, context, cpIcon, cpX, 27, 14, 14, alpha);
 			}
+		}
+	}
+	
+	public static void oldCapturePointNames(MatrixStack matrices, DrawContext context, TextRenderer textRenderer, List<? extends AbstractCapturePoint<?>> capturePoints, int midX, int midY) {
+		int numCapturePoints = capturePoints.size();
+		
+		int totalWidth = 18 * (numCapturePoints - 1);
+		int startX = midX - totalWidth / 2;
+		
+		for (int i = 0; i < numCapturePoints; i++) {
+			AbstractCapturePoint<?> capturePoint = capturePoints.get(i);
 			
-			BFRendering.centeredComponent2d(matrices, textRenderer, context, Text.literal(capturePoint.name), cpX + 8f, 44f, 1f);
+			int x = startX + i * 18;
+			BFRendering.centeredComponent2d(matrices, textRenderer, context, Text.literal(capturePoint.name), x, midY, 1f);
 		}
 	}
 	

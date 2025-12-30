@@ -1,9 +1,12 @@
 package red.vuis.frontutil.mixin.client;
 
+import java.util.List;
+
 import com.boehmod.blockfront.client.BFClientManager;
 import com.boehmod.blockfront.client.gui.layer.BFAbstractGuiLayer;
 import com.boehmod.blockfront.client.gui.layer.MatchGuiLayer;
 import com.boehmod.blockfront.client.render.BFRendering;
+import com.boehmod.blockfront.game.AbstractCapturePoint;
 import com.boehmod.blockfront.game.AbstractGame;
 import com.boehmod.blockfront.game.tag.IHasCapturePoints;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -42,9 +45,17 @@ public abstract class MatchGuiLayerMixin extends BFAbstractGuiLayer {
 			target = "Lcom/boehmod/blockfront/game/AbstractGamePlayerManager;getPlayerUUIDs()Ljava/util/Set;"
 		)
 	)
-	private void addOldCapturePointRendering(DrawContext context, RenderTickCounter tick, BFClientManager manager, CallbackInfo ci, @Local AbstractGame<?, ?, ?> game, @Local MatrixStack matrices, @Local TextRenderer textRenderer) {
-		if (AddonClientConfig.getMatchHudStyle() == MatchHudStyle.OLD && game instanceof IHasCapturePoints<?, ?> cpGame) {
-			AddonRendering.oldCapturePoints(matrices, context, textRenderer, game, cpGame.getCapturePoints(), context.getScaledWindowWidth() / 2, BFRendering.getRenderTime());
+	private void addCustomRendering(DrawContext context, RenderTickCounter tick, BFClientManager manager, CallbackInfo ci, @Local AbstractGame<?, ?, ?> game, @Local MatrixStack matrices, @Local TextRenderer textRenderer) {
+		if (game instanceof IHasCapturePoints<?, ?> cpGame) {
+			List<? extends AbstractCapturePoint<?>> capturePoints = cpGame.getCapturePoints();
+			int midX = context.getScaledWindowWidth() / 2;
+			
+			switch (AddonClientConfig.getMatchHudStyle()) {
+				case OLD -> {
+					AddonRendering.oldCapturePointIcons(matrices, context, textRenderer, game, capturePoints, midX, 34, BFRendering.getRenderTime());
+					AddonRendering.oldCapturePointNames(matrices, context, textRenderer, capturePoints, midX, 44);
+				}
+			}
 		}
 	}
 	
