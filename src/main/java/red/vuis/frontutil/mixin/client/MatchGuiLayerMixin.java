@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import red.vuis.frontutil.client.data.config.AddonClientConfig;
@@ -44,6 +45,19 @@ public abstract class MatchGuiLayerMixin extends BFAbstractGuiLayer {
 	private void addOldCapturePointRendering(DrawContext context, RenderTickCounter tick, BFClientManager manager, CallbackInfo ci, @Local AbstractGame<?, ?, ?> game, @Local MatrixStack matrices, @Local TextRenderer textRenderer) {
 		if (AddonClientConfig.getMatchHudStyle() == MatchHudStyle.OLD && game instanceof IHasCapturePoints<?, ?> cpGame) {
 			AddonRendering.oldCapturePoints(matrices, context, textRenderer, game, cpGame.getCapturePoints(), context.getScaledWindowWidth() / 2, BFRendering.getRenderTime());
+		}
+	}
+	
+	@Redirect(
+		method = "render",
+		at = @At(
+			value = "INVOKE",
+			target = "Lcom/boehmod/blockfront/client/render/BFRendering;rectangle(Lnet/minecraft/client/gui/DrawContext;IIIIIF)V"
+		)
+	)
+	private void toggleDeathFadeRects(DrawContext graphics, int x, int y, int width, int height, int color, float alpha) {
+		if (AddonClientConfig.getEnableDeathFade()) {
+			BFRendering.rectangle(graphics, x, y, width, height, color, alpha);
 		}
 	}
 }

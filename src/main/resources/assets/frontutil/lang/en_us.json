@@ -1,6 +1,8 @@
 {
   "bf.menu.button.modsettings": "BlockFront Settings",
   "bf.message.ingame.settings.mod": "BlockFront Settings...",
+  "frontutil.configuration.enable_death_fade": "Enable Death Fade",
+  "frontutil.configuration.enable_death_fade.tooltip": "Whether to fade out the screen before redeployment",
   "frontutil.configuration.kill_feed_lines": "Kill Feed Lines",
   "frontutil.configuration.kill_feed_lines.tooltip": "The maximum amount of lines on the kill feed before old lines get removed",
   "frontutil.configuration.match_hud_style": "Match HUD Style",
