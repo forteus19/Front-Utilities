@@ -17,10 +17,12 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.NotNull;
 
 import red.vuis.frontutil.client.render.AddonRendering;
+import red.vuis.frontutil.client.util.AddonClientUtils;
 
 public final class DominationAddonRendering {
 	private static final int AXIS_COLOR = 0x7E3831;
@@ -90,10 +92,12 @@ public final class DominationAddonRendering {
 		BFRendering.rectangle(matrices, context, alliesRectStartX, 16f, 78f, 8f, ALLIES_COLOR, 0.35f);
 		BFRendering.rectangle(matrices, context, alliesRectStartX + (78f - alliesScoreRectWidth), 16f, alliesScoreRectWidth, 8f, ALLIES_COLOR, 1f);
 		
+		List<? extends AbstractCapturePoint<?>> capturePoints = game.getCapturePoints();
+		
 		int axisArrows = 0;
 		int alliesArrows = 0;
 		
-		for (AbstractCapturePoint<?> capturePoint : game.getCapturePoints()) {
+		for (AbstractCapturePoint<?> capturePoint : capturePoints) {
 			if (capturePoint.cbTeam == axisTeam) {
 				axisArrows++;
 			} else if (capturePoint.cbTeam == alliesTeam) {
@@ -109,6 +113,78 @@ public final class DominationAddonRendering {
 		for (int i = 0; i < alliesArrows; i++) {
 			BFRendering.texture(matrices, context, AddonRendering.CPOINT_ARROW_LEFT_BLACK, midX + 92f - 7f * i, 17f, 6f, 6f, arrowAlpha);
 		}
+		
+		AddonRendering.oldCapturePointIcons(matrices, context, game, capturePoints, midX, 34, BFRendering.getRenderTime(), true);
+		AddonRendering.oldCapturePointNames(matrices, context, textRenderer, capturePoints, midX, 44);
+	}
+	
+	public static void dayOfDefeatMatchHud(
+		@NotNull DominationGame game,
+		@NotNull GameStageTimer timer,
+		@NotNull DrawContext context,
+		@NotNull TextRenderer textRenderer,
+		@NotNull MatrixStack matrices
+	) {
+		DominationPlayerManager playerManager = game.getPlayerManager();
+		
+		int baseX = 2;
+		int baseY = 2;
+		int endY = baseY + 16;
+		
+		GameTeam axisTeam = playerManager.getTeamByName("Axis");
+		GameTeam alliesTeam = playerManager.getTeamByName("Allies");
+		if (axisTeam == null || alliesTeam == null) {
+			return;
+		}
+		
+		List<? extends AbstractCapturePoint<?>> capturePoints = game.getCapturePoints();
+		int numCapturePoints = capturePoints.size();
+		
+		for (int i = 0; i < numCapturePoints; i++) {
+			AbstractCapturePoint<?> capturePoint = capturePoints.get(i);
+			
+			int cpStartX = baseX + i * 17;
+			int cpEndX = baseX + (i + 1) * 17 - 1;
+			
+			boolean hasCaptureProgress = capturePoint.captureTimer > 0;
+			
+			if (hasCaptureProgress) {
+				float captureProgress = capturePoint.captureTimer / (float) AbstractCapturePoint.field_3233;
+				int scissorX = cpStartX + (int) (captureProgress * 16f);
+				context.enableScissor(cpStartX, baseY, scissorX, endY);
+				
+				Identifier cpTexture = AddonClientUtils.getTeamIcon(capturePoint.cpTeam);
+				BFRendering.texture(matrices, context, cpTexture, cpStartX, baseY, 16, 16);
+				
+				context.disableScissor();
+				
+				context.enableScissor(scissorX, baseY, cpEndX, endY);
+			}
+			
+			Identifier cbTexture = AddonClientUtils.getTeamIcon(capturePoint.cbTeam);
+			BFRendering.texture(matrices, context, cbTexture, cpStartX, baseY, 16, 16);
+			
+			if (hasCaptureProgress) {
+				context.disableScissor();
+			}
+		}
+		
+		int axisScore = axisTeam.getObjectInt(BFStats.SCORE);
+		int alliesScore = alliesTeam.getObjectInt(BFStats.SCORE);
+		Text axisScoreText = Text.literal(Integer.toString(axisScore)).withColor(AXIS_COLOR);
+		Text alliesScoreText = Text.literal(Integer.toString(alliesScore)).withColor(ALLIES_COLOR);
+		
+		int rectY = baseY + 18;
+		int textX = baseX + 2;
+		int textY = rectY + 2;
+		
+		BFRendering.rectangle(context, baseX, rectY, 100, 31, BFRendering.translucentBlack());
+		
+		BFRendering.drawString(textRenderer, context, Text.translatable("frontutil.match.hud.day_of_defeat.score.allies", alliesScoreText), textX, textY);
+		textY += 10;
+		BFRendering.drawString(textRenderer, context, Text.translatable("frontutil.match.hud.day_of_defeat.score.axis", axisScoreText), textX, textY);
+		textY += 10;
+		BFRendering.drawString(textRenderer, context, Text.translatable("frontutil.match.hud.day_of_defeat.time", BFRendering.formatTime(timer.getSecondsRemaining())), textX, textY);
 	}
 	
 	public static void dayOfInfamyMatchHud(
@@ -143,5 +219,10 @@ public final class DominationAddonRendering {
 		BFRendering.centeredComponent2d(matrices, textRenderer, context, axisScoreText, midX - 39, textY, 1f);
 		BFRendering.rectangle(context, midX + 20, topY, 38, 13, BFRendering.translucentBlack());
 		BFRendering.centeredComponent2d(matrices, textRenderer, context, alliesScoreText, midX + 39, textY, 1f);
+		
+		List<? extends AbstractCapturePoint<?>> capturePoints = game.getCapturePoints();
+		
+		AddonRendering.oldCapturePointIcons(matrices, context, game, capturePoints, midX, height - 24, BFRendering.getRenderTime(), true);
+		AddonRendering.oldCapturePointNames(matrices, context, textRenderer, capturePoints, midX, height - 40);
 	}
 }

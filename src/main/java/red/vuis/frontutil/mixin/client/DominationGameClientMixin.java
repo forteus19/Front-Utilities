@@ -54,6 +54,7 @@ public abstract class DominationGameClientMixin extends CapturePointGameClient<D
 		GameStageTimer timer = method_2678();
 		switch (AddonClientConfig.getMatchHudStyle()) {
 			case OLD -> DominationAddonRendering.oldMatchHud(client, manager, dataHandler, game, timer, context, textRenderer, matrices, midX, renderTime);
+			case DAY_OF_DEFEAT -> DominationAddonRendering.dayOfDefeatMatchHud(game, timer, context, textRenderer, matrices);
 			case DAY_OF_INFAMY -> DominationAddonRendering.dayOfInfamyMatchHud(game, timer, context, textRenderer, matrices, height, midX);
 		}
 	}

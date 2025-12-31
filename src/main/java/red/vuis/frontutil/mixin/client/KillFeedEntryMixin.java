@@ -3,6 +3,7 @@ package red.vuis.frontutil.mixin.client;
 import com.boehmod.blockfront.client.render.BFRendering;
 import com.boehmod.blockfront.common.match.kill.KillEntryType;
 import com.boehmod.blockfront.common.match.kill.KillFeedEntry;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.util.math.MatrixStack;
 import org.jetbrains.annotations.NotNull;
@@ -10,6 +11,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import red.vuis.frontutil.client.data.config.AddonClientConfig;
@@ -18,6 +20,19 @@ import red.vuis.frontutil.client.data.config.AddonClientConfig;
 public abstract class KillFeedEntryMixin {
 	@Shadow
 	private @NotNull KillEntryType type;
+	
+	@ModifyArg(
+		method = "render",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/client/util/math/MatrixStack;translate(FFF)V",
+			ordinal = 0
+		),
+		index = 0
+	)
+	private float renderRightAligned(float x, @Local(argsOnly = true) DrawContext context, @Local(ordinal = 2) float entryWidth) {
+		return AddonClientConfig.getMatchHudStyle().isRightKillFeed() ? context.getScaledWindowWidth() - entryWidth - x : x;
+	}
 	
 	@SuppressWarnings("deprecation")
 	@Inject(

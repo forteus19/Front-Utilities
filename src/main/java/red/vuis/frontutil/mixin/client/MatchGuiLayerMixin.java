@@ -1,32 +1,46 @@
 package red.vuis.frontutil.mixin.client;
 
-import java.util.List;
-
-import com.boehmod.blockfront.client.BFClientManager;
 import com.boehmod.blockfront.client.gui.layer.BFAbstractGuiLayer;
 import com.boehmod.blockfront.client.gui.layer.MatchGuiLayer;
 import com.boehmod.blockfront.client.render.BFRendering;
-import com.boehmod.blockfront.game.AbstractCapturePoint;
-import com.boehmod.blockfront.game.AbstractGame;
-import com.boehmod.blockfront.game.impl.dom.DominationGame;
 import com.llamalad7.mixinextras.sugar.Local;
-import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.client.util.math.MatrixStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
-import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import red.vuis.frontutil.client.data.config.AddonClientConfig;
-import red.vuis.frontutil.client.render.AddonRendering;
 
 @Mixin(MatchGuiLayer.class)
 public abstract class MatchGuiLayerMixin extends BFAbstractGuiLayer {
+	@ModifyArg(
+		method = "method_499",
+		at = @At(
+			value = "INVOKE",
+			target = "Lcom/boehmod/blockfront/client/render/minimap/MinimapRendering;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/client/network/ClientPlayerEntity;Ljava/util/Collection;IIFII)V"
+		),
+		index = 5
+	)
+	private int minimapXPosition(int x, @Local(argsOnly = true) DrawContext context) {
+		return switch (AddonClientConfig.getMatchHudStyle()) {
+			case DAY_OF_DEFEAT -> context.getScaledWindowWidth() - 106;
+			default -> x;
+		};
+	}
+	
+	@ModifyConstant(
+		method = "renderKillFeed",
+		constant = @Constant(
+			floatValue = 6.0F
+		)
+	)
+	private float killFeedXTranslation(float constant) {
+		return AddonClientConfig.getMatchHudStyle().isRightKillFeed() ? -6f : constant;
+	}
+	
 	@ModifyConstant(
 		method = "renderKillFeed",
 		constant = @Constant(
@@ -35,32 +49,6 @@ public abstract class MatchGuiLayerMixin extends BFAbstractGuiLayer {
 	)
 	private int killFeedSpacing(int constant) {
 		return AddonClientConfig.getMatchHudStyle().isOldKillFeed() ? 12 : constant;
-	}
-	
-	@Inject(
-		method = "render",
-		at = @At(
-			value = "INVOKE_ASSIGN",
-			target = "Lcom/boehmod/blockfront/game/AbstractGamePlayerManager;getPlayerUUIDs()Ljava/util/Set;"
-		)
-	)
-	private void addCustomRendering(DrawContext context, RenderTickCounter tick, BFClientManager manager, CallbackInfo ci, @Local AbstractGame<?, ?, ?> game, @Local MatrixStack matrices, @Local TextRenderer textRenderer) {
-		if (game instanceof DominationGame domGame) {
-			List<? extends AbstractCapturePoint<?>> capturePoints = domGame.getCapturePoints();
-			int height = context.getScaledWindowHeight();
-			int midX = context.getScaledWindowWidth() / 2;
-			
-			switch (AddonClientConfig.getMatchHudStyle()) {
-				case OLD -> {
-					AddonRendering.oldCapturePointIcons(matrices, context, textRenderer, game, capturePoints, midX, 34, BFRendering.getRenderTime());
-					AddonRendering.oldCapturePointNames(matrices, context, textRenderer, capturePoints, midX, 44);
-				}
-				case DAY_OF_INFAMY -> {
-					AddonRendering.oldCapturePointIcons(matrices, context, textRenderer, game, capturePoints, midX, height - 24, BFRendering.getRenderTime());
-					AddonRendering.oldCapturePointNames(matrices, context, textRenderer, capturePoints, midX, height - 40);
-				}
-			}
-		}
 	}
 	
 	@Redirect(

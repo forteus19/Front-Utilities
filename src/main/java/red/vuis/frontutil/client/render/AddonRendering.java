@@ -161,11 +161,13 @@ public final class AddonRendering {
 		BufferRenderer.drawWithGlobalProgram(builder.end());
 	}
 	
-	public static void oldCapturePointIcons(MatrixStack matrices, DrawContext context, TextRenderer textRenderer, AbstractGame<?, ?, ?> game, List<? extends AbstractCapturePoint<?>> capturePoints, int midX, int midY, float renderTime) {
+	public static void oldCapturePointIcons(MatrixStack matrices, DrawContext context, AbstractGame<?, ?, ?> game, List<? extends AbstractCapturePoint<?>> capturePoints, int x, int midY, float renderTime, boolean centered) {
 		int numCapturePoints = capturePoints.size();
 		
-		int totalWidth = 18 * numCapturePoints;
-		int startX = midX - totalWidth / 2;
+		int startX = x;
+		if (centered) {
+			startX -= (18 * numCapturePoints) / 2;
+		}
 		int iconY = midY - 7;
 		float flicker = MathHelper.sin(renderTime / 5f);
 		
