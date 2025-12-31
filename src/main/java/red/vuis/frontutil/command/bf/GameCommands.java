@@ -46,7 +46,7 @@ public final class GameCommands {
 			capturePoints
 		));
 		
-		base.subCommand("move", moveCapturePoint(
+		base.subCommand("moveIndex", moveCapturePointIndex(
 			capturePoints
 		));
 		
@@ -96,7 +96,7 @@ public final class GameCommands {
 		);
 	}
 	
-	public static <T extends AbstractCapturePoint<?>> AssetCommandBuilder moveCapturePoint(List<T> capturePoints) {
+	public static <T extends AbstractCapturePoint<?>> AssetCommandBuilder moveCapturePointIndex(List<T> capturePoints) {
 		return new AssetCommandBuilder((context, args) -> {
 			ServerPlayerEntity player = AddonCommandUtils.getContextPlayer(context);
 			if (player == null) {
@@ -115,7 +115,7 @@ public final class GameCommands {
 			Text positionComponent = Text.literal(AddonUtils.formatVec3(player.getPos())).fillStyle(BFStyles.LIME);
 			
 			AddonUtils.setPoseFromEntity(capturePoint, player);
-			CommandUtils.sendBfa(player, Text.translatable("frontutil.message.command.game.cpoint.move.success", cpNameComponent, indexComponent, positionComponent));
+			CommandUtils.sendBfa(player, Text.translatable("frontutil.message.command.game.cpoint.moveIndex.success", cpNameComponent, indexComponent, positionComponent));
 		}).validator(
 			AssetCommandValidatorsEx.count("index")
 		);
