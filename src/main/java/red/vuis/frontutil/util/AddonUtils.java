@@ -29,6 +29,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
+import org.jetbrains.annotations.Nullable;
 
 public final class AddonUtils {
 	private AddonUtils() {
@@ -150,5 +151,12 @@ public final class AddonUtils {
 		BFGameType gameType = BFGameType.getByName(game.getType());
 		assert gameType != null;
 		return gameType;
+	}
+	
+	public static <E extends Enum<E>> E retrieveEnumOrDefault(E[] values, @Nullable String name, E defaultValue) {
+		if (name == null) {
+			return defaultValue;
+		}
+		return Arrays.stream(values).filter(value -> value.toString().equalsIgnoreCase(name)).findFirst().orElse(defaultValue);
 	}
 }

@@ -127,7 +127,7 @@ public abstract class FreeForAllGameMixin extends AbstractGame<FreeForAllGame, F
 		at = @At("TAIL")
 	)
 	private void readCustomFDS(FDSTagCompound root, CallbackInfo ci) {
-		frontutil$allowAntiTank = root.getBoolean("allowAntiTank");
+		frontutil$allowAntiTank = root.getBoolean("allowAntiTank", false);
 	}
 	
 	@Override

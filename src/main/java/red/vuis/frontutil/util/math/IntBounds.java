@@ -40,4 +40,12 @@ public class IntBounds {
 	public int clamp(int value) {
 		return Math.max(min, Math.min(max, value));
 	}
+	
+	public int parse(String s) {
+		int value = Integer.parseInt(s);
+		if (!within(value)) {
+			throw new IllegalArgumentException("Value out of bounds");
+		}
+		return value;
+	}
 }
