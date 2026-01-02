@@ -6,7 +6,7 @@
   "frontutil.configuration.kill_feed_lines": "Kill Feed Lines",
   "frontutil.configuration.kill_feed_lines.tooltip": "The maximum amount of lines on the kill feed before old lines get removed",
   "frontutil.configuration.match_hud_style": "Match HUD Style",
-  "frontutil.configuration.match_hud_style.tooltip": "Whether to use the new info style or the old style from before 0.6.0.0b",
+  "frontutil.configuration.match_hud_style.tooltip": "Changes the HUD layout / how it is rendered",
   "frontutil.configuration.render_corpses": "Render Corpses",
   "frontutil.configuration.render_corpses.tooltip": "Enable/disable whether corpses should render",
   "frontutil.match.hud.day_of_defeat.score.allies": "Allies - %s",
