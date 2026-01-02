@@ -50,6 +50,8 @@ import static red.vuis.frontutil.util.ColorUtils.redFloat;
  * Various static utility methods for rendering.
  */
 public final class AddonRendering {
+	public static final int OLD_AXIS_COLOR = 0x7E3831;
+	public static final int OLD_ALLIES_COLOR = 0x747948;
 	public static final Identifier CPOINT_ARROW_RIGHT_BLACK = BFRes.loc("textures/gui/game/domination/cpoint_arrow_right_black.png");
 	public static final Identifier CPOINT_ARROW_LEFT_BLACK = BFRes.loc("textures/gui/game/domination/cpoint_arrow_left_black.png");
 	private static final Identifier PLAYER_HEAD_DEAD = BFRes.loc("textures/gui/dead.png");

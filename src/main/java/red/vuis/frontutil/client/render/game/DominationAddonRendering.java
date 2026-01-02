@@ -25,9 +25,6 @@ import red.vuis.frontutil.client.render.AddonRendering;
 import red.vuis.frontutil.client.util.AddonClientUtils;
 
 public final class DominationAddonRendering {
-	private static final int AXIS_COLOR = 0x7E3831;
-	private static final int ALLIES_COLOR = 0x747948;
-	
 	private DominationAddonRendering() {
 	}
 	
@@ -60,8 +57,8 @@ public final class DominationAddonRendering {
 		
 		int axisScore = axisTeam.getObjectInt(BFStats.SCORE);
 		int alliesScore = alliesTeam.getObjectInt(BFStats.SCORE);
-		Text axisScoreText = Text.literal(Integer.toString(axisScore)).withColor(AXIS_COLOR);
-		Text alliesScoreText = Text.literal(Integer.toString(alliesScore)).withColor(ALLIES_COLOR);
+		Text axisScoreText = Text.literal(Integer.toString(axisScore)).withColor(AddonRendering.OLD_AXIS_COLOR);
+		Text alliesScoreText = Text.literal(Integer.toString(alliesScore)).withColor(AddonRendering.OLD_ALLIES_COLOR);
 		
 		float axisRectStartX = midX - 99f;
 		float axisScoreStartX = midX - 19f;
@@ -79,8 +76,8 @@ public final class DominationAddonRendering {
 		// Axis rect
 		BFRendering.rectangle(matrices, context, axisRectStartX - 1f, 15f, 80f, 10f, BFRendering.translucentBlack());
 		BFRendering.rectangle(matrices, context, axisRectStartX, 16f, 78f, 8f, 0, 0.35f);
-		BFRendering.rectangle(matrices, context, axisRectStartX, 16f, 78f, 8f, AXIS_COLOR, 0.35f);
-		BFRendering.rectangle(matrices, context, axisRectStartX, 16f, axisScoreRectWidth, 8f, AXIS_COLOR, 1f);
+		BFRendering.rectangle(matrices, context, axisRectStartX, 16f, 78f, 8f, AddonRendering.OLD_AXIS_COLOR, 0.35f);
+		BFRendering.rectangle(matrices, context, axisRectStartX, 16f, axisScoreRectWidth, 8f, AddonRendering.OLD_AXIS_COLOR, 1f);
 		
 		// Allies score
 		BFRendering.rectangle(matrices, context, alliesScoreStartX, 15f, 18.5f, 10f, BFRendering.translucentBlack());
@@ -89,8 +86,8 @@ public final class DominationAddonRendering {
 		// Allies rect
 		BFRendering.rectangle(matrices, context, alliesRectStartX - 1f, 15f, 80f, 10f, BFRendering.translucentBlack());
 		BFRendering.rectangle(matrices, context, alliesRectStartX, 16f, 78f, 8f, 0, 0.35f);
-		BFRendering.rectangle(matrices, context, alliesRectStartX, 16f, 78f, 8f, ALLIES_COLOR, 0.35f);
-		BFRendering.rectangle(matrices, context, alliesRectStartX + (78f - alliesScoreRectWidth), 16f, alliesScoreRectWidth, 8f, ALLIES_COLOR, 1f);
+		BFRendering.rectangle(matrices, context, alliesRectStartX, 16f, 78f, 8f, AddonRendering.OLD_ALLIES_COLOR, 0.35f);
+		BFRendering.rectangle(matrices, context, alliesRectStartX + (78f - alliesScoreRectWidth), 16f, alliesScoreRectWidth, 8f, AddonRendering.OLD_ALLIES_COLOR, 1f);
 		
 		List<? extends AbstractCapturePoint<?>> capturePoints = game.getCapturePoints();
 		
@@ -171,8 +168,8 @@ public final class DominationAddonRendering {
 		
 		int axisScore = axisTeam.getObjectInt(BFStats.SCORE);
 		int alliesScore = alliesTeam.getObjectInt(BFStats.SCORE);
-		Text axisScoreText = Text.literal(Integer.toString(axisScore)).withColor(AXIS_COLOR);
-		Text alliesScoreText = Text.literal(Integer.toString(alliesScore)).withColor(ALLIES_COLOR);
+		Text axisScoreText = Text.literal(Integer.toString(axisScore)).withColor(AddonRendering.OLD_AXIS_COLOR);
+		Text alliesScoreText = Text.literal(Integer.toString(alliesScore)).withColor(AddonRendering.OLD_ALLIES_COLOR);
 		
 		int rectY = baseY + 18;
 		int textX = baseX + 2;
@@ -212,8 +209,8 @@ public final class DominationAddonRendering {
 		
 		int axisScore = axisTeam.getObjectInt(BFStats.SCORE);
 		int alliesScore = alliesTeam.getObjectInt(BFStats.SCORE);
-		Text axisScoreText = Text.literal(Integer.toString(axisScore)).withColor(AXIS_COLOR);
-		Text alliesScoreText = Text.literal(Integer.toString(alliesScore)).withColor(ALLIES_COLOR);
+		Text axisScoreText = Text.literal(Integer.toString(axisScore)).withColor(AddonRendering.OLD_AXIS_COLOR);
+		Text alliesScoreText = Text.literal(Integer.toString(alliesScore)).withColor(AddonRendering.OLD_ALLIES_COLOR);
 		
 		BFRendering.rectangle(context, midX - 58, topY, 38, 13, BFRendering.translucentBlack());
 		BFRendering.centeredComponent2d(matrices, textRenderer, context, axisScoreText, midX - 39, textY, 1f);
