@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import com.boehmod.blockfront.BlockFront;
@@ -17,10 +18,14 @@ import com.boehmod.blockfront.assets.impl.GameAsset;
 import com.boehmod.blockfront.common.BFAbstractManager;
 import com.boehmod.blockfront.common.match.DivisionData;
 import com.boehmod.blockfront.common.match.MatchClass;
+import com.boehmod.blockfront.game.AbstractGame;
 import com.boehmod.blockfront.game.AbstractGamePlayerManager;
+import com.boehmod.blockfront.game.GameStageTimer;
 import com.boehmod.blockfront.game.GameTeam;
+import com.boehmod.blockfront.game.ITimedStage;
 import com.boehmod.blockfront.game.impl.ffa.FreeForAllGame;
 import com.boehmod.blockfront.registry.BFDataComponents;
+import com.boehmod.blockfront.util.BFUtils;
 import com.boehmod.blockfront.util.math.FDSPose;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -95,6 +100,18 @@ public final class FrontUtilCommand {
 			).then(
 				literal("write").then(
 					argument("filename", StringArgumentType.word()).executes(FrontUtilCommand::loadoutWrite)
+				)
+			)
+		).then(
+			literal("match").then(
+				literal("timer").then(
+					literal("add").then(
+						argument("seconds", IntegerArgumentType.integer(0)).executes(FrontUtilCommand::matchTimerAdd)
+					)
+				).then(
+					literal("set").then(
+						argument("seconds", IntegerArgumentType.integer(0)).executes(FrontUtilCommand::matchTimerSet)
+					)
 				)
 			)
 		).then(
@@ -276,12 +293,68 @@ public final class FrontUtilCommand {
 		return 1;
 	}
 	
+	private static int matchTimerAdd(CommandContext<ServerCommandSource> context) {
+		ServerCommandSource source = context.getSource();
+		ServerPlayerEntity player = AddonCommandUtils.getContextPlayer(context);
+		if (player == null) {
+			return -1;
+		}
+		
+		int seconds = IntegerArgumentType.getInteger(context, "seconds");
+		
+		return handleMatchTimerOperation(
+			context, source, player, timer -> timer.setSecondsRemaining(timer.getSecondsRemaining() + seconds),
+			Text.translatable("frontutil.message.command.match.timer.add.success", player.getNameForScoreboard(), seconds)
+		);
+	}
+	
+	private static int matchTimerSet(CommandContext<ServerCommandSource> context) {
+		ServerCommandSource source = context.getSource();
+		ServerPlayerEntity player = AddonCommandUtils.getContextPlayer(context);
+		if (player == null) {
+			return -1;
+		}
+		
+		int seconds = IntegerArgumentType.getInteger(context, "seconds");
+		
+		return handleMatchTimerOperation(
+			context, source, player, timer -> timer.setSecondsRemaining(seconds),
+			Text.translatable("frontutil.message.command.match.timer.set.success", player.getNameForScoreboard(), seconds)
+		);
+	}
+	
+	private static int handleMatchTimerOperation(CommandContext<ServerCommandSource> context, ServerCommandSource source, ServerPlayerEntity player, Consumer<GameStageTimer> timerOperation, Text message) {
+		BFAbstractManager<?, ?, ?> manager = BlockFront.getInstance().getManager();
+		assert manager != null;
+		AbstractGame<?, ?, ?> game = manager.getGameWithPlayer(player);
+		if (game == null) {
+			source.sendError(Text.translatable("frontutil.message.command.match.error.none"));
+			return -1;
+		}
+		
+		if (!(game.getStageManager().getCurrentStage() instanceof ITimedStage<?, ?> stage)) {
+			source.sendError(Text.translatable("frontutil.message.command.match.timer.error.invalid"));
+			return -1;
+		}
+		
+		@SuppressWarnings("DataFlowIssue") // unused parameter
+		GameStageTimer timer = stage.getStageTimer(null);
+		if (timer == null) {
+			return 0;
+		}
+		timerOperation.accept(timer);
+		BFUtils.sendFancyMessage(
+			game.getPlayerManager().getPlayerUUIDs(), BFUtils.ADMIN_PREFIX,
+			message
+		);
+		
+		return 1;
+	}
+	
 	private static int spawnViewEnable(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
 		ServerCommandSource source = context.getSource();
-		ServerPlayerEntity player = source.getPlayer();
-		
+		ServerPlayerEntity player = AddonCommandUtils.getContextPlayer(context);
 		if (player == null) {
-			source.sendError(Text.translatable("frontutil.message.command.error.player"));
 			return -1;
 		}
 		
