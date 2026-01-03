@@ -12,9 +12,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import com.boehmod.bflib.cloud.common.CloudRegistry;
+import com.boehmod.bflib.cloud.common.item.CloudItem;
+import com.boehmod.bflib.cloud.common.item.CloudItemStack;
 import com.boehmod.blockfront.BlockFront;
 import com.boehmod.blockfront.assets.AssetStore;
 import com.boehmod.blockfront.assets.impl.GameAsset;
+import com.boehmod.blockfront.cloud.CloudItemCache;
 import com.boehmod.blockfront.common.BFAbstractManager;
 import com.boehmod.blockfront.common.match.DivisionData;
 import com.boehmod.blockfront.common.match.MatchClass;
@@ -25,6 +29,7 @@ import com.boehmod.blockfront.game.GameTeam;
 import com.boehmod.blockfront.game.ITimedStage;
 import com.boehmod.blockfront.game.impl.ffa.FreeForAllGame;
 import com.boehmod.blockfront.registry.BFDataComponents;
+import com.boehmod.blockfront.util.BFRes;
 import com.boehmod.blockfront.util.BFUtils;
 import com.boehmod.blockfront.util.math.FDSPose;
 import com.mojang.brigadier.CommandDispatcher;
@@ -112,6 +117,12 @@ public final class FrontUtilCommand {
 					literal("set").then(
 						argument("seconds", IntegerArgumentType.integer(0)).executes(FrontUtilCommand::matchTimerSet)
 					)
+				)
+			)
+		).then(
+			literal("randomDrop").then(
+				argument("players", EntityArgumentType.players()).executes(context -> randomDrop(context, 1)).then(
+					argument("count", IntegerArgumentType.integer(1, 100)).executes(context -> randomDrop(context, IntegerArgumentType.getInteger(context, "count")))
 				)
 			)
 		).then(
@@ -349,6 +360,45 @@ public final class FrontUtilCommand {
 		);
 		
 		return 1;
+	}
+	
+	private static int randomDrop(CommandContext<ServerCommandSource> context, int count) throws CommandSyntaxException {
+		ServerCommandSource source = context.getSource();
+		
+		Collection<ServerPlayerEntity> players = EntityArgumentType.getPlayers(context, "players");
+		
+		BFAbstractManager<?, ?, ?> manager = BlockFront.getInstance().getManager();
+		assert manager != null;
+		CloudRegistry cloudRegistry = manager.getCloudRegistry();
+		
+		for (ServerPlayerEntity player : players) {
+			for (int i = 0; i < count; i++) {
+				handleRandomDrop(player, cloudRegistry);
+			}
+		}
+		
+		if (players.size() == 1) {
+			source.sendFeedback(() -> Text.translatable("frontutil.message.command.randomDrop.single.success", count, players.iterator().next().getDisplayName()), true);
+		} else {
+			source.sendFeedback(() -> Text.translatable("frontutil.message.command.randomDrop.multiple.success", count, players.size()), true);
+		}
+		return players.size();
+	}
+	
+	private static void handleRandomDrop(ServerPlayerEntity player, CloudRegistry cloudRegistry) {
+		CloudItemStack dropStack = CloudItem.getRandomDrop(cloudRegistry);
+		CloudItem<?> dropItem = dropStack.getCloudItem(cloudRegistry);
+		assert dropItem != null;
+		
+		Item item = Registries.ITEM.get(BFRes.fromCloud(dropItem.getMinecraftItem()));
+		if (item == Items.AIR) {
+			throw new RuntimeException("Cloud item id %d does not have a valid mc item location!".formatted(dropStack.getItemId()));
+		}
+		ItemStack itemStack = new ItemStack(item);
+		CloudItemCache.method_5941(dropItem, itemStack);
+		CloudItemCache.method_5942(dropStack, itemStack);
+		
+		player.giveItemStack(itemStack);
 	}
 	
 	private static int spawnViewEnable(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {

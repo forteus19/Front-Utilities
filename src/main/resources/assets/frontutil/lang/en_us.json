@@ -96,6 +96,8 @@
   "frontutil.message.command.match.timer.add.success": "Player %s has added %s seconds to the timer!",
   "frontutil.message.command.match.timer.error.invalid": "The current stage is not timed!",
   "frontutil.message.command.match.timer.set.success": "Player %s has set the timer to %s seconds!",
+  "frontutil.message.command.randomDrop.multiple.success": "Gave %s random drops to %s players",
+  "frontutil.message.command.randomDrop.single.success": "Gave %s random drops to %s",
   "frontutil.message.command.viewSpawns.disable.success": "Disabled spawn view",
   "frontutil.message.command.viewSpawns.enable.error.type": "Game type is not FFA",
   "frontutil.message.packet.loadouts.game": "Loadouts were not reloaded because one or more games are in progress. Run %s to manually apply the changes once all games have finished.",
