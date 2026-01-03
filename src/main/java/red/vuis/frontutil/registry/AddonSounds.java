@@ -9,17 +9,18 @@ import org.jetbrains.annotations.ApiStatus;
 
 import red.vuis.frontutil.AddonConstants;
 
+@SuppressWarnings("unused")
 public final class AddonSounds {
-	private AddonSounds() {
-	}
-	
-	private static final DeferredRegister<SoundEvent> DR = DeferredRegister.create(Registries.SOUND_EVENT, AddonConstants.MOD_ID);
+	public static final DeferredRegister<SoundEvent> DR = DeferredRegister.create(Registries.SOUND_EVENT, AddonConstants.MOD_ID);
 	
 	/**
 	 * For testing purposes
 	 */
 	@ApiStatus.Internal
 	public static final DeferredHolder<SoundEvent, SoundEvent> AMBIENT_LSP_RADIO_BIENVENIDA = register("ambient.lsp.radio.bienvenida");
+	
+	private AddonSounds() {
+	}
 	
 	private static DeferredHolder<SoundEvent, SoundEvent> register(String id) {
 		return DR.register(id, () -> SoundEvent.of(AddonConstants.id(id)));

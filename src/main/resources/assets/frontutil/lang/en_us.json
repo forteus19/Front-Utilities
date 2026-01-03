@@ -1,6 +1,8 @@
 {
   "bf.menu.button.modsettings": "BlockFront Settings",
   "bf.message.ingame.settings.mod": "BlockFront Settings...",
+  "block.frontutil.blood_no_collision": "Blood (No Collision)",
+  "block.frontutil.dead_fish_no_collision": "Dead Fish (No Collision)",
   "frontutil.configuration.enable_death_fade": "Enable Death Fade",
   "frontutil.configuration.enable_death_fade.tooltip": "Whether to fade out the screen before redeployment",
   "frontutil.configuration.kill_feed_lines": "Kill Feed Lines",
@@ -91,8 +93,8 @@
   "frontutil.message.command.map.mapEffect.types.header": "Map effect types for environment '%s':",
   "frontutil.message.command.map.teams.list.header": "Teams for map '%s':",
   "frontutil.message.command.match.error.none": "You must be in a match to run this command!",
-  "frontutil.message.command.match.timer.error.invalid": "The current stage is not timed!",
   "frontutil.message.command.match.timer.add.success": "Player %s has added %s seconds to the timer!",
+  "frontutil.message.command.match.timer.error.invalid": "The current stage is not timed!",
   "frontutil.message.command.match.timer.set.success": "Player %s has set the timer to %s seconds!",
   "frontutil.message.command.viewSpawns.disable.success": "Disabled spawn view",
   "frontutil.message.command.viewSpawns.enable.error.type": "Game type is not FFA",
@@ -167,5 +169,6 @@
   "frontutil.screen.weapon.label.magType": "Magazine Type",
   "frontutil.screen.weapon.label.scope": "Scope",
   "frontutil.screen.weapon.label.skin": "Skin",
-  "frontutil.widget.itemStack.itemId.hint": "Item ID"
+  "frontutil.widget.itemStack.itemId.hint": "Item ID",
+  "itemGroup.frontutil": "Front-Utilities"
 }
