@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import red.vuis.frontutil.command.arg.BFCountryArgumentType;
 import red.vuis.frontutil.command.arg.MatchClassArgumentType;
 
 @Mixin(ArgumentTypes.class)
@@ -25,6 +26,7 @@ public abstract class ArgumentTypesMixin {
 		at = @At("HEAD")
 	)
 	private static void registerCustom(Registry<ArgumentSerializer<?, ?>> registry, CallbackInfoReturnable<ArgumentSerializer<?, ?>> cir) {
+		register(registry, "frontutil:bf_country", BFCountryArgumentType.class, ConstantArgumentSerializer.of(BFCountryArgumentType::country));
 		register(registry, "frontutil:match_class", MatchClassArgumentType.class, ConstantArgumentSerializer.of(MatchClassArgumentType::matchClass));
 	}
 }

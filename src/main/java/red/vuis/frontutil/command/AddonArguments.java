@@ -3,6 +3,8 @@ package red.vuis.frontutil.command;
 import com.boehmod.blockfront.assets.AssetRegistry;
 import com.boehmod.blockfront.assets.AssetStore;
 import com.boehmod.blockfront.assets.IAsset;
+import com.boehmod.blockfront.common.match.BFCountry;
+import com.boehmod.blockfront.common.match.DivisionData;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -13,6 +15,8 @@ import net.minecraft.command.CommandSource;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
+
+import red.vuis.frontutil.command.arg.BFCountryArgumentType;
 
 public final class AddonArguments {
 	private static final Dynamic2CommandExceptionType ERROR_ASSET_NOT_FOUND = new Dynamic2CommandExceptionType(
@@ -41,5 +45,15 @@ public final class AddonArguments {
 			throw ERROR_ASSET_NOT_FOUND.create(assetName, registry.getType());
 		}
 		return asset;
+	}
+	
+	public static SuggestionProvider<ServerCommandSource> suggestSkins(String nationArgument) {
+		return (context, suggestions) -> {
+			BFCountry nation = BFCountryArgumentType.getCountry(context, nationArgument);
+			return CommandSource.suggestMatching(
+				DivisionData.INSTANCES.stream().filter(division -> division.getCountry() == nation).map(DivisionData::getSkin),
+				suggestions
+			);
+		};
 	}
 }

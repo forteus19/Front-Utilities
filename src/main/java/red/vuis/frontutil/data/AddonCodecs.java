@@ -16,10 +16,12 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.StringIdentifiable;
 
 import red.vuis.frontutil.setup.LoadoutIndex;
 
 public final class AddonCodecs {
+	public static final Codec<BFCountry> BF_COUNTRY = StringIdentifiable.createCodec(BFCountry::values);
 	public static final Codec<GunFireMode> GUN_FIRE_MODE = stringKey(GunFireMode.values(), mode -> mode.getName().toLowerCase(), key -> "Invalid fire mode: " + key);
 	public static final Codec<GunTriggerSpawnType> GUN_TRIGGER_SPAWN_TYPE = stringKey(GunTriggerSpawnType.values(), mode -> mode.name().toLowerCase(), key -> "Invalid fire type: " + key);
 	public static final Codec<Loadout> LOADOUT = RecordCodecBuilder.create(instance ->

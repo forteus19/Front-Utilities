@@ -20,7 +20,9 @@ import com.boehmod.blockfront.assets.AssetStore;
 import com.boehmod.blockfront.assets.impl.GameAsset;
 import com.boehmod.blockfront.cloud.CloudItemCache;
 import com.boehmod.blockfront.common.BFAbstractManager;
+import com.boehmod.blockfront.common.match.BFCountry;
 import com.boehmod.blockfront.common.match.DivisionData;
+import com.boehmod.blockfront.common.match.Loadout;
 import com.boehmod.blockfront.common.match.MatchClass;
 import com.boehmod.blockfront.game.AbstractGame;
 import com.boehmod.blockfront.game.AbstractGamePlayerManager;
@@ -51,11 +53,13 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandOutput;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.neoforged.neoforge.network.PacketDistributor;
 
+import red.vuis.frontutil.command.arg.BFCountryArgumentType;
 import red.vuis.frontutil.command.arg.MatchClassArgumentType;
 import red.vuis.frontutil.data.GunModifier;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
@@ -97,6 +101,18 @@ public final class FrontUtilCommand {
 			)
 		).then(
 			literal("loadout").then(
+				literal("give").then(
+					argument("players", EntityArgumentType.players()).then(
+						argument("nation", BFCountryArgumentType.country()).then(
+							argument("skin", StringArgumentType.word()).suggests(AddonArguments.suggestSkins("nation")).then(
+								argument("class", MatchClassArgumentType.matchClass()).then(
+									argument("level", IntegerArgumentType.integer(1)).executes(FrontUtilCommand::loadoutGive)
+								)
+							)
+						)
+					)
+				)
+			).then(
 				literal("list").executes(FrontUtilCommand::loadoutList)
 			).then(
 				literal("read").then(
@@ -218,6 +234,39 @@ public final class FrontUtilCommand {
 		}
 		
 		return 1;
+	}
+	
+	private static int loadoutGive(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+		ServerCommandSource source = context.getSource();
+		ServerWorld world = source.getWorld();
+		
+		Collection<ServerPlayerEntity> players = EntityArgumentType.getPlayers(context, "players");
+		BFCountry nation = BFCountryArgumentType.getCountry(context, "nation");
+		String skin = StringArgumentType.getString(context, "skin");
+		MatchClass matchClass = MatchClassArgumentType.getMatchClass(context, "class");
+		int level = IntegerArgumentType.getInteger(context, "level");
+		
+		DivisionData division = DivisionData.getByCountryAndSkin(nation, skin);
+		if (division == null) {
+			source.sendError(Text.translatable("frontutil.message.command.loadout.give.error.missing"));
+			return -1;
+		}
+		Loadout loadout = division.getLoadout(matchClass, level - 1);
+		if (loadout == null) {
+			source.sendError(Text.translatable("frontutil.message.command.loadout.give.error.missing"));
+			return -1;
+		}
+		
+		for (ServerPlayerEntity player : players) {
+			BFUtils.giveLoadout(world, player, loadout, false);
+		}
+		
+		if (players.size() == 1) {
+			source.sendFeedback(() -> Text.translatable("frontutil.message.command.loadout.give.success.single", players.iterator().next().getDisplayName()), true);
+		} else {
+			source.sendFeedback(() -> Text.translatable("frontutil.message.command.loadout.give.success.multiple", players.size()), true);
+		}
+		return players.size();
 	}
 	
 	private static int loadoutList(CommandContext<ServerCommandSource> context) {

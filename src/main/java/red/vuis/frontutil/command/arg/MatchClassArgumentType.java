@@ -12,7 +12,7 @@ public class MatchClassArgumentType extends EnumArgumentType<IdentifiableMatchCl
 		super(IdentifiableMatchClass.CODEC, IdentifiableMatchClass::values);
 	}
 	
-	public static EnumArgumentType<IdentifiableMatchClass> matchClass() {
+	public static MatchClassArgumentType matchClass() {
 		return new MatchClassArgumentType();
 	}
 	
