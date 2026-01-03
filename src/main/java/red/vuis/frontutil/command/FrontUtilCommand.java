@@ -205,6 +205,7 @@ public final class FrontUtilCommand {
 		itemStack.set(BFDataComponents.SKIN_ID, GunSkinIndex.SKINS.get(id).get(skin));
 		
 		player.giveItemStack(itemStack);
+		player.currentScreenHandler.sendContentUpdates();
 		return 1;
 	}
 	
@@ -375,6 +376,7 @@ public final class FrontUtilCommand {
 			for (int i = 0; i < count; i++) {
 				handleRandomDrop(player, cloudRegistry);
 			}
+			player.currentScreenHandler.sendContentUpdates();
 		}
 		
 		if (players.size() == 1) {
