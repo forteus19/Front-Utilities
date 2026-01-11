@@ -28,6 +28,7 @@ import red.vuis.frontutil.net.packet.LoadoutsPacket;
 import red.vuis.frontutil.net.packet.MapEffectPositionPacket;
 import red.vuis.frontutil.net.packet.NewProfileOverridesPacket;
 import red.vuis.frontutil.net.packet.SetProfileOverridesPacket;
+import red.vuis.frontutil.net.packet.SetProfileOverridesPropertyPacket;
 import red.vuis.frontutil.net.packet.ViewSpawnsPacket;
 import red.vuis.frontutil.setup.GunItemIndex;
 import red.vuis.frontutil.setup.GunModifierIndex;
@@ -95,6 +96,7 @@ public final class AddonCommonEvents {
 		registrar.playToServer(MapEffectPositionPacket.ID, MapEffectPositionPacket.PACKET_CODEC, MapEffectPositionPacket::handleServer);
 		registrar.playToClient(NewProfileOverridesPacket.ID, NewProfileOverridesPacket.PACKET_CODEC, NewProfileOverridesPacket::handleClient);
 		registrar.playToClient(SetProfileOverridesPacket.ID, SetProfileOverridesPacket.PACKET_CODEC, SetProfileOverridesPacket::handleClient);
+		registrar.playToClient(SetProfileOverridesPropertyPacket.ID, SetProfileOverridesPropertyPacket.PACKET_CODEC, SetProfileOverridesPropertyPacket::handleClient);
 		registrar.playToClient(ViewSpawnsPacket.ID, ViewSpawnsPacket.PACKET_CODEC, ViewSpawnsPacket::handleClient);
 	}
 	

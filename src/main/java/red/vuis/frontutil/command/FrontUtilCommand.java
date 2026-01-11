@@ -48,7 +48,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import it.unimi.dsi.fastutil.Pair;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntObjectPair;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.GameProfileArgumentType;
@@ -73,11 +73,10 @@ import red.vuis.frontutil.command.arg.BFCountryArgumentType;
 import red.vuis.frontutil.command.arg.MatchClassArgumentType;
 import red.vuis.frontutil.data.AddonCommonData;
 import red.vuis.frontutil.data.GunModifier;
-import red.vuis.frontutil.data.ProfileOverrideData;
 import red.vuis.frontutil.net.packet.ClearProfileOverridesPacket;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
 import red.vuis.frontutil.net.packet.NewProfileOverridesPacket;
-import red.vuis.frontutil.net.packet.SetProfileOverridesPacket;
+import red.vuis.frontutil.net.packet.SetProfileOverridesPropertyPacket;
 import red.vuis.frontutil.net.packet.ViewSpawnsPacket;
 import red.vuis.frontutil.setup.GunSkinIndex;
 import red.vuis.frontutil.setup.LoadoutIndex;
@@ -495,7 +494,7 @@ public final class FrontUtilCommand {
 		if (targets.isEmpty()) {
 			return 0;
 		}
-		List<Pair<UUID, String>> idPairs = targets.stream().map(AddonUtils::createIdPair).toList();
+		Set<Pair<UUID, String>> idPairs = targets.stream().map(AddonUtils::createIdPair).collect(Collectors.toUnmodifiableSet());
 		
 		AddonCommonData.getInstance().putNewProfileOverrides(idPairs);
 		if (FMLEnvironment.dist.isDedicatedServer()) {
@@ -521,9 +520,9 @@ public final class FrontUtilCommand {
 		if (targets.isEmpty()) {
 			return 0;
 		}
+		Set<Pair<UUID, String>> idPairs = targets.stream().map(AddonUtils::createIdPair).collect(Collectors.toUnmodifiableSet());
 		
 		Map<UUID, PlayerCloudData> profileOverrides = AddonCommonData.getInstance().profileOverrides;
-		Map<UUID, ProfileOverrideData> data = new Object2ObjectOpenHashMap<>(targets.size());
 		int affected = 0;
 		for (GameProfile target : targets) {
 			UUID uuid = target.getId();
@@ -535,12 +534,18 @@ public final class FrontUtilCommand {
 			
 			PlayerCloudData cloudData = profileOverrides.get(uuid);
 			setter.accept(cloudData, value);
-			data.put(uuid, ProfileOverrideData.of(cloudData));
 			affected++;
 		}
 		
 		if (FMLEnvironment.dist.isDedicatedServer() && affected > 0) {
-			PacketDistributor.sendToAllPlayers(new SetProfileOverridesPacket(data));
+			PacketDistributor.sendToAllPlayers(new SetProfileOverridesPropertyPacket(
+				idPairs,
+				IntObjectPair.of(switch (propertyName) {
+					case "exp" -> 1;
+					case "prestige" -> 2;
+					default -> throw new AssertionError();
+				}, value)
+			));
 		}
 		
 		if (affected == 1) {

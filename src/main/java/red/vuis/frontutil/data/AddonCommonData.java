@@ -157,7 +157,7 @@ public final class AddonCommonData {
 			
 			profileJsonMap.forEach(this::handleProfileJson);
 			
-			AddonConstants.LOGGER.info("Successfully fetched profiles for {} players", uuids.size());
+			AddonConstants.LOGGER.info("Successfully fetched idPairs for {} players", uuids.size());
 		}
 		
 		if (FMLEnvironment.dist.isDedicatedServer()) {
