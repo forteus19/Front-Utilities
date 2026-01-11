@@ -68,7 +68,8 @@ public final class AddonCommonEvents {
 			return;
 		}
 		
-		AddonConstants.LOGGER.info("Syncing custom common data with player '{}'.", player.getName().getString());
+		AddonConstants.LOGGER.info("Syncing custom common data with player '{}'.", player.getNameForScoreboard());
+		
 		PacketDistributor.sendToPlayer(player, new GunModifiersPacket(GunModifier.ACTIVE, true));
 	}
 	
