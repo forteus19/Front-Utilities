@@ -1,6 +1,9 @@
 package red.vuis.frontutil.util;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -176,5 +179,9 @@ public final class AddonUtils {
 	
 	public static Pair<UUID, String> createIdPair(GameProfile gameProfile) {
 		return Pair.of(gameProfile.getId(), gameProfile.getName());
+	}
+	
+	public static BufferedReader toBufferedReader(InputStream stream) {
+		return new BufferedReader(new InputStreamReader(stream));
 	}
 }

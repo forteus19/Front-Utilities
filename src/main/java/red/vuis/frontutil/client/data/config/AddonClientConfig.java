@@ -22,10 +22,10 @@ public final class AddonClientConfig {
 	public static final AddonClientConfig INSTANCE;
 	public static final ModConfigSpec SPEC;
 	
-	public final ModConfigSpec.EnumValue<MatchHudStyle> matchHudStyle;
-	public final ModConfigSpec.BooleanValue renderCorpses;
-	public final ModConfigSpec.BooleanValue enableDeathFade;
-	public final ModConfigSpec.IntValue killFeedLines;
+	private final ModConfigSpec.EnumValue<MatchHudStyle> matchHudStyle;
+	private final ModConfigSpec.BooleanValue renderCorpses;
+	private final ModConfigSpec.BooleanValue enableDeathFade;
+	private final ModConfigSpec.IntValue killFeedLines;
 	
 	public Data forced = null;
 	

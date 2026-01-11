@@ -154,16 +154,14 @@ public final class FrontUtilCommand {
 		).then(
 			literal("profile").then(
 				literal("overrides").then(
-					literal("clear").then(
-						argument("targets", GameProfileArgumentType.gameProfile()).executes(FrontUtilCommand::profileOverridesClear)
-					)
-				).then(
-					literal("new").then(
-						argument("targets", GameProfileArgumentType.gameProfile()).executes(FrontUtilCommand::profileOverridesNew)
-					)
-				).then(
-					literal("set").then(
-						argument("targets", GameProfileArgumentType.gameProfile())
+					argument("targets", GameProfileArgumentType.gameProfile()).then(
+						literal("clear").executes(FrontUtilCommand::profileOverridesClear)
+					).then(
+						literal("fetch").executes(FrontUtilCommand::profileOverridesFetch)
+					).then(
+						literal("new").executes(FrontUtilCommand::profileOverridesNew)
+					).then(
+						literal("set")
 							.then(AddonArguments.setter(ArgumentTypePair.integer(0), "exp", profileOverrideSetter(PlayerCloudData::setExp)))
 							.then(AddonArguments.setter(ArgumentTypePair.integer(0), "prestige", profileOverrideSetter(PlayerCloudData::setPrestigeLevel)))
 					)
@@ -450,6 +448,9 @@ public final class FrontUtilCommand {
 		ServerCommandSource source = context.getSource();
 		
 		Collection<GameProfile> targets = GameProfileArgumentType.getProfileArgument(context, "targets");
+		if (targets.isEmpty()) {
+			return 0;
+		}
 		
 		Set<UUID> uuids = targets.stream().map(GameProfile::getId).collect(Collectors.toUnmodifiableSet());
 		Map<UUID, PlayerCloudData> profileOverrides = AddonCommonData.getInstance().profileOverrides;
@@ -468,10 +469,33 @@ public final class FrontUtilCommand {
 		return targets.size();
 	}
 	
+	private static int profileOverridesFetch(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+		ServerCommandSource source = context.getSource();
+		
+		Collection<GameProfile> targets = GameProfileArgumentType.getProfileArgument(context, "targets");
+		if (targets.isEmpty()) {
+			return 0;
+		}
+		
+		Set<UUID> uuids = targets.stream().map(GameProfile::getId).collect(Collectors.toUnmodifiableSet());
+		AddonCommonData.getInstance().fetchCloudProfiles(uuids);
+		
+		if (targets.size() == 1) {
+			source.sendFeedback(() -> Text.translatable("frontutil.message.command.profile.overrides.fetch.success.single", targets.iterator().next().getName()), true);
+		} else {
+			source.sendFeedback(() -> Text.translatable("frontutil.message.command.profile.overrides.fetch.success.multiple", targets.size()), true);
+		}
+		return targets.size();
+	}
+	
 	private static int profileOverridesNew(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
 		ServerCommandSource source = context.getSource();
 		
-		List<Pair<UUID, String>> idPairs = GameProfileArgumentType.getProfileArgument(context, "targets").stream().map(AddonUtils::createIdPair).toList();
+		Collection<GameProfile> targets = GameProfileArgumentType.getProfileArgument(context, "targets");
+		if (targets.isEmpty()) {
+			return 0;
+		}
+		List<Pair<UUID, String>> idPairs = targets.stream().map(AddonUtils::createIdPair).toList();
 		
 		AddonCommonData.getInstance().putNewProfileOverrides(idPairs);
 		if (FMLEnvironment.dist.isDedicatedServer()) {
@@ -494,6 +518,9 @@ public final class FrontUtilCommand {
 		ServerCommandSource source = context.getSource();
 		
 		Collection<GameProfile> targets = GameProfileArgumentType.getProfileArgument(context, "targets");
+		if (targets.isEmpty()) {
+			return 0;
+		}
 		
 		Map<UUID, PlayerCloudData> profileOverrides = AddonCommonData.getInstance().profileOverrides;
 		Map<UUID, ProfileOverrideData> data = new Object2ObjectOpenHashMap<>(targets.size());

@@ -1,9 +1,12 @@
 package red.vuis.frontutil.data;
 
 import com.boehmod.bflib.cloud.common.player.AbstractPlayerCloudData;
+import com.google.gson.JsonObject;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
+
+import red.vuis.frontutil.util.AddonJsonUtils;
 
 public record ProfileOverrideData(
 	String username,
@@ -18,7 +21,19 @@ public record ProfileOverrideData(
 	);
 	
 	public static ProfileOverrideData of(AbstractPlayerCloudData<?> cloudData) {
-		return new ProfileOverrideData(cloudData.getUsername(), cloudData.getExp(), cloudData.getPrestigeLevel());
+		return new ProfileOverrideData(
+			cloudData.getUsername(),
+			cloudData.getExp(),
+			cloudData.getPrestigeLevel()
+		);
+	}
+	
+	public static ProfileOverrideData of(JsonObject json) {
+		return new ProfileOverrideData(
+			AddonJsonUtils.getOrThrow(json, "username").getAsString(),
+			AddonJsonUtils.getOrThrow(json, "exp").getAsInt(),
+			AddonJsonUtils.getOrThrow(json, "prestige").getAsInt()
+		);
 	}
 	
 	public void apply(AbstractPlayerCloudData<?> cloudData) {

@@ -102,6 +102,8 @@
   "frontutil.message.command.profile.overrides.clear.success.multiple": "Cleared cloud profile overrides for %s players",
   "frontutil.message.command.profile.overrides.clear.success.single": "Cleared cloud profile override for player %s",
   "frontutil.message.command.profile.overrides.error.missing": "Cloud profile override does not exist for player %s",
+  "frontutil.message.command.profile.overrides.fetch.success.multiple": "Started cloud profile fetch for %s players",
+  "frontutil.message.command.profile.overrides.fetch.success.single": "Started cloud profile fetch for player %s",
   "frontutil.message.command.profile.overrides.new.success.multiple": "Created new cloud profile overrides for %s players",
   "frontutil.message.command.profile.overrides.new.success.single": "Created new cloud profile override for player %s",
   "frontutil.message.command.profile.overrides.set.success.multiple": "Set cloud profile property %s to %s for %s players",
