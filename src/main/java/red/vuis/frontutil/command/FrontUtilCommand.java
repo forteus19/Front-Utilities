@@ -6,10 +6,14 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.boehmod.bflib.cloud.common.CloudRegistry;
@@ -24,6 +28,7 @@ import com.boehmod.blockfront.common.match.BFCountry;
 import com.boehmod.blockfront.common.match.DivisionData;
 import com.boehmod.blockfront.common.match.Loadout;
 import com.boehmod.blockfront.common.match.MatchClass;
+import com.boehmod.blockfront.common.player.PlayerCloudData;
 import com.boehmod.blockfront.game.AbstractGame;
 import com.boehmod.blockfront.game.AbstractGamePlayerManager;
 import com.boehmod.blockfront.game.GameStageTimer;
@@ -34,6 +39,7 @@ import com.boehmod.blockfront.registry.BFDataComponents;
 import com.boehmod.blockfront.util.BFRes;
 import com.boehmod.blockfront.util.BFUtils;
 import com.boehmod.blockfront.util.math.FDSPose;
+import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -41,8 +47,10 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.EntityArgumentType;
+import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -57,17 +65,24 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import red.vuis.frontutil.command.arg.BFCountryArgumentType;
 import red.vuis.frontutil.command.arg.MatchClassArgumentType;
+import red.vuis.frontutil.data.AddonCommonData;
 import red.vuis.frontutil.data.GunModifier;
+import red.vuis.frontutil.data.ProfileOverrideData;
+import red.vuis.frontutil.net.packet.ClearProfileOverridesPacket;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
+import red.vuis.frontutil.net.packet.NewProfileOverridesPacket;
+import red.vuis.frontutil.net.packet.SetProfileOverridesPacket;
 import red.vuis.frontutil.net.packet.ViewSpawnsPacket;
 import red.vuis.frontutil.setup.GunSkinIndex;
 import red.vuis.frontutil.setup.LoadoutIndex;
 import red.vuis.frontutil.util.AddonCommandUtils;
 import red.vuis.frontutil.util.AddonUtils;
+import red.vuis.frontutil.util.function.BiArgCommand;
 
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
@@ -132,6 +147,24 @@ public final class FrontUtilCommand {
 				).then(
 					literal("set").then(
 						argument("seconds", IntegerArgumentType.integer(0)).executes(FrontUtilCommand::matchTimerSet)
+					)
+				)
+			)
+		).then(
+			literal("profile").then(
+				literal("overrides").then(
+					literal("clear").then(
+						argument("targets", GameProfileArgumentType.gameProfile()).executes(FrontUtilCommand::profileOverridesClear)
+					)
+				).then(
+					literal("new").then(
+						argument("targets", GameProfileArgumentType.gameProfile()).executes(FrontUtilCommand::profileOverridesNew)
+					)
+				).then(
+					literal("set").then(
+						argument("targets", GameProfileArgumentType.gameProfile())
+							.then(AddonArguments.setter(ArgumentTypePair.integer(0), "exp", profileOverrideSetter(PlayerCloudData::setExp)))
+							.then(AddonArguments.setter(ArgumentTypePair.integer(0), "prestige", profileOverrideSetter(PlayerCloudData::setPrestigeLevel)))
 					)
 				)
 			)
@@ -410,6 +443,86 @@ public final class FrontUtilCommand {
 		);
 		
 		return 1;
+	}
+	
+	private static int profileOverridesClear(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+		ServerCommandSource source = context.getSource();
+		
+		Collection<GameProfile> targets = GameProfileArgumentType.getProfileArgument(context, "targets");
+		
+		Set<UUID> uuids = targets.stream().map(GameProfile::getId).collect(Collectors.toUnmodifiableSet());
+		Map<UUID, PlayerCloudData> profileOverrides = AddonCommonData.getInstance().profileOverrides;
+		
+		Set<UUID> cleared = uuids.stream().filter(uuid -> profileOverrides.remove(uuid) != null).collect(Collectors.toUnmodifiableSet());
+		
+		if (FMLEnvironment.dist.isDedicatedServer()) {
+			PacketDistributor.sendToAllPlayers(new ClearProfileOverridesPacket(cleared));
+		}
+		
+		if (cleared.size() == 1) {
+			source.sendFeedback(() -> Text.translatable("frontutil.message.command.profile.overrides.clear.success.single", targets.iterator().next().getName()), true);
+		} else {
+			source.sendFeedback(() -> Text.translatable("frontutil.message.command.profile.overrides.clear.success.multiple", cleared.size()), true);
+		}
+		return targets.size();
+	}
+	
+	private static int profileOverridesNew(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+		ServerCommandSource source = context.getSource();
+		
+		Collection<GameProfile> targets = GameProfileArgumentType.getProfileArgument(context, "targets");
+		
+		Set<UUID> uuids = targets.stream().map(GameProfile::getId).collect(Collectors.toUnmodifiableSet());
+		AddonCommonData.getInstance().putNewProfileOverrides(uuids);
+		if (FMLEnvironment.dist.isDedicatedServer()) {
+			PacketDistributor.sendToAllPlayers(new NewProfileOverridesPacket(uuids));
+		}
+		
+		if (targets.size() == 1) {
+			source.sendFeedback(() -> Text.translatable("frontutil.message.command.profile.overrides.new.success.single", targets.iterator().next().getName()), true);
+		} else {
+			source.sendFeedback(() -> Text.translatable("frontutil.message.command.profile.overrides.new.success.multiple", targets.size()), true);
+		}
+		return targets.size();
+	}
+	
+	private static <T> BiArgCommand<ServerCommandSource, String, T> profileOverrideSetter(BiConsumer<PlayerCloudData, T> setter) {
+		return (context, name, value) -> profileOverridesSet(context, name, value, setter);
+	}
+	
+	private static <T> int profileOverridesSet(CommandContext<ServerCommandSource> context, String propertyName, T value, BiConsumer<PlayerCloudData, T> setter) throws CommandSyntaxException {
+		ServerCommandSource source = context.getSource();
+		
+		Collection<GameProfile> targets = GameProfileArgumentType.getProfileArgument(context, "targets");
+		
+		Map<UUID, PlayerCloudData> profileOverrides = AddonCommonData.getInstance().profileOverrides;
+		Map<UUID, ProfileOverrideData> data = new Object2ObjectOpenHashMap<>(targets.size());
+		int affected = 0;
+		for (GameProfile target : targets) {
+			UUID uuid = target.getId();
+			
+			if (!profileOverrides.containsKey(uuid)) {
+				source.sendError(Text.translatable("frontutil.message.command.profile.overrides.error.missing", target.getName()));
+				continue;
+			}
+			
+			PlayerCloudData cloudData = profileOverrides.get(uuid);
+			setter.accept(cloudData, value);
+			data.put(uuid, ProfileOverrideData.of(cloudData));
+			affected++;
+		}
+		
+		if (FMLEnvironment.dist.isDedicatedServer() && affected > 0) {
+			PacketDistributor.sendToAllPlayers(new SetProfileOverridesPacket(data));
+		}
+		
+		if (affected == 1) {
+			source.sendFeedback(() -> Text.stringifiedTranslatable("frontutil.message.command.profile.overrides.set.success.single", propertyName, value, targets.iterator().next().getName()), true);
+		} else if (affected > 1) {
+			int finalAffected = affected;
+			source.sendFeedback(() -> Text.stringifiedTranslatable("frontutil.message.command.profile.overrides.set.success.multiple", propertyName, value, finalAffected), true);
+		}
+		return affected;
 	}
 	
 	private static int randomDrop(CommandContext<ServerCommandSource> context, int count) throws CommandSyntaxException {

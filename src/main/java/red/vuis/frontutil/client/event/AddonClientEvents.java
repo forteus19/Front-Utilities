@@ -21,6 +21,7 @@ import red.vuis.frontutil.client.input.MouseButton;
 import red.vuis.frontutil.client.render.AssetEditRenderer;
 import red.vuis.frontutil.client.render.RenderObject;
 import red.vuis.frontutil.client.render.SpawnViewRenderer;
+import red.vuis.frontutil.data.AddonCommonData;
 import red.vuis.frontutil.util.AddonUtils;
 
 @EventBusSubscriber(
@@ -58,7 +59,13 @@ public final class AddonClientEvents {
 	
 	@SubscribeEvent
 	public static void onRenderFramePre(RenderFrameEvent.Pre event) {
-		InputTracker.getInstance().update(MinecraftClient.getInstance().mouse);
+		MinecraftClient client = MinecraftClient.getInstance();
+		
+		InputTracker.getInstance().update(client.mouse);
+		
+		if (client.world == null) {
+			AddonCommonData.getInstance().profileOverrides.clear();
+		}
 	}
 	
 	@SubscribeEvent

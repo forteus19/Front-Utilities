@@ -8,7 +8,9 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import red.vuis.frontutil.AddonConstants;
+import red.vuis.frontutil.data.AddonCommonData;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
+import red.vuis.frontutil.net.packet.SetProfileOverridesPacket;
 import red.vuis.frontutil.setup.LoadoutIndex;
 
 @EventBusSubscriber(
@@ -27,6 +29,10 @@ public final class AddonServerEvents {
 		
 		AddonConstants.LOGGER.info("Syncing custom server data with player '{}'.", player.getName().getString());
 		
-		PacketDistributor.sendToPlayer(player, new LoadoutsPacket(LoadoutIndex.currentFlat()));
+		PacketDistributor.sendToPlayer(
+			player,
+			new LoadoutsPacket(LoadoutIndex.currentFlat()),
+			new SetProfileOverridesPacket(AddonCommonData.getInstance().getProfileOverrideData())
+		);
 	}
 }

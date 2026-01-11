@@ -21,7 +21,8 @@
     "InfectedPlayerManagerMixin",
     "MapAssetMixin",
     "MapEnvironmentMixin",
-    "ParticleEmitterMapEffectAccessor"
+    "ParticleEmitterMapEffectAccessor",
+    "PlayerDataHandlerMixin"
   ],
   "client": [
     "client.AbstractGameClientMixin",

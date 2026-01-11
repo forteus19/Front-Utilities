@@ -1,0 +1,32 @@
+package red.vuis.frontutil.net.packet;
+
+import java.util.Set;
+import java.util.UUID;
+
+import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
+import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.util.Uuids;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+
+import red.vuis.frontutil.AddonConstants;
+import red.vuis.frontutil.data.AddonCommonData;
+
+public record NewProfileOverridesPacket(Set<UUID> uuids) implements CustomPayload {
+	public static final Id<NewProfileOverridesPacket> ID = new Id<>(AddonConstants.id("new_profile_overrides"));
+	public static final PacketCodec<ByteBuf, NewProfileOverridesPacket> PACKET_CODEC = PacketCodec.tuple(
+		Uuids.PACKET_CODEC.collect(PacketCodecs.toCollection(ObjectOpenHashSet::new)), NewProfileOverridesPacket::uuids,
+		NewProfileOverridesPacket::new
+	);
+	
+	@Override
+	public Id<? extends CustomPayload> getId() {
+		return ID;
+	}
+	
+	public static void handleClient(NewProfileOverridesPacket packet, IPayloadContext context) {
+		AddonCommonData.getInstance().putNewProfileOverrides(packet.uuids());
+	}
+}

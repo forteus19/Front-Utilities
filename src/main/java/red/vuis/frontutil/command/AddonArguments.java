@@ -6,17 +6,21 @@ import com.boehmod.blockfront.assets.IAsset;
 import com.boehmod.blockfront.common.match.BFCountry;
 import com.boehmod.blockfront.common.match.DivisionData;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import net.minecraft.command.CommandSource;
-import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
 import red.vuis.frontutil.command.arg.BFCountryArgumentType;
+import red.vuis.frontutil.util.function.BiArgCommand;
+
+import static net.minecraft.server.command.CommandManager.argument;
+import static net.minecraft.server.command.CommandManager.literal;
 
 public final class AddonArguments {
 	private static final Dynamic2CommandExceptionType ERROR_ASSET_NOT_FOUND = new Dynamic2CommandExceptionType(
@@ -27,7 +31,7 @@ public final class AddonArguments {
 	}
 	
 	public static <T extends IAsset> RequiredArgumentBuilder<ServerCommandSource, String> asset(String argumentName, Class<T> assetClass) {
-		return CommandManager.argument(argumentName, StringArgumentType.word()).suggests(suggestAssets(assetClass));
+		return argument(argumentName, StringArgumentType.word()).suggests(suggestAssets(assetClass));
 	}
 	
 	public static <T extends IAsset> SuggestionProvider<ServerCommandSource> suggestAssets(Class<T> assetClass) {
@@ -55,5 +59,13 @@ public final class AddonArguments {
 				suggestions
 			);
 		};
+	}
+	
+	public static <T> LiteralArgumentBuilder<ServerCommandSource> setter(ArgumentTypePair<T> argumentTypePair, String name, BiArgCommand<ServerCommandSource, String, T> command) {
+		return literal(name).then(
+			argument("value", argumentTypePair.argumentType().get()).executes(
+				context -> command.run(context, name, argumentTypePair.getter().apply(context, "value"))
+			)
+		);
 	}
 }

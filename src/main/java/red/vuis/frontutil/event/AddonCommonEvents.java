@@ -21,10 +21,13 @@ import red.vuis.frontutil.AddonConstants;
 import red.vuis.frontutil.command.FrontUtilCommand;
 import red.vuis.frontutil.data.GunModifier;
 import red.vuis.frontutil.data.GunModifierFiles;
+import red.vuis.frontutil.net.packet.ClearProfileOverridesPacket;
 import red.vuis.frontutil.net.packet.GiveGunPacket;
 import red.vuis.frontutil.net.packet.GunModifiersPacket;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
 import red.vuis.frontutil.net.packet.MapEffectPositionPacket;
+import red.vuis.frontutil.net.packet.NewProfileOverridesPacket;
+import red.vuis.frontutil.net.packet.SetProfileOverridesPacket;
 import red.vuis.frontutil.net.packet.ViewSpawnsPacket;
 import red.vuis.frontutil.setup.GunItemIndex;
 import red.vuis.frontutil.setup.GunModifierIndex;
@@ -80,6 +83,7 @@ public final class AddonCommonEvents {
 	@SubscribeEvent
 	public static void onRegisterPayloadHandlers(RegisterPayloadHandlersEvent event) {
 		PayloadRegistrar registrar = event.registrar("1");
+		registrar.playToClient(ClearProfileOverridesPacket.ID, ClearProfileOverridesPacket.PACKET_CODEC, ClearProfileOverridesPacket::handleClient);
 		registrar.playToServer(GiveGunPacket.ID, GiveGunPacket.PACKET_CODEC, GiveGunPacket::handleServer);
 		registrar.playBidirectional(GunModifiersPacket.ID, GunModifiersPacket.PACKET_CODEC, new DirectionalPayloadHandler<>(
 			GunModifiersPacket::handleClient, GunModifiersPacket::handleServer
@@ -88,6 +92,8 @@ public final class AddonCommonEvents {
 			LoadoutsPacket::handleClient, LoadoutsPacket::handleServer
 		));
 		registrar.playToServer(MapEffectPositionPacket.ID, MapEffectPositionPacket.PACKET_CODEC, MapEffectPositionPacket::handleServer);
+		registrar.playToClient(NewProfileOverridesPacket.ID, NewProfileOverridesPacket.PACKET_CODEC, NewProfileOverridesPacket::handleClient);
+		registrar.playToClient(SetProfileOverridesPacket.ID, SetProfileOverridesPacket.PACKET_CODEC, SetProfileOverridesPacket::handleClient);
 		registrar.playToClient(ViewSpawnsPacket.ID, ViewSpawnsPacket.PACKET_CODEC, ViewSpawnsPacket::handleClient);
 	}
 	
