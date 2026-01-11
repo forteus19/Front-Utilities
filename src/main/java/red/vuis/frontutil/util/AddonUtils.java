@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -17,11 +18,14 @@ import com.boehmod.blockfront.BlockFront;
 import com.boehmod.blockfront.assets.impl.GameAsset;
 import com.boehmod.blockfront.common.match.DivisionData;
 import com.boehmod.blockfront.common.match.MatchClass;
+import com.boehmod.blockfront.common.player.PlayerCloudData;
 import com.boehmod.blockfront.game.AbstractGame;
 import com.boehmod.blockfront.game.BFGameType;
 import com.boehmod.blockfront.game.GameStatus;
 import com.boehmod.blockfront.util.BFUtils;
 import com.boehmod.blockfront.util.math.FDSPose;
+import com.mojang.authlib.GameProfile;
+import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -158,5 +162,19 @@ public final class AddonUtils {
 			return defaultValue;
 		}
 		return Arrays.stream(values).filter(value -> value.toString().equalsIgnoreCase(name)).findFirst().orElse(defaultValue);
+	}
+	
+	public static PlayerCloudData createPlayerCloudData(UUID uuid, String username) {
+		PlayerCloudData cloudData = new PlayerCloudData(uuid);
+		cloudData.setUsername(username);
+		return cloudData;
+	}
+	
+	public static PlayerCloudData createPlayerCloudData(Pair<UUID, String> idPair) {
+		return createPlayerCloudData(idPair.left(), idPair.right());
+	}
+	
+	public static Pair<UUID, String> createIdPair(GameProfile gameProfile) {
+		return Pair.of(gameProfile.getId(), gameProfile.getName());
 	}
 }

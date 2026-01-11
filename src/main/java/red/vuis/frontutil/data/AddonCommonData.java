@@ -1,11 +1,14 @@
 package red.vuis.frontutil.data;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import com.boehmod.blockfront.common.player.PlayerCloudData;
+import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+
+import red.vuis.frontutil.util.AddonUtils;
 
 public final class AddonCommonData {
 	private static AddonCommonData instance = null;
@@ -22,8 +25,12 @@ public final class AddonCommonData {
 		return instance;
 	}
 	
-	public void putNewProfileOverrides(Set<UUID> uuidStream) {
-		uuidStream.forEach(uuid -> profileOverrides.put(uuid, new PlayerCloudData(uuid)));
+	private void putNewProfileOverride(Pair<UUID, String> idPair) {
+		profileOverrides.put(idPair.left(), AddonUtils.createPlayerCloudData(idPair));
+	}
+	
+	public void putNewProfileOverrides(Collection<Pair<UUID, String>> idPairs) {
+		idPairs.forEach(this::putNewProfileOverride);
 	}
 	
 	public Map<UUID, ProfileOverrideData> getProfileOverrideData() {

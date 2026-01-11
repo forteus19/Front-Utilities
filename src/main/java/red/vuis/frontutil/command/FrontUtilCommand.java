@@ -47,6 +47,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.EntityArgumentType;
@@ -470,20 +471,19 @@ public final class FrontUtilCommand {
 	private static int profileOverridesNew(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
 		ServerCommandSource source = context.getSource();
 		
-		Collection<GameProfile> targets = GameProfileArgumentType.getProfileArgument(context, "targets");
+		List<Pair<UUID, String>> idPairs = GameProfileArgumentType.getProfileArgument(context, "targets").stream().map(AddonUtils::createIdPair).toList();
 		
-		Set<UUID> uuids = targets.stream().map(GameProfile::getId).collect(Collectors.toUnmodifiableSet());
-		AddonCommonData.getInstance().putNewProfileOverrides(uuids);
+		AddonCommonData.getInstance().putNewProfileOverrides(idPairs);
 		if (FMLEnvironment.dist.isDedicatedServer()) {
-			PacketDistributor.sendToAllPlayers(new NewProfileOverridesPacket(uuids));
+			PacketDistributor.sendToAllPlayers(new NewProfileOverridesPacket(idPairs));
 		}
 		
-		if (targets.size() == 1) {
-			source.sendFeedback(() -> Text.translatable("frontutil.message.command.profile.overrides.new.success.single", targets.iterator().next().getName()), true);
+		if (idPairs.size() == 1) {
+			source.sendFeedback(() -> Text.translatable("frontutil.message.command.profile.overrides.new.success.single", idPairs.iterator().next().right()), true);
 		} else {
-			source.sendFeedback(() -> Text.translatable("frontutil.message.command.profile.overrides.new.success.multiple", targets.size()), true);
+			source.sendFeedback(() -> Text.translatable("frontutil.message.command.profile.overrides.new.success.multiple", idPairs.size()), true);
 		}
-		return targets.size();
+		return idPairs.size();
 	}
 	
 	private static <T> BiArgCommand<ServerCommandSource, String, T> profileOverrideSetter(BiConsumer<PlayerCloudData, T> setter) {

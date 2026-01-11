@@ -13,6 +13,7 @@ import com.boehmod.blockfront.common.match.MatchClass;
 import com.boehmod.blockfront.util.math.FDSPose;
 import com.mojang.datafixers.util.Function7;
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
@@ -139,5 +140,13 @@ public final class AddonPacketCodecs {
 	// ambiguous method call workaround :P
 	private static <T> IntFunction<T> createIdToValueFunction(ToIntFunction<T> valueToIdFunction, T[] values, ValueLists.OutOfBoundsHandling outOfBoundsHandling) {
 		return ValueLists.createIdToValueFunction(valueToIdFunction, values, outOfBoundsHandling);
+	}
+	
+	public static <B, L, R> PacketCodec<B, Pair<L, R>> pair(PacketCodec<? super B, L> leftCodec, PacketCodec<? super B, R> rightCodec) {
+		return PacketCodec.tuple(
+			leftCodec, Pair::left,
+			rightCodec, Pair::right,
+			Pair::of
+		);
 	}
 }

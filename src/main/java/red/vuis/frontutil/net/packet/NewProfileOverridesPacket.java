@@ -1,10 +1,11 @@
 package red.vuis.frontutil.net.packet;
 
-import java.util.Set;
+import java.util.Collection;
 import java.util.UUID;
 
 import io.netty.buffer.ByteBuf;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.Pair;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
@@ -13,11 +14,12 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import red.vuis.frontutil.AddonConstants;
 import red.vuis.frontutil.data.AddonCommonData;
+import red.vuis.frontutil.data.AddonPacketCodecs;
 
-public record NewProfileOverridesPacket(Set<UUID> uuids) implements CustomPayload {
+public record NewProfileOverridesPacket(Collection<Pair<UUID, String>> idPairs) implements CustomPayload {
 	public static final Id<NewProfileOverridesPacket> ID = new Id<>(AddonConstants.id("new_profile_overrides"));
 	public static final PacketCodec<ByteBuf, NewProfileOverridesPacket> PACKET_CODEC = PacketCodec.tuple(
-		Uuids.PACKET_CODEC.collect(PacketCodecs.toCollection(ObjectOpenHashSet::new)), NewProfileOverridesPacket::uuids,
+		AddonPacketCodecs.pair(Uuids.PACKET_CODEC, PacketCodecs.STRING).collect(PacketCodecs.toCollection(ObjectArrayList::new)), NewProfileOverridesPacket::idPairs,
 		NewProfileOverridesPacket::new
 	);
 	
@@ -27,6 +29,6 @@ public record NewProfileOverridesPacket(Set<UUID> uuids) implements CustomPayloa
 	}
 	
 	public static void handleClient(NewProfileOverridesPacket packet, IPayloadContext context) {
-		AddonCommonData.getInstance().putNewProfileOverrides(packet.uuids());
+		AddonCommonData.getInstance().putNewProfileOverrides(packet.idPairs());
 	}
 }
