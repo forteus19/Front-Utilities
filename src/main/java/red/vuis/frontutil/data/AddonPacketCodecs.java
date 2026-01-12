@@ -5,6 +5,7 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.ToIntFunction;
 
+import com.boehmod.bflib.cloud.common.item.CloudItemStack;
 import com.boehmod.blockfront.common.gun.GunFireMode;
 import com.boehmod.blockfront.common.gun.GunTriggerSpawnType;
 import com.boehmod.blockfront.common.match.BFCountry;
@@ -13,19 +14,26 @@ import com.boehmod.blockfront.common.match.MatchClass;
 import com.boehmod.blockfront.util.math.FDSPose;
 import com.mojang.datafixers.util.Function7;
 import io.netty.buffer.ByteBuf;
+import io.netty.handler.codec.DecoderException;
+import io.netty.handler.codec.EncoderException;
 import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
+import net.minecraft.network.codec.PacketDecoder;
+import net.minecraft.network.codec.ValueFirstEncoder;
 import net.minecraft.util.function.ValueLists;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 
 import red.vuis.frontutil.setup.LoadoutIndex;
+import red.vuis.frontutil.util.function.ThrowingPacketDecoder;
+import red.vuis.frontutil.util.function.ThrowingValueFirstEncoder;
 
 public final class AddonPacketCodecs {
 	public static final PacketCodec<ByteBuf, BFCountry> BF_COUNTRY = enumOrdinal(BFCountry.values());
+	public static final PacketCodec<ByteBuf, CloudItemStack> CLOUD_ITEM_STACK = ofUnchecked(CloudItemStack::write, CloudItemStack::new);
 	public static final PacketCodec<ByteBuf, FDSPose> FDS_POSE = PacketCodec.tuple(
 		PacketCodecs.DOUBLE, pose -> pose.position.x,
 		PacketCodecs.DOUBLE, pose -> pose.position.y,
@@ -125,6 +133,30 @@ public final class AddonPacketCodecs {
 				codec5.encode(buf, from5.apply(value));
 				codec6.encode(buf, from6.apply(value));
 				codec7.encode(buf, from7.apply(value));
+			}
+		};
+	}
+	
+	public static <B, V> PacketCodec<B, V> ofUnchecked(ThrowingValueFirstEncoder<B, V> encoder, ThrowingPacketDecoder<B, V> decoder) {
+		return PacketCodec.of(unchecked(encoder), unchecked(decoder));
+	}
+	
+	public static <O, T> ValueFirstEncoder<O, T> unchecked(ThrowingValueFirstEncoder<O, T> encoder) {
+		return (value, buf) -> {
+			try {
+				encoder.encode(value, buf);
+			} catch (Exception e) {
+				throw new EncoderException(e);
+			}
+		};
+	}
+	
+	public static <I, T> PacketDecoder<I, T> unchecked(ThrowingPacketDecoder<I, T> decoder) {
+		return (buf) -> {
+			try {
+				return decoder.decode(buf);
+			} catch (Exception e) {
+				throw new DecoderException(e);
 			}
 		};
 	}

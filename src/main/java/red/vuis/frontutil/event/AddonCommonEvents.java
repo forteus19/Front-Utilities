@@ -2,7 +2,6 @@ package red.vuis.frontutil.event;
 
 import java.io.IOException;
 
-import com.boehmod.blockfront.BlockFront;
 import com.boehmod.blockfront.common.item.GunItem;
 import net.minecraft.item.Item;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -54,13 +53,8 @@ public final class AddonCommonEvents {
 		AddonConstants.LOGGER.info("Indexing gun items...");
 		GunItemIndex.init();
 		
-		var manager = BlockFront.getInstance().getManager();
-		if (manager == null) {
-			AddonConstants.LOGGER.error("Failed to get BlockFront manager! Some things will be broken.");
-		} else {
-			AddonConstants.LOGGER.info("Indexing skins...");
-			GunSkinIndex.init(manager.getCloudRegistry());
-		}
+		AddonConstants.LOGGER.info("Indexing skins...");
+		GunSkinIndex.init(AddonUtils.getBfManager().getCloudRegistry());
 	}
 	
 	@SubscribeEvent

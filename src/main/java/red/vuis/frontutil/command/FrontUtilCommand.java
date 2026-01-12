@@ -19,7 +19,6 @@ import java.util.stream.Stream;
 import com.boehmod.bflib.cloud.common.CloudRegistry;
 import com.boehmod.bflib.cloud.common.item.CloudItem;
 import com.boehmod.bflib.cloud.common.item.CloudItemStack;
-import com.boehmod.blockfront.BlockFront;
 import com.boehmod.blockfront.assets.AssetStore;
 import com.boehmod.blockfront.assets.impl.GameAsset;
 import com.boehmod.blockfront.cloud.CloudItemCache;
@@ -202,8 +201,7 @@ public final class FrontUtilCommand {
 		MatchClass matchClass = MatchClassArgumentType.getMatchClass(context, "class");
 		int level = IntegerArgumentType.getInteger(context, "level") - 1;
 		
-		BFAbstractManager<?, ?, ?> manager = BlockFront.getInstance().getManager();
-		assert manager != null;
+		BFAbstractManager<?, ?, ?> manager = AddonUtils.getBfManager();
 		Set<Integer> sentMissingErrors = new HashSet<>();
 		
 		AssetStore.getInstance().getRegistry(GameAsset.class).getEntries().values().stream().map(GameAsset::getGame).filter(Objects::nonNull).forEach(game -> {
@@ -416,8 +414,7 @@ public final class FrontUtilCommand {
 	}
 	
 	private static int handleMatchTimerOperation(CommandContext<ServerCommandSource> context, ServerCommandSource source, ServerPlayerEntity player, Consumer<GameStageTimer> timerOperation, Text message) {
-		BFAbstractManager<?, ?, ?> manager = BlockFront.getInstance().getManager();
-		assert manager != null;
+		BFAbstractManager<?, ?, ?> manager = AddonUtils.getBfManager();
 		AbstractGame<?, ?, ?> game = manager.getGameWithPlayer(player);
 		if (game == null) {
 			source.sendError(Text.translatable("frontutil.message.command.match.error.none"));
@@ -476,8 +473,8 @@ public final class FrontUtilCommand {
 			return 0;
 		}
 		
-		Set<UUID> uuids = targets.stream().map(GameProfile::getId).collect(Collectors.toUnmodifiableSet());
-		AddonCommonData.getInstance().fetchCloudProfiles(uuids);
+		Set<Pair<UUID, String>> idPairs = targets.stream().map(AddonUtils::createIdPair).collect(Collectors.toUnmodifiableSet());
+		AddonCommonData.getInstance().fetchCloudProfiles(idPairs);
 		
 		if (targets.size() == 1) {
 			source.sendFeedback(() -> Text.translatable("frontutil.message.command.profile.overrides.fetch.success.single", targets.iterator().next().getName()), true);
@@ -562,8 +559,7 @@ public final class FrontUtilCommand {
 		
 		Collection<ServerPlayerEntity> players = EntityArgumentType.getPlayers(context, "players");
 		
-		BFAbstractManager<?, ?, ?> manager = BlockFront.getInstance().getManager();
-		assert manager != null;
+		BFAbstractManager<?, ?, ?> manager = AddonUtils.getBfManager();
 		CloudRegistry cloudRegistry = manager.getCloudRegistry();
 		
 		for (ServerPlayerEntity player : players) {

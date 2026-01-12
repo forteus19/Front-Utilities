@@ -1,12 +1,19 @@
 package red.vuis.frontutil.net.packet;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import com.boehmod.bflib.cloud.common.item.CloudItemStack;
+import com.boehmod.bflib.cloud.packet.IPacket;
+import com.boehmod.blockfront.cloud.PlayerCloudInventory;
 import com.boehmod.blockfront.common.player.PlayerCloudData;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
+import io.netty.handler.codec.EncoderException;
 import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.ints.IntObjectPair;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -23,6 +30,11 @@ import red.vuis.frontutil.data.AddonCommonData;
 import red.vuis.frontutil.data.AddonPacketCodecs;
 import red.vuis.frontutil.util.AddonUtils;
 
+// property ids:
+// 	0 - username
+// 	1 - exp
+// 	2 - prestige
+// 	3 - equipped item stacks
 public record SetProfileOverridesPropertyPacket(Set<Pair<UUID, String>> idPairs, IntObjectPair<Object> property) implements CustomPayload {
 	public static final Id<SetProfileOverridesPropertyPacket> ID = new Id<>(AddonConstants.id("set_profile_overrides_property"));
 	public static final PacketCodec<ByteBuf, SetProfileOverridesPropertyPacket> PACKET_CODEC = PacketCodec.tuple(
@@ -36,6 +48,7 @@ public record SetProfileOverridesPropertyPacket(Set<Pair<UUID, String>> idPairs,
 		return ID;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static void handleClient(SetProfileOverridesPropertyPacket packet, IPayloadContext context) {
 		Map<UUID, PlayerCloudData> profileOverrides = AddonCommonData.getInstance().profileOverrides;
 		
@@ -46,6 +59,15 @@ public record SetProfileOverridesPropertyPacket(Set<Pair<UUID, String>> idPairs,
 				case 0 -> cloudData.setUsername((String) property.right());
 				case 1 -> cloudData.setExp((Integer) property.right());
 				case 2 -> cloudData.setPrestigeLevel((Integer) property.right());
+				case 3 -> {
+					PlayerCloudInventory inventory = cloudData.getInventory();
+					List<CloudItemStack> stacks = (List<CloudItemStack>) property.right();
+					inventory.onReceiveSection(stacks, 0);
+					inventory.populateEquippedItems(
+						AddonUtils.getBfManager().getCloudRegistry(),
+						stacks.stream().map(CloudItemStack::getUUID).collect(Collectors.toSet())
+					);
+				}
 				default -> throw new AssertionError();
 			}
 		}
@@ -63,18 +85,33 @@ public record SetProfileOverridesPropertyPacket(Set<Pair<UUID, String>> idPairs,
 			Object obj = switch (propertyId) {
 				case 0 -> StringEncoding.decode(buf, 16);
 				case 1, 2 -> VarInts.read(buf);
+				case 3 -> {
+					try {
+						yield IPacket.readCloudItemStackList(buf);
+					} catch (IOException e) {
+						throw new DecoderException(e);
+					}
+				}
 				default -> throw new DecoderException("Received unknown property id");
 			};
 			return IntObjectPair.of(propertyId, obj);
 		}
 		
 		@Override
+		@SuppressWarnings("unchecked")
 		public void encode(ByteBuf buf, IntObjectPair<Object> value) {
 			int propertyId = value.leftInt();
 			VarInts.write(buf, propertyId);
 			switch (propertyId) {
 				case 0 -> StringEncoding.encode(buf, (String) value.right(), 16);
 				case 1, 2 -> VarInts.write(buf, (Integer) value.right());
+				case 3 -> {
+					try {
+						IPacket.writeCloudItemStackList(buf, (List<CloudItemStack>) value.right());
+					} catch (IOException e) {
+						throw new EncoderException(e);
+					}
+				}
 			}
 		}
 	}

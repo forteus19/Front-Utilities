@@ -4,9 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -19,6 +21,7 @@ import java.util.stream.StreamSupport;
 
 import com.boehmod.blockfront.BlockFront;
 import com.boehmod.blockfront.assets.impl.GameAsset;
+import com.boehmod.blockfront.common.BFAbstractManager;
 import com.boehmod.blockfront.common.match.DivisionData;
 import com.boehmod.blockfront.common.match.MatchClass;
 import com.boehmod.blockfront.common.player.PlayerCloudData;
@@ -119,11 +122,16 @@ public final class AddonUtils {
 		pose.rotation = new Vec2f(entity.getHeadYaw(), entity.getPitch());
 	}
 	
-	public static void teleportBf(ServerPlayerEntity player, FDSPose pose) {
-		var manager = BlockFront.getInstance().getManager();
-		if (manager != null) {
-			BFUtils.teleportPlayer(manager.getPlayerDataHandler(), player, pose);
+	public static BFAbstractManager<?, ?, ?> getBfManager() {
+		BFAbstractManager<?, ?, ?> manager = BlockFront.getInstance().getManager();
+		if (manager == null) {
+			throw new IllegalStateException("BlockFront manager is null");
 		}
+		return manager;
+	}
+	
+	public static void teleportBf(ServerPlayerEntity player, FDSPose pose) {
+		BFUtils.teleportPlayer(getBfManager().getPlayerDataHandler(), player, pose);
 	}
 	
 	public static Path getServerDataPath(MinecraftServer server) {
@@ -139,8 +147,7 @@ public final class AddonUtils {
 	}
 	
 	public static boolean anyGamesActive() {
-		return Objects.requireNonNull(BlockFront.getInstance().getManager())
-			.getGames().values().stream()
+		return getBfManager().getGames().values().stream()
 			.map(GameAsset::getGame)
 			.filter(Objects::nonNull)
 			.anyMatch(game -> game.getStatus() != GameStatus.IDLE);
@@ -183,5 +190,10 @@ public final class AddonUtils {
 	
 	public static BufferedReader toBufferedReader(InputStream stream) {
 		return new BufferedReader(new InputStreamReader(stream));
+	}
+	
+	public static UUID decodeBase64Uuid(String s) {
+		ByteBuffer buffer = ByteBuffer.wrap(Base64.getDecoder().decode(s));
+		return new UUID(buffer.getLong(), buffer.getLong());
 	}
 }
