@@ -34,9 +34,12 @@ import com.boehmod.blockfront.game.GameStageTimer;
 import com.boehmod.blockfront.game.GameTeam;
 import com.boehmod.blockfront.game.ITimedStage;
 import com.boehmod.blockfront.game.impl.ffa.FreeForAllGame;
+import com.boehmod.blockfront.game.impl.inf.InfectedGame;
 import com.boehmod.blockfront.registry.BFDataComponents;
+import com.boehmod.blockfront.registry.BFSounds;
 import com.boehmod.blockfront.util.BFRes;
 import com.boehmod.blockfront.util.BFUtils;
+import com.boehmod.blockfront.util.RandomUtils;
 import com.boehmod.blockfront.util.math.FDSPose;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
@@ -62,6 +65,7 @@ import net.minecraft.server.command.CommandOutput;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -87,6 +91,8 @@ import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
 public final class FrontUtilCommand {
+	private static final Text C_INFECTED_VENDOR_RELOCATE = Text.translatable("bf.message.gamemode.infected.store.relocate").formatted(Formatting.YELLOW);
+	
 	private FrontUtilCommand() {
 	}
 	
@@ -139,6 +145,10 @@ public final class FrontUtilCommand {
 			)
 		).then(
 			literal("match").then(
+				literal("infected").then(
+					literal("vendorRelocate").executes(FrontUtilCommand::matchInfectedVendorRelocate)
+				)
+			).then(
 				literal("timer").then(
 					literal("add").then(
 						argument("seconds", IntegerArgumentType.integer(0)).executes(FrontUtilCommand::matchTimerAdd)
@@ -383,6 +393,26 @@ public final class FrontUtilCommand {
 		return 1;
 	}
 	
+	private static int matchInfectedVendorRelocate(CommandContext<ServerCommandSource> context) {
+		ServerCommandSource source = context.getSource();
+		ServerPlayerEntity player = AddonCommandUtils.getContextPlayer(context);
+		if (player == null) {
+			return -1;
+		}
+		
+		if (!(AddonUtils.getBfManager().getGameWithPlayer(player) instanceof InfectedGame game)) {
+			source.sendError(Text.translatable("frontutil.message.command.match.infected.error.none"));
+			return -1;
+		}
+		
+		Set<UUID> players = game.getPlayerManager().getPlayerUUIDs();
+		BFUtils.playSound(players, BFSounds.ENTITY_GUNDEALER_RELOCATE.get(), SoundCategory.MASTER);
+		BFUtils.sendNoticeMessage(players, C_INFECTED_VENDOR_RELOCATE);
+		game.relocateVendor(source.getWorld(), RandomUtils.randomFromList(game.vendorSpawns));
+		
+		return 1;
+	}
+	
 	private static int matchTimerAdd(CommandContext<ServerCommandSource> context) {
 		ServerCommandSource source = context.getSource();
 		ServerPlayerEntity player = AddonCommandUtils.getContextPlayer(context);
@@ -414,8 +444,7 @@ public final class FrontUtilCommand {
 	}
 	
 	private static int handleMatchTimerOperation(CommandContext<ServerCommandSource> context, ServerCommandSource source, ServerPlayerEntity player, Consumer<GameStageTimer> timerOperation, Text message) {
-		BFAbstractManager<?, ?, ?> manager = AddonUtils.getBfManager();
-		AbstractGame<?, ?, ?> game = manager.getGameWithPlayer(player);
+		AbstractGame<?, ?, ?> game = AddonUtils.getBfManager().getGameWithPlayer(player);
 		if (game == null) {
 			source.sendError(Text.translatable("frontutil.message.command.match.error.none"));
 			return -1;

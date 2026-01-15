@@ -96,6 +96,7 @@
   "frontutil.message.command.map.mapEffect.types.header": "Map effect types for environment '%s':",
   "frontutil.message.command.map.teams.list.header": "Teams for map '%s':",
   "frontutil.message.command.match.error.none": "You must be in a match to run this command!",
+  "frontutil.message.command.match.infected.error.none": "You must be in an infected match to run this command!",
   "frontutil.message.command.match.timer.add.success": "Player %s has added %s seconds to the timer!",
   "frontutil.message.command.match.timer.error.invalid": "The current stage is not timed!",
   "frontutil.message.command.match.timer.set.success": "Player %s has set the timer to %s seconds!",
