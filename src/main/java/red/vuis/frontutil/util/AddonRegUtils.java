@@ -1,5 +1,7 @@
 package red.vuis.frontutil.util;
 
+import net.minecraft.item.Item;
+import net.minecraft.item.Items;
 import net.minecraft.particle.ParticleType;
 import net.minecraft.particle.SimpleParticleType;
 import net.minecraft.registry.Registries;
@@ -8,6 +10,11 @@ import org.jetbrains.annotations.Nullable;
 
 public final class AddonRegUtils {
 	private AddonRegUtils() {
+	}
+	
+	public static @Nullable Item getItem(String id) {
+		Item item = Registries.ITEM.get(Identifier.tryParse(id));
+		return item != Items.AIR ? item : null;
 	}
 	
 	public static @Nullable SimpleParticleType getSimpleParticle(String id) {
