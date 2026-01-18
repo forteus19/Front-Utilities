@@ -188,8 +188,8 @@ public abstract class MapEnvironmentMixin {
 				
 				if (!(args.length == 6 || args.length == 11)) {
 					CommandUtils.sendBfaWarn(source, Text.translatable("frontutil.message.command.error.args.count"));
-					CommandUtils.sendBfaWarn(source, Text.literal("environment, x, y, z, endPosX, endPosY, endPosZ"));
-					CommandUtils.sendBfaWarn(source, Text.literal("environment, x, y, z, endPosX, endPosY, endPosZ, chance, playSound, spreadX, spreadY, spreadZ"));
+					CommandUtils.sendBfaWarn(source, Text.literal("x, y, z, endPosX, endPosY, endPosZ"));
+					CommandUtils.sendBfaWarn(source, Text.literal("x, y, z, endPosX, endPosY, endPosZ, chance, playSound, spreadX, spreadY, spreadZ"));
 					return;
 				}
 				
@@ -218,7 +218,7 @@ public abstract class MapEnvironmentMixin {
 				
 				CommandUtils.sendBfa(source, Text.translatable("frontutil.message.command.map.mapEffect.add.loopingSoundPoint.success", nameText));
 			}).validator(
-				AssetCommandValidatorsEx.count("environment", "sound", "maxTick", "x", "y", "z")
+				AssetCommandValidatorsEx.count("sound", "maxTick", "x", "y", "z")
 			));
 		
 		addCommand.subCommand(
@@ -229,8 +229,8 @@ public abstract class MapEnvironmentMixin {
 				
 				if (!(args.length == 5 || args.length == 7)) {
 					CommandUtils.sendBfaWarn(source, Text.translatable("frontutil.message.command.error.args.count"));
-					CommandUtils.sendBfaWarn(source, Text.literal("environment, particle, maxTick, x, y, z"));
-					CommandUtils.sendBfaWarn(source, Text.literal("environment, particle, maxTick, x, y, z, sound, soundVolume"));
+					CommandUtils.sendBfaWarn(source, Text.literal("particle, maxTick, x, y, z"));
+					CommandUtils.sendBfaWarn(source, Text.literal("particle, maxTick, x, y, z, sound, soundVolume"));
 					return;
 				}
 				
