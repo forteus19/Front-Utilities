@@ -28,6 +28,7 @@ import com.boehmod.blockfront.common.match.DivisionData;
 import com.boehmod.blockfront.common.match.Loadout;
 import com.boehmod.blockfront.common.match.MatchClass;
 import com.boehmod.blockfront.common.player.PlayerCloudData;
+import com.boehmod.blockfront.common.stat.BFStats;
 import com.boehmod.blockfront.game.AbstractGame;
 import com.boehmod.blockfront.game.AbstractGamePlayerManager;
 import com.boehmod.blockfront.game.GameStageTimer;
@@ -146,6 +147,12 @@ public final class FrontUtilCommand {
 		).then(
 			literal("match").then(
 				literal("infected").then(
+					literal("giveCash").then(
+						argument("players", EntityArgumentType.players()).then(
+							argument("amount", IntegerArgumentType.integer(1)).executes(FrontUtilCommand::matchInfectedGiveCash)
+						)
+					)
+				).then(
 					literal("vendorRelocate").executes(FrontUtilCommand::matchInfectedVendorRelocate)
 				)
 			).then(
@@ -391,6 +398,31 @@ public final class FrontUtilCommand {
 		}
 		
 		return 1;
+	}
+	
+	private static int matchInfectedGiveCash(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+		Collection<ServerPlayerEntity> players = EntityArgumentType.getPlayers(context, "players");
+		int amount = IntegerArgumentType.getInteger(context, "amount");
+		
+		BFAbstractManager<?, ?, ?> manager = AddonUtils.getBfManager();
+		
+		int affected = 0;
+		for (ServerPlayerEntity player : players) {
+			UUID uuid = player.getUuid();
+			
+			if (!(manager.getGameWithPlayer(uuid) instanceof InfectedGame game)) {
+				continue;
+			}
+			
+			BFUtils.triggerPlayerStat(manager, game, uuid, BFStats.POINTS, amount);
+			BFUtils.sendFancyMessage(
+				uuid, BFUtils.ADMIN_PREFIX,
+				Text.translatable("frontutil.message.command.match.infected.giveCash.success", player.getNameForScoreboard(), amount)
+			);
+			affected++;
+		}
+		
+		return affected;
 	}
 	
 	private static int matchInfectedVendorRelocate(CommandContext<ServerCommandSource> context) {
