@@ -14,6 +14,7 @@ import red.vuis.frontutil.data.AddonPacketCodecs;
 @AllArgsConstructor
 public enum MatchHudStyle {
 	MODERN(Set.of(), false, false, false, false),
+	LESS_MODERN(Set.of(), false, false, false, false),
 	OLD(Set.of(BFGameType.DOMINATION, BFGameType.TEAM_DEATHMATCH, BFGameType.GUN_GAME, BFGameType.FREE_FOR_ALL), true, false, true, true),
 	DAY_OF_DEFEAT(Set.of(BFGameType.DOMINATION), true, true, true, true),
 	DAY_OF_INFAMY(Set.of(BFGameType.DOMINATION), true, false, true, true);

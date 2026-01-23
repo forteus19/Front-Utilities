@@ -41,6 +41,7 @@
     "client.MatchPauseScreenMixin",
     "client.PacketAppliersMixin",
     "client.TeamDeathmatchGameClientMixin",
+    "client.TeamProgressGameElementMixin",
     "client.TitleSidebarScreenMixin"
   ]
 }
