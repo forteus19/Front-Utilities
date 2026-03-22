@@ -131,14 +131,14 @@ public abstract class FreeForAllGameMixin extends AbstractGame<FreeForAllGame, F
 	}
 	
 	@Override
-	public void method_2624(@NotNull ByteBuf buf, boolean hasMapAsset) throws IOException {
-		super.method_2624(buf, hasMapAsset);
+	public void writeAll(@NotNull ByteBuf buf, boolean hasMapAsset) throws IOException {
+		super.writeAll(buf, hasMapAsset);
 		buf.writeBoolean(frontutil$allowAntiTank);
 	}
 	
 	@Override
-	public void method_2664(@NotNull ByteBuf buf) throws IOException {
-		super.method_2664(buf);
+	public void readAll(@NotNull ByteBuf buf) throws IOException {
+		super.readAll(buf);
 		frontutil$allowAntiTank = buf.readBoolean();
 	}
 }

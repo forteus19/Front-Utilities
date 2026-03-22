@@ -18,7 +18,7 @@ public class BFIntroScreenMixin {
 	@Definition(id = "getConnectionMode", method = "Lcom/boehmod/blockfront/cloud/client/ClientConnectionManager;getConnectionMode()Lcom/boehmod/blockfront/client/net/ConnectionMode;")
 	@Expression("? = ?.getConnectionMode()")
 	@Inject(
-		method = "method_655",
+		method = "getNextIntroScreen",
 		at = @At(
 			value = "MIXINEXTRAS:EXPRESSION",
 			shift = At.Shift.AFTER

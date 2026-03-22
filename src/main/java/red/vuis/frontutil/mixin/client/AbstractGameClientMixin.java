@@ -47,7 +47,7 @@ public abstract class AbstractGameClientMixin {
 	}
 	
 	@Redirect(
-		method = "method_2693",
+		method = "renderWaitingText",
 		at = @At(
 			value = "INVOKE",
 			target = "Lcom/boehmod/blockfront/util/StringUtils;makeFancy(Ljava/lang/String;)Ljava/lang/String;",
@@ -59,7 +59,7 @@ public abstract class AbstractGameClientMixin {
 	}
 	
 	@Redirect(
-		method = "method_2693",
+		method = "renderWaitingText",
 		at = @At(
 			value = "INVOKE",
 			target = "Lcom/boehmod/blockfront/client/render/BFRendering;centeredComponent2dWithShadow(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/text/Text;II)V",

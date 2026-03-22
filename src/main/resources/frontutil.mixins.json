@@ -27,6 +27,7 @@
   ],
   "client": [
     "client.AbstractGameClientMixin",
+    "client.BFClientPacketHandlersMixin",
     "client.BFClientScreenSubscriberMixin",
     "client.BFIntroScreenMixin",
     "client.BFRenderLevelSubscriberMixin",
@@ -41,7 +42,6 @@
     "client.KillSectionPlayerMixin",
     "client.MatchGuiLayerMixin",
     "client.MatchPauseScreenMixin",
-    "client.PacketAppliersMixin",
     "client.TeamDeathmatchGameClientMixin",
     "client.TeamProgressGameElementMixin",
     "client.TitleScreenMixin",

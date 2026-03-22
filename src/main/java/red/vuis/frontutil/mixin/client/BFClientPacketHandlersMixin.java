@@ -1,6 +1,6 @@
 package red.vuis.frontutil.mixin.client;
 
-import com.boehmod.blockfront.common.net.PacketAppliers;
+import com.boehmod.blockfront.client.net.BFClientPacketHandlers;
 import com.boehmod.blockfront.common.net.packet.BFGamePacket;
 import com.boehmod.blockfront.game.AbstractGame;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -13,8 +13,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import red.vuis.frontutil.client.data.config.AddonClientConfig;
 import red.vuis.frontutil.ex.AbstractGameEx;
 
-@Mixin(PacketAppliers.class)
-public abstract class PacketAppliersMixin {
+@Mixin(BFClientPacketHandlers.class)
+public abstract class BFClientPacketHandlersMixin {
 	@Inject(
 		method = "game",
 		at = @At("TAIL")

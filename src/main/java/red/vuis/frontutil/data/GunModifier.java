@@ -184,8 +184,8 @@ public record GunModifier(
 		}
 		
 		private static void apply(Camera camera, @NotNull GunItem item) {
-			GunCameraConfig prevConfig = item.method_5712();
-			item.method_5713(new GunCameraConfig(
+			GunCameraConfig prevConfig = item.getCameraConfig();
+			item.camera(new GunCameraConfig(
 				prevConfig.maxModelDistance(),
 				prevConfig.maxModelPitch(),
 				prevConfig.maxCameraPitch(),

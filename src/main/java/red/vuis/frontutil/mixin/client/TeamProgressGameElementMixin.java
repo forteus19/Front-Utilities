@@ -58,7 +58,7 @@ public abstract class TeamProgressGameElementMixin<G extends AbstractGame<G, P, 
 		}
 		ci.cancel();
 		
-		int areaWidth = method_490(textRenderer) - 4;
+		int areaWidth = getWidth(textRenderer) - 4;
 		float barWidth = (float) field_475 / (float) field_474 * areaWidth;
 		int barColor = field_477.equals("Axis") ? 0x7E3831 : 0x7C8148;
 		

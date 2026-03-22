@@ -31,7 +31,7 @@ public abstract class DominationGameClientMixin extends CapturePointGameClient<D
 	}
 	
 	@Override
-	public void method_2722(
+	public void renderSpecific(
 		@NotNull MinecraftClient client,
 		@NotNull BFClientManager manager,
 		@NotNull ClientPlayerEntity player,
@@ -49,7 +49,7 @@ public abstract class DominationGameClientMixin extends CapturePointGameClient<D
 		float renderTime,
 		float delta
 	) {
-		super.method_2722(client, manager, player, world, playerData, context, textRenderer, matrices, vertexConsumers, players, width, height, midX, midY, renderTime, delta);
+		super.renderSpecific(client, manager, player, world, playerData, context, textRenderer, matrices, vertexConsumers, players, width, height, midX, midY, renderTime, delta);
 		
 		GameStageTimer timer = method_2678();
 		switch (AddonClientConfig.getMatchHudStyle()) {

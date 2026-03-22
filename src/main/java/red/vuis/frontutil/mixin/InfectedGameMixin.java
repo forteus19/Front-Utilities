@@ -179,7 +179,7 @@ public abstract class InfectedGameMixin {
 	}
 	
 	@Inject(
-		method = "method_3648",
+		method = "refreshShopItems",
 		at = @At(
 			value = "INVOKE",
 			target = "Ljava/util/List;clear()V",
@@ -201,7 +201,7 @@ public abstract class InfectedGameMixin {
 	}
 	
 	@ModifyConstant(
-		method = "method_3648",
+		method = "refreshShopItems",
 		constant = @Constant(intValue = 6)
 	)
 	private int disableDefaultLoop(int constant) {

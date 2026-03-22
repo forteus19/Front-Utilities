@@ -33,7 +33,7 @@ public abstract class FreeForAllGameClientMixin extends AbstractGameClient<FreeF
 	}
 	
 	@Inject(
-		method = "method_2722",
+		method = "renderSpecific",
 		at = @At("TAIL")
 	)
 	private void renderOldHud(

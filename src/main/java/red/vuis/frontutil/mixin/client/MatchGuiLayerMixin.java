@@ -17,7 +17,7 @@ import red.vuis.frontutil.client.data.config.AddonClientConfig;
 @Mixin(MatchGuiLayer.class)
 public abstract class MatchGuiLayerMixin extends BFAbstractGuiLayer {
 	@ModifyArg(
-		method = "method_499",
+		method = "renderMinimap",
 		at = @At(
 			value = "INVOKE",
 			target = "Lcom/boehmod/blockfront/client/render/minimap/MinimapRendering;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/client/network/ClientPlayerEntity;Ljava/util/Collection;IIFII)V"

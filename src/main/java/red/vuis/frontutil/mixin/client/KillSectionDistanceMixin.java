@@ -16,7 +16,7 @@ import red.vuis.frontutil.client.data.config.AddonClientConfig;
 public abstract class KillSectionDistanceMixin {
 	@SuppressWarnings("deprecation")
 	@Redirect(
-		method = "method_3220",
+		method = "render",
 		at = @At(
 			value = "INVOKE",
 			target = "Lcom/boehmod/blockfront/client/render/BFRendering;centeredComponent2dWithShadow(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/text/Text;FF)V"

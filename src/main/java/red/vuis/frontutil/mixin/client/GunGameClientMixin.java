@@ -33,7 +33,7 @@ public abstract class GunGameClientMixin extends AbstractGameClient<GunGame, Gun
 	}
 	
 	@Inject(
-		method = "method_2722",
+		method = "renderSpecific",
 		at = @At("TAIL")
 	)
 	private void renderOldHud(

@@ -21,8 +21,8 @@ import com.boehmod.bflib.cloud.common.item.CloudItem;
 import com.boehmod.bflib.cloud.common.item.CloudItemStack;
 import com.boehmod.blockfront.assets.AssetStore;
 import com.boehmod.blockfront.assets.impl.GameAsset;
-import com.boehmod.blockfront.cloud.CloudItemCache;
 import com.boehmod.blockfront.common.BFAbstractManager;
+import com.boehmod.blockfront.common.item.ItemSkinIndex;
 import com.boehmod.blockfront.common.match.BFCountry;
 import com.boehmod.blockfront.common.match.DivisionData;
 import com.boehmod.blockfront.common.match.Loadout;
@@ -33,7 +33,7 @@ import com.boehmod.blockfront.game.AbstractGame;
 import com.boehmod.blockfront.game.AbstractGamePlayerManager;
 import com.boehmod.blockfront.game.GameStageTimer;
 import com.boehmod.blockfront.game.GameTeam;
-import com.boehmod.blockfront.game.ITimedStage;
+import com.boehmod.blockfront.game.TimedStage;
 import com.boehmod.blockfront.game.impl.ffa.FreeForAllGame;
 import com.boehmod.blockfront.game.impl.inf.InfectedGame;
 import com.boehmod.blockfront.registry.BFDataComponents;
@@ -482,7 +482,7 @@ public final class FrontUtilCommand {
 			return -1;
 		}
 		
-		if (!(game.getStageManager().getCurrentStage() instanceof ITimedStage<?, ?> stage)) {
+		if (!(game.getStageManager().getCurrentStage() instanceof TimedStage<?, ?> stage)) {
 			source.sendError(Text.translatable("frontutil.message.command.match.timer.error.invalid"));
 			return -1;
 		}
@@ -648,8 +648,8 @@ public final class FrontUtilCommand {
 			throw new RuntimeException("Cloud item id %d does not have a valid mc item location!".formatted(dropStack.getItemId()));
 		}
 		ItemStack itemStack = new ItemStack(item);
-		CloudItemCache.method_5941(dropItem, itemStack);
-		CloudItemCache.method_5942(dropStack, itemStack);
+		ItemSkinIndex.method_5941(dropItem, itemStack);
+		ItemSkinIndex.method_5942(dropStack, itemStack);
 		
 		player.giveItemStack(itemStack);
 	}

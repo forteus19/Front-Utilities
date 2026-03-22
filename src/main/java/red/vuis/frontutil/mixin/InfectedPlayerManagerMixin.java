@@ -16,7 +16,7 @@ public class InfectedPlayerManagerMixin {
 	@Definition(id = "IRON_DOOR", field = "Lnet/minecraft/block/Blocks;IRON_DOOR:Lnet/minecraft/block/Block;")
 	@Expression("block == IRON_DOOR")
 	@ModifyExpressionValue(
-		method = "method_2750",
+		method = "canInteractWithBlock",
 		at = @At("MIXINEXTRAS:EXPRESSION")
 	)
 	private boolean addBlastDoor(boolean original, @Local(argsOnly = true) Block block) {

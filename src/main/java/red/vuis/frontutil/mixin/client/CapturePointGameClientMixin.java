@@ -20,9 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import red.vuis.frontutil.client.data.config.AddonClientConfig;
@@ -31,19 +29,11 @@ import red.vuis.frontutil.client.data.config.AddonClientConfig;
 public abstract class CapturePointGameClientMixin {
 	@Shadow
 //	@Nullable
-	protected AbstractCapturePoint<?> field_2906;
-	
-	@ModifyConstant(
-		method = "method_2748",
-		constant = @Constant(intValue = 8159560)
-	)
-	private int changeAlliesColor(int constant) {
-		return AddonClientConfig.getMatchHudStyle().isOldCapturingText() ? 7633224 : constant;
-	}
+	protected AbstractCapturePoint<?> currentCapturePoint;
 	
 	@SuppressWarnings("deprecation")
 	@Inject(
-		method = "method_2748",
+		method = "renderCapturePointStatus",
 		at = @At(
 			value = "INVOKE",
 			target = "Lcom/boehmod/blockfront/util/math/MathUtils;lerpf1(FFF)F",
@@ -64,7 +54,6 @@ public abstract class CapturePointGameClientMixin {
 		float renderTime,
 		CallbackInfo ci,
 		@Local(ordinal = 0) GameTeam playerTeam,
-		@Local(ordinal = 4) int barColor,
 		@Local(ordinal = 1) float captureProgress
 	) {
 		if (!AddonClientConfig.getMatchHudStyle().isOldCapturingText()) {
@@ -72,17 +61,19 @@ public abstract class CapturePointGameClientMixin {
 		}
 		ci.cancel();
 		
-		GameTeam cbTeam = field_2906.cbTeam;
+		GameTeam cbTeam = currentCapturePoint.cbTeam;
 		if (playerTeam == cbTeam) {
 			return;
 		}
 		
 		int topY = height - 90;
 		BFRendering.rectangleWithDarkShadow(matrices, context, midX - 60, topY, 120f, 12f, BFRendering.translucentBlack());
-		BFRendering.rectangle(matrices, context, midX - 60 + 1, topY + 1, captureProgress * 120f / 12f - 2f, 10f, barColor, 0.8f);
+		if (cbTeam != null) {
+			BFRendering.rectangle(matrices, context, midX - 60 + 1, topY + 1, captureProgress * 120f / 12f - 2f, 10f, cbTeam.getColor(), 0.8f);
+		}
 		
 		Style cbStyle = cbTeam != null ? cbTeam.getStyleText() : Style.EMPTY.withColor(Formatting.GRAY);
-		MutableText pointName = Text.literal(field_2906.name.toUpperCase(Locale.ROOT)).setStyle(cbStyle);
+		MutableText pointName = Text.literal(currentCapturePoint.name.toUpperCase(Locale.ROOT)).setStyle(cbStyle);
 		MutableText capturingText = Text.translatable("bf.message.gamemode.capturepoint.capturing", pointName)
 			.formatted(Formatting.WHITE, Formatting.BOLD);
 		BFRendering.centeredComponent2d(matrices, textRenderer, context, capturingText, midX, topY - 15);
