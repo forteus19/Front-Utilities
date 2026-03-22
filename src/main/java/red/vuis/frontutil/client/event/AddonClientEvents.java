@@ -7,7 +7,9 @@ import java.util.function.Supplier;
 import net.minecraft.client.MinecraftClient;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
@@ -15,6 +17,7 @@ import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 
 import red.vuis.frontutil.AddonConstants;
 import red.vuis.frontutil.client.command.FrontUtilClientCommand;
+import red.vuis.frontutil.client.compat.embeddium.EmbeddiumCompatibility;
 import red.vuis.frontutil.client.input.InputAcceptor;
 import red.vuis.frontutil.client.input.InputTracker;
 import red.vuis.frontutil.client.input.MouseButton;
@@ -37,6 +40,16 @@ public final class AddonClientEvents {
 	);
 	
 	private AddonClientEvents() {
+	}
+	
+	@SubscribeEvent
+	public static void onClientSetup(FMLClientSetupEvent event) {
+		event.enqueueWork(() -> {
+			if (ModList.get().isLoaded("embeddium")) {
+				AddonConstants.LOGGER.info("Registering embeddium compatibility...");
+				EmbeddiumCompatibility.init();
+			}
+		});
 	}
 	
 	@SubscribeEvent

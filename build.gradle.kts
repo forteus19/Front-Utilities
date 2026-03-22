@@ -20,6 +20,14 @@ repositories {
             includeGroup("software.bernie.geckolib")
         }
     }
+    exclusiveContent {
+        forRepository {
+            maven("https://api.modrinth.com/maven")
+        }
+        filter {
+            includeGroup("maven.modrinth")
+        }
+    }
 }
 
 dependencies {
@@ -37,6 +45,7 @@ dependencies {
     modRuntimeOnly(files("bf/$bfVersion-original.jar"))
 
     modCompileOnly("software.bernie.geckolib:geckolib-neoforge-1.21.1:4.7.3")
+    modCompileOnly("maven.modrinth:embeddium:1.0.15+mc1.21.1")
     compileOnly(files("bf/bflib-$bfVersion.jar"))
 
     compileOnly("com.demonwav.mcdev:annotations:2.1.0")

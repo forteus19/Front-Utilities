@@ -33,3 +33,10 @@ type = "required"
 versionRange = "[0.8.0.7b]"
 ordering = "AFTER"
 side = "BOTH"
+
+[[dependencies.frontutil]]
+modId = "embeddium"
+type = "optional"
+versionRange = "[0,)"
+ordering = "NONE"
+side = "CLIENT"
