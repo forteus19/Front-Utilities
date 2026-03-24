@@ -7,7 +7,7 @@ import net.minecraft.item.Item;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
@@ -20,6 +20,7 @@ import red.vuis.frontutil.AddonConstants;
 import red.vuis.frontutil.command.FrontUtilCommand;
 import red.vuis.frontutil.data.GunModifier;
 import red.vuis.frontutil.data.GunModifierFiles;
+import red.vuis.frontutil.data.OldSpreadConfigs;
 import red.vuis.frontutil.net.packet.ClearProfileOverridesPacket;
 import red.vuis.frontutil.net.packet.GiveGunPacket;
 import red.vuis.frontutil.net.packet.GunModifiersPacket;
@@ -43,7 +44,7 @@ public final class AddonCommonEvents {
 	}
 	
 	@SubscribeEvent
-	public static void onLoadComplete(FMLLoadCompleteEvent event) {
+	public static void onCommonSetup(FMLCommonSetupEvent event) {
 		AddonConstants.LOGGER.info("Indexing default gun properties...");
 		GunModifierIndex.init();
 		
@@ -55,6 +56,9 @@ public final class AddonCommonEvents {
 		
 		AddonConstants.LOGGER.info("Indexing skins...");
 		GunSkinIndex.init(AddonUtils.getBfManager().getCloudRegistry());
+		
+		AddonConstants.LOGGER.info("Initializing old spread values...");
+		OldSpreadConfigs.init();
 	}
 	
 	@SubscribeEvent
