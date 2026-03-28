@@ -24,7 +24,7 @@ public final class OldSpreadConfigs {
 	private static final OldSpreadConfig SHOTGUN = new OldSpreadConfig(13.0F, 0.3F, 0.4F, 1.0F, 0.08F, 0.05F, 0.16F, 0.02F, 0.025F, 7.5F, 20.0F);
 	private static final OldSpreadConfig FLAMETHROWER = new OldSpreadConfig(0.1F, 0.0F, 0.01F, 0.01F, 0.01F, 0.01F, 0.01F, 1.0F, 1.0F, 1.0F, 1.0F);
 	
-	private static final Map<BFWeaponItem<?>, OldSpreadConfig> ITEM_MAP = new Object2ObjectOpenHashMap<>();
+	private static final Map<BFWeaponItem<?>, Entry> ITEM_MAP = new Object2ObjectOpenHashMap<>();
 	
 	private OldSpreadConfigs() {
 	}
@@ -67,9 +67,9 @@ public final class OldSpreadConfigs {
 		register(BFItems.GUN_AK74, SMG);
 		register(BFItems.GUN_M4A4, SMG);
 		register(BFItems.GUN_FG42, SMG);
-		register(BFItems.GUN_TRENCHGUN, SHOTGUN);
-		register(BFItems.GUN_M30, SHOTGUN);
-		register(BFItems.GUN_BECKER, SHOTGUN);
+		register(BFItems.GUN_TRENCHGUN, SHOTGUN, true);
+		register(BFItems.GUN_M30, SHOTGUN, true);
+		register(BFItems.GUN_BECKER, SHOTGUN, true);
 		register(BFItems.GUN_MAUSER_M712, PISTOL_AUTO);
 		register(BFItems.GUN_SPRINGFIELD, RIFLE);
 		register(BFItems.GUN_KAR98K, RIFLE);
@@ -96,8 +96,8 @@ public final class OldSpreadConfigs {
 		register(BFItems.GUN_TYPE26, REVOLVER);
 		register(BFItems.GUN_WEBLEY_MK6, REVOLVER);
 		register(BFItems.GUN_MODELE_1892_REVOLVER, REVOLVER);
-		register(BFItems.GUN_M2_FLAMETHROWER, FLAMETHROWER);
-		register(BFItems.GUN_FLAMMENWERFER_34, FLAMETHROWER);
+		register(BFItems.GUN_M2_FLAMETHROWER, FLAMETHROWER, true);
+		register(BFItems.GUN_FLAMMENWERFER_34, FLAMETHROWER, true);
 		register(BFItems.GUN_COLT, PISTOL);
 		register(BFItems.GUN_BERETTA_M1934, PISTOL);
 		register(BFItems.GUN_FN_MODEL_1910, PISTOL);
@@ -122,16 +122,30 @@ public final class OldSpreadConfigs {
 		register(BFItems.GUN_MP41, SMG);
 		register(BFItems.GUN_TYPE18_SHOTGUN, SHOTGUN);
 		register(BFItems.GUN_DE_LISLE_CARBINE, RIFLE);
-		register(BFItems.GUN_BROWNING_A5, SHOTGUN);
+		register(BFItems.GUN_BROWNING_A5, SHOTGUN, true);
 		register(BFItems.GUN_TYPE4_70MM, ROCKET);
 		register(BFItems.GUN_WZ_35, ATR);
 	}
 	
 	private static void register(Supplier<? extends BFWeaponItem<?>> itemHolder, OldSpreadConfig config) {
-		ITEM_MAP.put(itemHolder.get(), config);
+		register(itemHolder, config, false);
 	}
 	
-	public static OldSpreadConfig get(BFWeaponItem<?> item) {
-		return ITEM_MAP.getOrDefault(item, PISTOL);
+	private static void register(Supplier<? extends BFWeaponItem<?>> itemHolder, OldSpreadConfig config, boolean increaseWhenFired) {
+		ITEM_MAP.put(itemHolder.get(), new Entry(config, increaseWhenFired));
+	}
+	
+	public static Entry get(BFWeaponItem<?> item) {
+		return ITEM_MAP.getOrDefault(item, Entry.DEFAULT);
+	}
+	
+	public record Entry(
+		OldSpreadConfig config,
+		boolean earlyFireSpread
+	) {
+		private static final Entry DEFAULT = new Entry(
+			new OldSpreadConfig(1.0F, 0.0F, 0.6F, 0.8F, 0.025F, 0.015F, 0.1F, 0.25F, 0.5F, 20.0F, 15.0F),
+			false
+		);
 	}
 }

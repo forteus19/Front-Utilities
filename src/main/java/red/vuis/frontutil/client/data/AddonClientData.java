@@ -23,6 +23,8 @@ import red.vuis.frontutil.setup.LoadoutIndex;
 public final class AddonClientData {
 	private static AddonClientData instance = null;
 	
+	public boolean useOldSpread = true;
+	
 	public Map<LoadoutIndex.Identifier, List<Loadout>> tempLoadouts;
 	public Map<RegistryEntry<Item>, GunModifier> tempGunModifiers;
 	

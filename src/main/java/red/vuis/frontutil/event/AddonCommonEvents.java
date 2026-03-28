@@ -7,7 +7,7 @@ import net.minecraft.item.Item;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
@@ -44,7 +44,7 @@ public final class AddonCommonEvents {
 	}
 	
 	@SubscribeEvent
-	public static void onCommonSetup(FMLCommonSetupEvent event) {
+	public static void onLoadComplete(FMLLoadCompleteEvent event) {
 		AddonConstants.LOGGER.info("Indexing default gun properties...");
 		GunModifierIndex.init();
 		
