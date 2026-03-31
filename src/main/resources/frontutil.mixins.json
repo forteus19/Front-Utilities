@@ -27,6 +27,7 @@
   ],
   "client": [
     "client.AbstractGameClientMixin",
+    "client.BFBlockRendererMixin",
     "client.BFClientPacketHandlersMixin",
     "client.BFClientScreenSubscriberMixin",
     "client.BFIntroScreenMixin",

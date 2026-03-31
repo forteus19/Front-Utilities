@@ -17,7 +17,7 @@ import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 
 import red.vuis.frontutil.AddonConstants;
 import red.vuis.frontutil.client.command.FrontUtilClientCommand;
-import red.vuis.frontutil.client.compat.embeddium.EmbeddiumCompatibility;
+import red.vuis.frontutil.client.compat.embeddium.AddonEmbeddiumCompatibility;
 import red.vuis.frontutil.client.input.InputAcceptor;
 import red.vuis.frontutil.client.input.InputTracker;
 import red.vuis.frontutil.client.input.MouseButton;
@@ -47,7 +47,7 @@ public final class AddonClientEvents {
 		event.enqueueWork(() -> {
 			if (ModList.get().isLoaded("embeddium")) {
 				AddonConstants.LOGGER.info("Registering embeddium compatibility...");
-				EmbeddiumCompatibility.init();
+				AddonEmbeddiumCompatibility.init();
 			}
 		});
 	}
