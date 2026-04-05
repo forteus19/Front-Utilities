@@ -44,6 +44,7 @@ import com.boehmod.blockfront.util.RandomUtils;
 import com.boehmod.blockfront.util.math.FDSPose;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -80,6 +81,7 @@ import red.vuis.frontutil.data.GunModifier;
 import red.vuis.frontutil.net.packet.ClearProfileOverridesPacket;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
 import red.vuis.frontutil.net.packet.NewProfileOverridesPacket;
+import red.vuis.frontutil.net.packet.SetOldSpreadPacket;
 import red.vuis.frontutil.net.packet.SetProfileOverridesPropertyPacket;
 import red.vuis.frontutil.net.packet.ViewSpawnsPacket;
 import red.vuis.frontutil.setup.GunSkinIndex;
@@ -118,6 +120,10 @@ public final class FrontUtilCommand {
 			).then(
 				literal("modifier").then(
 					literal("list").executes(FrontUtilCommand::gunModifierList)
+				)
+			).then(
+				literal("oldSpread").then(
+					argument("enabled", BoolArgumentType.bool()).executes(FrontUtilCommand::gunOldSpread)
 				)
 			)
 		).then(
@@ -279,6 +285,25 @@ public final class FrontUtilCommand {
 			output.sendMessage(Text.literal(itemEntry.getIdAsString()));
 		}
 		
+		return 1;
+	}
+	
+	private static int gunOldSpread(CommandContext<ServerCommandSource> context) {
+		ServerCommandSource source = context.getSource();
+		
+		boolean enabled = BoolArgumentType.getBool(context, "enabled");
+		
+		AddonCommonData.getInstance().useOldSpread = enabled;
+		if (FMLEnvironment.dist.isDedicatedServer()) {
+			PacketDistributor.sendToAllPlayers(new SetOldSpreadPacket(enabled));
+		}
+		
+		source.sendFeedback(
+			() -> enabled ?
+				Text.translatable("frontutil.message.command.gun.oldSpread.success.enabled") :
+				Text.translatable("frontutil.message.command.gun.oldSpread.success.disabled"),
+			true
+		);
 		return 1;
 	}
 	

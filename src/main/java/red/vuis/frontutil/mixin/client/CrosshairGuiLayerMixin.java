@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-import red.vuis.frontutil.client.data.AddonClientData;
+import red.vuis.frontutil.data.AddonCommonData;
 import red.vuis.frontutil.data.OldSpreadConfig;
 import red.vuis.frontutil.data.OldSpreadConfigs;
 
@@ -26,7 +26,7 @@ public abstract class CrosshairGuiLayerMixin {
 		)
 	)
 	private float overrideSpreadFields(float max, float min, float t) {
-		if (AddonClientData.getInstance().useOldSpread) {
+		if (AddonCommonData.getInstance().useOldSpread) {
 			return MathUtils.lerpf1(OldSpreadConfig.currentSpread, OldSpreadConfig.prevSpread, t);
 		} else {
 			return MathUtils.lerpf1(max, min, t);
@@ -40,7 +40,7 @@ public abstract class CrosshairGuiLayerMixin {
 		)
 	)
 	private float overrideSpreadScale(float constant, @Local(argsOnly = true) ItemStack heldStack) {
-		if (AddonClientData.getInstance().useOldSpread && heldStack.getItem() instanceof BFWeaponItem<?> weaponItem) {
+		if (AddonCommonData.getInstance().useOldSpread && heldStack.getItem() instanceof BFWeaponItem<?> weaponItem) {
 			return OldSpreadConfigs.get(weaponItem).config().crosshairSpread();
 		} else {
 			return constant;

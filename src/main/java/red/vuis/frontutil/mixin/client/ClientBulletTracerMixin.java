@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import red.vuis.frontutil.client.data.AddonClientData;
+import red.vuis.frontutil.data.AddonCommonData;
 import red.vuis.frontutil.data.OldSpreadConfig;
 import red.vuis.frontutil.data.OldSpreadConfigs;
 
@@ -24,7 +24,7 @@ public abstract class ClientBulletTracerMixin {
 		cancellable = true
 	)
 	private void oldSpreadCalculation(ClientPlayerEntity player, Random random, CallbackInfoReturnable<Vec3d> cir) {
-		if (!(AddonClientData.getInstance().useOldSpread && player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof GunItem item)) {
+		if (!(AddonCommonData.getInstance().useOldSpread && player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof GunItem item)) {
 			return;
 		}
 		

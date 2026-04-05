@@ -43,6 +43,8 @@ public final class AddonCommonData {
 	
 	public Map<UUID, PlayerCloudData> profileOverrides = new ConcurrentHashMap<>();
 	
+	public boolean useOldSpread = false;
+	
 	private AddonCommonData() {
 	}
 	

@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import red.vuis.frontutil.client.data.AddonClientData;
+import red.vuis.frontutil.data.AddonCommonData;
 import red.vuis.frontutil.data.OldSpreadConfig;
 import red.vuis.frontutil.data.OldSpreadConfigs;
 
@@ -65,7 +65,7 @@ public abstract class GunUtilsMixin {
 		@Local(argsOnly = true) GunItem item,
 		@Local(argsOnly = true) ClientPlayerEntity player
 	) {
-		if (!AddonClientData.getInstance().useOldSpread) {
+		if (!AddonCommonData.getInstance().useOldSpread) {
 			BF_1163.method_5621(cameraConfig);
 			return;
 		}

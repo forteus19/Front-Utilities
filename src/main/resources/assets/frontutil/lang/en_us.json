@@ -53,6 +53,8 @@
   "frontutil.message.command.game.inf.shop.useCustom.enabled": "Custom shop items enabled.",
   "frontutil.message.command.game.spawn.moveAll.success": "Moved all player spawns by %s.",
   "frontutil.message.command.gun.modifier.sync.success": "Synced gun modifiers with the server",
+  "frontutil.message.command.gun.oldSpread.success.disabled": "Disabled old spread",
+  "frontutil.message.command.gun.oldSpread.success.enabled": "Enabled old spread",
   "frontutil.message.command.loadout.give.error.missing": "Loadout not found",
   "frontutil.message.command.loadout.give.success.multiple": "Gave loadout to %s players",
   "frontutil.message.command.loadout.give.success.single": "Gave loadout to %s",

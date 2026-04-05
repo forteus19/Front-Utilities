@@ -24,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import red.vuis.frontutil.client.data.AddonClientData;
+import red.vuis.frontutil.data.AddonCommonData;
 import red.vuis.frontutil.data.OldSpreadConfig;
 import red.vuis.frontutil.data.OldSpreadConfigs;
 
@@ -52,7 +52,7 @@ public abstract class GunSpreadTickableMixin {
 		float renderTime,
 		CallbackInfo ci
 	) {
-		if (!AddonClientData.getInstance().useOldSpread || player == null) {
+		if (!AddonCommonData.getInstance().useOldSpread || player == null) {
 			return;
 		}
 		

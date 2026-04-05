@@ -17,6 +17,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import red.vuis.frontutil.AddonConstants;
 import red.vuis.frontutil.data.AddonCommonData;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
+import red.vuis.frontutil.net.packet.SetOldSpreadPacket;
 import red.vuis.frontutil.net.packet.SetProfileOverridesPacket;
 import red.vuis.frontutil.net.packet.SetProfileOverridesPropertyPacket;
 import red.vuis.frontutil.setup.LoadoutIndex;
@@ -43,7 +44,8 @@ public final class AddonServerEvents {
 		PacketDistributor.sendToPlayer(
 			player,
 			new LoadoutsPacket(LoadoutIndex.currentFlat()),
-			new SetProfileOverridesPacket(commonData.getProfileOverrideData())
+			new SetProfileOverridesPacket(commonData.getProfileOverrideData()),
+			new SetOldSpreadPacket(commonData.useOldSpread)
 		);
 		
 		Map<UUID, PlayerCloudData> profileOverrides = commonData.profileOverrides;
