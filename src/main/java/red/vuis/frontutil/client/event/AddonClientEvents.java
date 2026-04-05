@@ -21,7 +21,6 @@ import red.vuis.frontutil.client.compat.embeddium.AddonEmbeddiumCompatibility;
 import red.vuis.frontutil.client.input.InputAcceptor;
 import red.vuis.frontutil.client.input.InputTracker;
 import red.vuis.frontutil.client.input.MouseButton;
-import red.vuis.frontutil.client.render.AssetEditRenderer;
 import red.vuis.frontutil.client.render.RenderObject;
 import red.vuis.frontutil.client.render.SpawnViewRenderer;
 import red.vuis.frontutil.data.AddonCommonData;
@@ -34,7 +33,6 @@ import red.vuis.frontutil.util.AddonUtils;
 public final class AddonClientEvents {
 	private static final Map<RenderLevelStageEvent.Stage, List<Supplier<? extends RenderObject>>> RENDER_OBJECTS = Map.of(
 		RenderLevelStageEvent.Stage.AFTER_WEATHER, List.of(
-			RenderObject.of(AssetEditRenderer::new),
 			RenderObject.of(SpawnViewRenderer::new)
 		)
 	);
