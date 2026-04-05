@@ -1,7 +1,7 @@
 package red.vuis.frontutil.mixin.client;
 
+import com.boehmod.blockfront.client.gun.bullet.ClientBulletTracer;
 import com.boehmod.blockfront.common.item.GunItem;
-import com.boehmod.blockfront.unnamed.BF_946;
 import com.boehmod.blockfront.util.math.MathUtils;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.util.Hand;
@@ -16,7 +16,7 @@ import red.vuis.frontutil.client.data.AddonClientData;
 import red.vuis.frontutil.data.OldSpreadConfig;
 import red.vuis.frontutil.data.OldSpreadConfigs;
 
-@Mixin(BF_946.class)
+@Mixin(ClientBulletTracer.class)
 public abstract class ClientBulletTracerMixin {
 	@Inject(
 		method = "method_4269(Lnet/minecraft/client/network/ClientPlayerEntity;Lnet/minecraft/util/math/random/Random;)Lnet/minecraft/util/math/Vec3d;",

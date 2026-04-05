@@ -8,7 +8,7 @@ plugins {
 group = "red.vuis"
 version = "0.3.3"
 
-val bfVersion = "0.8.0.7b"
+val bfVersion = "0.8.0.9b"
 
 repositories {
     maven("https://maven.neoforged.net/releases")
