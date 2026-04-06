@@ -1,7 +1,7 @@
 package red.vuis.frontutil.util.math;
 
 public class FloatBounds {
-	public static final FloatBounds ALL = new FloatBounds(Float.MIN_VALUE, Float.MAX_VALUE);
+	private static final FloatBounds ALL = new FloatBounds(Float.MIN_VALUE, Float.MAX_VALUE);
 	
 	public final float min, max;
 	
@@ -38,6 +38,6 @@ public class FloatBounds {
 	}
 	
 	public float clamp(float value) {
-		return Math.max(min, Math.min(max, value));
+		return Math.clamp(value, min, max);
 	}
 }

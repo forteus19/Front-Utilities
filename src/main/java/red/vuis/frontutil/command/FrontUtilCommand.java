@@ -34,6 +34,7 @@ import com.boehmod.blockfront.game.AbstractGamePlayerManager;
 import com.boehmod.blockfront.game.GameStageTimer;
 import com.boehmod.blockfront.game.GameTeam;
 import com.boehmod.blockfront.game.TimedStage;
+import com.boehmod.blockfront.game.impl.boot.BootcampGame;
 import com.boehmod.blockfront.game.impl.ffa.FreeForAllGame;
 import com.boehmod.blockfront.game.impl.inf.InfectedGame;
 import com.boehmod.blockfront.registry.BFDataComponents;
@@ -78,7 +79,9 @@ import red.vuis.frontutil.command.arg.BFCountryArgumentType;
 import red.vuis.frontutil.command.arg.MatchClassArgumentType;
 import red.vuis.frontutil.data.AddonCommonData;
 import red.vuis.frontutil.data.GunModifier;
+import red.vuis.frontutil.data.edit.GameEditData;
 import red.vuis.frontutil.net.packet.ClearProfileOverridesPacket;
+import red.vuis.frontutil.net.packet.EditGamePacket;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
 import red.vuis.frontutil.net.packet.NewProfileOverridesPacket;
 import red.vuis.frontutil.net.packet.SetOldSpreadPacket;
@@ -108,6 +111,12 @@ public final class FrontUtilCommand {
 					argument("class", MatchClassArgumentType.matchClass()).then(
 						argument("level", IntegerArgumentType.integer(1)).executes(FrontUtilCommand::changeClass)
 					)
+				)
+			)
+		).then(
+			literal("edit").then(
+				literal("games").then(
+					AddonArguments.asset("game", GameAsset.class).executes(FrontUtilCommand::editGames)
 				)
 			)
 		).then(
@@ -248,6 +257,28 @@ public final class FrontUtilCommand {
 				playerManager.changePlayerClass(manager, player.getServerWorld(), player, player.getUuid(), matchClass, level);
 			});
 		});
+		
+		return 1;
+	}
+	
+	private static int editGames(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+		ServerPlayerEntity player = AddonCommandUtils.getContextPlayer(context);
+		if (player == null) {
+			return -1;
+		}
+		
+		GameAsset gameAsset = AddonArguments.getAsset(context, "game", GameAsset.class);
+		AbstractGame<?, ?, ?> game = gameAsset.getGame();
+		if (game == null) {
+			return -1;
+		}
+		
+		if (game instanceof BootcampGame) {
+			// TODO error message
+			return -1;
+		}
+		
+		PacketDistributor.sendToPlayer(player, new EditGamePacket(game.getName(), GameEditData.of(gameAsset)));
 		
 		return 1;
 	}

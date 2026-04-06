@@ -66,5 +66,6 @@ public class IntegerFieldWidget extends TextFieldWidget {
 	
 	public void setInt(int value) {
 		setText(Integer.toString(bounds.clamp(value)));
+		setCursorToStart(false);
 	}
 }

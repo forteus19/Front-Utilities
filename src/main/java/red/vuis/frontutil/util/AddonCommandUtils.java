@@ -11,10 +11,10 @@ public final class AddonCommandUtils {
 	}
 	
 	public static @Nullable ServerPlayerEntity getContextPlayer(CommandContext<ServerCommandSource> context) {
-		ServerCommandSource stack = context.getSource();
-		ServerPlayerEntity player = stack.getPlayer();
+		ServerCommandSource source = context.getSource();
+		ServerPlayerEntity player = source.getPlayer();
 		if (player == null) {
-			stack.output.sendMessage(Text.translatable("frontutil.message.command.error.player"));
+			source.sendError(Text.translatable("frontutil.message.command.error.player"));
 			return null;
 		}
 		return player;

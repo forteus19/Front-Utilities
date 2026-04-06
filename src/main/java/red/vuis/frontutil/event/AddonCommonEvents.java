@@ -22,6 +22,7 @@ import red.vuis.frontutil.data.GunModifier;
 import red.vuis.frontutil.data.GunModifierFiles;
 import red.vuis.frontutil.data.OldSpreadConfigs;
 import red.vuis.frontutil.net.packet.ClearProfileOverridesPacket;
+import red.vuis.frontutil.net.packet.EditGamePacket;
 import red.vuis.frontutil.net.packet.GiveGunPacket;
 import red.vuis.frontutil.net.packet.GunModifiersPacket;
 import red.vuis.frontutil.net.packet.LoadoutsPacket;
@@ -85,6 +86,7 @@ public final class AddonCommonEvents {
 	public static void onRegisterPayloadHandlers(RegisterPayloadHandlersEvent event) {
 		PayloadRegistrar registrar = event.registrar("1");
 		registrar.playToClient(ClearProfileOverridesPacket.ID, ClearProfileOverridesPacket.PACKET_CODEC, ClearProfileOverridesPacket::handleClient);
+		registrar.playToClient(EditGamePacket.ID, EditGamePacket.PACKET_CODEC, EditGamePacket::handleClient);
 		registrar.playToServer(GiveGunPacket.ID, GiveGunPacket.PACKET_CODEC, GiveGunPacket::handleServer);
 		registrar.playBidirectional(GunModifiersPacket.ID, GunModifiersPacket.PACKET_CODEC, new DirectionalPayloadHandler<>(
 			GunModifiersPacket::handleClient, GunModifiersPacket::handleServer

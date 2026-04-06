@@ -66,5 +66,6 @@ public class FloatFieldWidget extends TextFieldWidget {
 	
 	public void setFloat(float value) {
 		setText(Float.toString(bounds.clamp(value)));
+		setCursorToStart(false);
 	}
 }

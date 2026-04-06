@@ -21,6 +21,10 @@ public abstract class ImmediateScreen extends Screen {
 		this.context = context;
 	}
 	
+	protected void drawRect(int x, int y, int width, int height, int color) {
+		context.fill(x, y, x + width, y + height, color);
+	}
+	
 	protected void drawText(Text text, int x, int y, float scale, boolean centeredX, boolean centeredY) {
 		MatrixStack matrices = context.getMatrices();
 		matrices.push();

@@ -1,7 +1,7 @@
 package red.vuis.frontutil.util.math;
 
 public class IntBounds {
-	public static final IntBounds ALL = new IntBounds(Integer.MIN_VALUE, Integer.MAX_VALUE);
+	private static final IntBounds ALL = new IntBounds(Integer.MIN_VALUE, Integer.MAX_VALUE);
 	
 	public final int min, max;
 	
@@ -38,7 +38,7 @@ public class IntBounds {
 	}
 	
 	public int clamp(int value) {
-		return Math.max(min, Math.min(max, value));
+		return Math.clamp(value, min, max);
 	}
 	
 	public int parse(String s) {
